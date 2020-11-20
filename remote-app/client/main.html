@@ -3,8 +3,8 @@
 </head>
 
 <body>
-  <h1>Welcome to Meteor!</h1>
-
+  <h1>Remote Control App</h1>
+  <h3>This is app for controlling the movement of our car</h3>
   {{> hello}}
   {{> info}}
 </body>
@@ -12,6 +12,12 @@
 <template name="hello">
   <button>Click Me</button>
   <p>You've pressed the button {{counter}} times.</p>
+  <button>Up</button>
+  <button>Down</button>
+  <button>Left</button>
+  <button>Right</button>
+  <p>These buttons for sending commands to the car</p>
+  <h1>woah xD</h1>
 </template>
 
 <template name="info">
@@ -19,7 +25,5 @@
   <ul>
     <li><a href="https://www.meteor.com/try" target="_blank">Do the Tutorial</a></li>
     <li><a href="http://guide.meteor.com" target="_blank">Follow the Guide</a></li>
-    <li><a href="https://docs.meteor.com" target="_blank">Read the Docs</a></li>
-    <li><a href="https://forums.meteor.com" target="_blank">Discussions</a></li>
   </ul>
 </template>

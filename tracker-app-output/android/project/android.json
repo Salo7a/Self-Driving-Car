@@ -1,0 +1,134 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {
+      "res/xml/config.xml": {
+        "parents": {
+          "/*": [
+            {
+              "xml": "<feature name=\"Whitelist\"><param name=\"android-package\" value=\"org.apache.cordova.whitelist.WhitelistPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"WebAppLocalServer\"><param name=\"android-package\" value=\"com.meteor.webapp.WebAppLocalServer\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"StatusBar\"><param name=\"android-package\" value=\"org.apache.cordova.statusbar.StatusBar\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"SplashScreen\"><param name=\"android-package\" value=\"org.apache.cordova.splashscreen.SplashScreen\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"ActionSheet\"><param name=\"android-package\" value=\"nl.xservices.plugins.actionsheet.ActionSheet\" /></feature>",
+              "count": 1
+            },
+            {
+              "xml": "<feature name=\"Device\"><param name=\"android-package\" value=\"org.apache.cordova.device.Device\" /></feature>",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "app/src/main/AndroidManifest.xml": {
+        "parents": {
+          "/manifest/application": [
+            {
+              "xml": "<application android:usesCleartextTraffic=\"true\" />",
+              "count": 1,
+              "mode": "merge",
+              "id": "config.xml",
+              "oldAttrib": {
+                "android:hardwareAccelerated": "true",
+                "android:icon": "@mipmap/ic_launcher",
+                "android:label": "@string/app_name",
+                "android:supportsRtl": "true",
+                "android:usesCleartextTraffic": "true"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "installed_plugins": {
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "com.idtjz7trguqg6i.ldru4pbzqsk8"
+    },
+    "cordova-plugin-wkwebview-engine": {
+      "PACKAGE_NAME": "com.idtjz7trguqg6i.ldru4pbzqsk8"
+    },
+    "cordova-plugin-meteor-webapp": {
+      "PACKAGE_NAME": "com.idtjz7trguqg6i.ldru4pbzqsk8"
+    },
+    "cordova-plugin-statusbar": {
+      "PACKAGE_NAME": "com.idtjz7trguqg6i.ldru4pbzqsk8"
+    },
+    "cordova-plugin-splashscreen": {
+      "PACKAGE_NAME": "com.idtjz7trguqg6i.ldru4pbzqsk8"
+    },
+    "nl.x-services.plugins.actionsheet": {
+      "PACKAGE_NAME": "com.idtjz7trguqg6i.ldru4pbzqsk8"
+    },
+    "cordova-plugin-device": {
+      "PACKAGE_NAME": "com.idtjz7trguqg6i.ldru4pbzqsk8"
+    }
+  },
+  "dependent_plugins": {},
+  "modules": [
+    {
+      "id": "cordova-plugin-meteor-webapp.WebAppLocalServer",
+      "file": "plugins/cordova-plugin-meteor-webapp/www/webapp_local_server.js",
+      "pluginId": "cordova-plugin-meteor-webapp",
+      "merges": [
+        "WebAppLocalServer"
+      ]
+    },
+    {
+      "id": "cordova-plugin-statusbar.statusbar",
+      "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
+      "pluginId": "cordova-plugin-statusbar",
+      "clobbers": [
+        "window.StatusBar"
+      ]
+    },
+    {
+      "id": "cordova-plugin-splashscreen.SplashScreen",
+      "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
+      "pluginId": "cordova-plugin-splashscreen",
+      "clobbers": [
+        "navigator.splashscreen"
+      ]
+    },
+    {
+      "id": "nl.x-services.plugins.actionsheet.ActionSheet",
+      "file": "plugins/nl.x-services.plugins.actionsheet/www/ActionSheet.js",
+      "pluginId": "nl.x-services.plugins.actionsheet",
+      "clobbers": [
+        "window.plugins.actionsheet"
+      ]
+    },
+    {
+      "id": "cordova-plugin-device.device",
+      "file": "plugins/cordova-plugin-device/www/device.js",
+      "pluginId": "cordova-plugin-device",
+      "clobbers": [
+        "device"
+      ]
+    }
+  ],
+  "plugin_metadata": {
+    "cordova-plugin-whitelist": "1.3.4",
+    "cordova-plugin-wkwebview-engine": "1.2.1",
+    "cordova-plugin-meteor-webapp": "1.6.5",
+    "cordova-plugin-statusbar": "2.4.3",
+    "cordova-plugin-splashscreen": "5.0.3",
+    "nl.x-services.plugins.actionsheet": "1.1.7",
+    "cordova-plugin-device": "1.1.6"
+  }
+}

@@ -1,25 +1,32 @@
 <head>
   <title>tracker-app</title>
+  <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+  <script type="text/javascript" charset="utf-8" src="../cordova.js"></script>
+
+  <script type="text/javascript" charset="utf-8">
+    // Wait for device API libraries to load
+    //
+    document.addEventListener("deviceready", onDeviceReady, false);
+    
+    // device APIs are available
+    function onDeviceReady() {
+        console.log("Device is ready now!");
+        // Now safe to use device APIs
+    }
+  </script>
 </head>
 
 <body>
-  <h1>Welcome to Meteor!</h1>
+  <h1>Tracker App</h1>
+  <p>Capturing stream of images of the track and send it to openCV for processing</p>
 
-  {{> hello}}
-  {{> info}}
+  {{> takePhoto}}
+
+  <img src="" id="myImage">
 </body>
 
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
-</template>
-
-<template name="info">
-  <h2>Learn Meteor!</h2>
-  <ul>
-    <li><a href="https://www.meteor.com/try" target="_blank">Do the Tutorial</a></li>
-    <li><a href="http://guide.meteor.com" target="_blank">Follow the Guide</a></li>
-    <li><a href="https://docs.meteor.com" target="_blank">Read the Docs</a></li>
-    <li><a href="https://forums.meteor.com" target="_blank">Discussions</a></li>
-  </ul>
+<template name="takePhoto">
+  <p><input type="button" class="capture" value="Take Photo"></p>
+  <p><input type="button" class="capture2" value="Take Photo"></p>
+  <p><img src="{{photo}}"></p>
 </template>

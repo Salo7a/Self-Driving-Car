@@ -1,0 +1,36 @@
+<title>tracker-app</title>
+  <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
+  <script type="text/javascript" charset="utf-8" src="../cordova.js"></script>
+  <script type="text/javascript" charset="utf-8">
+
+    // Wait for device API libraries to load
+    //
+    function onLoad() {
+        document.addEventListener("deviceready", onDeviceReady, false);
+        console.log("inside on load");
+    }
+
+    // function onDeviceReady () {
+    //  alert("Calling onDeviceReady()");
+    // }
+
+    // device APIs are available
+    function onSuccess(imageData) {
+      let image = document.getElementById('myImage');
+      // image.src = "data:image/jpeg;base64," + imageData;
+      image.src = imageData;
+    }
+
+    function onFail(message) {
+      alert('Failed because: ' + message);
+    }
+
+    function onDeviceReady() {
+        console.log("Device is ready now!");
+        // Now safe to use device APIs
+        navigator.camera.getPicture(onSuccess, onFail, { quality: 25,
+          destinationType: Camera.DestinationType.DATA_URL
+        });
+    }
+
+  </script>
