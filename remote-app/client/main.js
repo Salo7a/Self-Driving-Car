@@ -6,7 +6,7 @@ import './main.html';
 // let networks = WifiWizard2.getScanResults({});
 // console.log(networks);
 
-Template.connectESP.events({
+Template.ConnectESP.events({
     'click #connectESP' (event, instance) {
         console.log("ESP Clicked");
         
