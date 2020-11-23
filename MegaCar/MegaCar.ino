@@ -10,12 +10,18 @@
 #define RIGHT 35
 #define LEFT 37
 #define STOP 39
+#define SPEED A0
+#define CONNECTED 52 
 #define FORWARDLED 22
 #define BACKWARDSLED 24
 #define RIGHTLED 26
-#define LEFTLED 37
-#define STOPLED 39
-void forward(), backwards(), left(), right(), stop();
+#define LEFTLED 28
+#define STOPLED 30
+#define CONNECTEDLED 32
+int connected = 0;
+int speed = 0;
+int temp = 0;
+void forward(), backwards(), left(), right(), stopc();
 
 void setup() {
   // put your setup code here, to run once:
@@ -27,31 +33,53 @@ void setup() {
   pinMode(L1, OUTPUT);
   pinMode(L2, OUTPUT);
   pinMode(STOPLED, OUTPUT);
-  analogWrite(SPEEDL, MAXSPEED);
+  analogWrite(SPEEDL, MAXSPEED); 
   analogWrite(SPEEDR, MAXSPEED);
   pinMode(FORWARD, INPUT);
   pinMode(BACKWARDS, INPUT);
   pinMode(RIGHT, INPUT);
   pinMode(LEFT, INPUT);
   pinMode(STOP, INPUT);
-  stop();
+  pinMode(CONNECTED, INPUT);
+  pinMode(SPEED, INPUT);
+  pinMode(FORWARDLED, OUTPUT);
+  pinMode(BACKWARDSLED, OUTPUT);
+  pinMode(RIGHTLED, OUTPUT);
+  pinMode(LEFTLED, OUTPUT);
+  pinMode(STOPLED, OUTPUT);
+  pinMode(CONNECTEDLED, OUTPUT);
+  stopc();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if (digitalRead(FORWARD)) {
-    forward();
-  } else if (digitalRead(BACKWARDS)) {
-    backwards();
-  } else if (digitalRead(RIGHT)) {
-    right();
-  } else if (digitalRead(LEFT)) {
-    left();
-  } else if (digitalRead(STOP)) {
-    stop();
+  connected = digitalRead(CONNECTED);
+  if (connected) {
+    digitalWrite(CONNECTEDLED, HIGH);
+    // temp = analogRead(SPEED);
+    // delay(10);
+    // Serial.println(temp);
+    // speed = map(temp, 0, 700, 0, MAXSPEED);
+    // analogWrite(SPEEDL, speed);
+    // analogWrite(SPEEDR, speed);
+    // Serial.println(speed);
+    if (digitalRead(FORWARD)) {
+      forward();
+    } else if (digitalRead(BACKWARDS)) {
+      backwards();
+    } else if (digitalRead(RIGHT)) {
+      right();
+    } else if (digitalRead(LEFT)) {
+      left();
+    } else if (digitalRead(STOP)) {
+      stopc();
+    } else {
+      stopc();
+    }
   } else {
-    stop();
+    digitalWrite(CONNECTEDLED, LOW);
   }
+  
   delay(110);
 }
 
@@ -103,7 +131,7 @@ void left(){
   digitalWrite(LEFTLED, HIGH);
   digitalWrite(STOPLED, LOW);
 }
-void stop(){
+void stopc(){
   if (digitalRead(STOP)) {
     Serial.println("Stop");
   }

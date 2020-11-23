@@ -1,8 +1,10 @@
 #include <ESP8266WiFi.h>
+#include <ESP8266SSDP.h>
+#include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 
-const char* ssid = "Catalyst";
-const char* password = "Shepard98";
+const char* ssid = "STUDBME2";
+const char* password = "BME2Stud";
 
 #define CONNECTED D1
 #define FORWARD D2
@@ -28,18 +30,38 @@ void setup() {
     pinMode(CONNECTED, OUTPUT);
     pinMode(FORWARD, OUTPUT);
     pinMode(BACKWARDS, OUTPUT);
+    pinMode(RIGHT, OUTPUT);    
     pinMode(LEFT, OUTPUT);
-    pinMode(RIGHT, OUTPUT);
     pinMode(STOP, OUTPUT);
     pinMode(SPEED, OUTPUT);
-    analogWrite(A0, 1024);
+    analogWrite(SPEED, 1023);
+    digitalWrite(CONNECTED, LOW);
+    digitalWrite(FORWARD, LOW);
+    digitalWrite(BACKWARDS, LOW);
+    digitalWrite(RIGHT, LOW);
+    digitalWrite(LEFT, LOW);
+    digitalWrite(STOP, LOW);
 
-  server.on("/forward", [](){
+     //SSDP makes device visible on windows network
+    server.on("/description.xml", HTTP_GET, [&]() {
+      SSDP.schema(server.client());
+    });
+    SSDP.setSchemaURL("description.xml");
+    SSDP.setHTTPPort(80);
+    SSDP.setName("CoolESP");
+    SSDP.setModelName("esp8266");
+    SSDP.setSerialNumber("001788102321");
+    SSDP.setManufacturer("Nobody");
+    SSDP.setURL("/");
+    SSDP.setDeviceType("upnp:rootdevice");
+    SSDP.begin();
+    server.on("/forward", [](){
     Serial.println("forward");
     digitalWrite(BACKWARDS, LOW);
     digitalWrite(LEFT, LOW);
     digitalWrite(RIGHT, LOW);
     digitalWrite(FORWARD, HIGH);
+    digitalWrite(STOP, LOW);
     server.send(200, "text/plain", "forward");
   });
 
@@ -49,6 +71,7 @@ void setup() {
     digitalWrite(LEFT, LOW);
     digitalWrite(RIGHT, LOW);
     digitalWrite(BACKWARDS, HIGH);
+    digitalWrite(STOP, LOW);
     server.send(200, "text/plain", "back");
   });
 
@@ -58,6 +81,7 @@ void setup() {
     digitalWrite(FORWARD, LOW);
     digitalWrite(BACKWARDS, LOW);
     digitalWrite(RIGHT, HIGH);
+    digitalWrite(STOP, LOW);
     server.send(200, "text/plain", "right");
   });
 
@@ -67,6 +91,7 @@ void setup() {
     digitalWrite(FORWARD, LOW);
     digitalWrite(BACKWARDS, LOW);
     digitalWrite(LEFT, HIGH);
+    digitalWrite(STOP, LOW);
     server.send(200, "text/plain", "left");
   });
 
@@ -76,6 +101,7 @@ void setup() {
     digitalWrite(FORWARD, LOW);
     digitalWrite(BACKWARDS, LOW);
     digitalWrite(LEFT, LOW);
+    digitalWrite(STOP, HIGH);
     server.send(200, "text/plain", "Stop");
   });
   server.on("/speed", [](){
@@ -85,7 +111,7 @@ void setup() {
     }
     String directionS = server.arg("value");
     int speed = directionS.toInt();
-    analogWrite(A0, speed);
+    analogWrite(SPEED, speed);
     Serial.println(speed);
     server.send(200, "text / plain", server.arg("value"));
   });
@@ -102,6 +128,7 @@ void loop() {
       connectToWiFi();
     }
     server.handleClient();
+    digitalWrite(CONNECTED, HIGH);
 }
 void connectToWiFi()
 {
@@ -123,7 +150,7 @@ void connectToWiFi()
     Serial.print("connected: ");
     Serial.println(WiFi.localIP());
     Serial1.println(WiFi.localIP());
-    digitalWrite(CONNECTED, HIGH)
+    
 }
 
 void handleNotFound() {
