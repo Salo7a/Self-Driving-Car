@@ -4,7 +4,7 @@
 #define R2 5
 #define L1 6
 #define L2 7
-#define MAXSPEED 120
+#define MAXSPEED 40 //Don't make it higher than 120
 #define FORWARD 31
 #define BACKWARDS 33
 #define RIGHT 35
@@ -56,9 +56,9 @@ void loop() {
   connected = digitalRead(CONNECTED);
   if (connected) {
     digitalWrite(CONNECTEDLED, HIGH);
-    // temp = analogRead(SPEED);
-    // delay(10);
-    // Serial.println(temp);
+//     temp = analogRead(SPEED);
+//     delay(10);
+//     Serial.println(temp);
     // speed = map(temp, 0, 700, 0, MAXSPEED);
     // analogWrite(SPEEDL, speed);
     // analogWrite(SPEEDR, speed);
@@ -78,13 +78,22 @@ void loop() {
     }
   } else {
     digitalWrite(CONNECTEDLED, LOW);
+    digitalWrite(FORWARDLED, LOW);
+    digitalWrite(BACKWARDSLED, LOW);
+    digitalWrite(RIGHTLED, LOW);
+    digitalWrite(LEFTLED, LOW);
+    digitalWrite(STOPLED, LOW);
+    digitalWrite(R1, LOW);
+    digitalWrite(R2, LOW);
+    digitalWrite(L1, LOW);
+    digitalWrite(L2, LOW);
   }
   
   delay(110);
 }
 
 void forward(){
-  Serial.println("Forward");
+//  Serial.println("Forward");
   digitalWrite(R1, HIGH);
   digitalWrite(R2, LOW);
   digitalWrite(L1, HIGH);
@@ -96,7 +105,7 @@ void forward(){
   digitalWrite(STOPLED, LOW);
 }
 void backwards(){
-  Serial.println("Backwards");
+//  Serial.println("Backwards");
   digitalWrite(R1, LOW);
   digitalWrite(R2, HIGH);
   digitalWrite(L1, LOW);
@@ -108,7 +117,7 @@ void backwards(){
   digitalWrite(STOPLED, LOW);
 }
 void right(){
-  Serial.println("Right");
+//  Serial.println("Right");
   digitalWrite(R1, HIGH);
   digitalWrite(R2, LOW);
   digitalWrite(L1, LOW);
@@ -120,7 +129,7 @@ void right(){
   digitalWrite(STOPLED, LOW);
 }
 void left(){
-  Serial.println("Left");
+//  Serial.println("Left");
   digitalWrite(R1, LOW);
   digitalWrite(R2, HIGH);
   digitalWrite(L1, HIGH);
@@ -132,9 +141,9 @@ void left(){
   digitalWrite(STOPLED, LOW);
 }
 void stopc(){
-  if (digitalRead(STOP)) {
-    Serial.println("Stop");
-  }
+//  if (digitalRead(STOP)) {
+//    Serial.println("Stop");
+//  }
   digitalWrite(R1, LOW);
   digitalWrite(R2, LOW);
   digitalWrite(L1, LOW);

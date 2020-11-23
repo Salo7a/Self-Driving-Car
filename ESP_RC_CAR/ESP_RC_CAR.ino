@@ -57,15 +57,15 @@ void setup() {
     SSDP.setDeviceType("upnp:rootdevice");
     SSDP.begin();
     server.on("/forward", [](){
-    Serial.println("forward");
-    digitalWrite(CONNECTED, LOW);
-    digitalWrite(BACKWARDS, LOW);
-    digitalWrite(LEFT, LOW);
-    digitalWrite(RIGHT, LOW);
-    digitalWrite(FORWARD, LOW);
-    digitalWrite(STOP, HIGH);
-    server.send(200, "text/plain", "forward");
-  });
+      Serial.println("forward");
+      digitalWrite(CONNECTED, LOW);
+      digitalWrite(BACKWARDS, LOW);
+      digitalWrite(LEFT, LOW);
+      digitalWrite(RIGHT, LOW);
+      digitalWrite(FORWARD, HIGH);
+      digitalWrite(STOP, LOW);
+      server.send(200, "text/plain", "forward");
+    });
 
   server.on("/back", [](){
     Serial.println("back");
