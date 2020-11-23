@@ -3,6 +3,8 @@ import { ReactiveVar } from 'meteor/reactive-var';
 
 import './main.html';
 
+let zeroconf = cordova.plugins.zeroconf;
+zeroconf.watchAddressFamily = 'ipv4';
 
 Meteor.startup(function() {
     if (Meteor.isCordova){
@@ -25,6 +27,28 @@ Meteor.startup(function() {
     }, function(error){
         console.error("The following error occurred: "+error);
     }, cordova.plugins.diagnostic.permission.CAMERA);
+        zeroconf.watch('_http._tcp.', 'local.', function(result) {
+            var action = result.action;
+            var service = result.service;
+            if (action == 'added') {
+                console.log('service added', service);
+            } else if (action == 'resolved') {
+                console.log('service resolved', service);
+                /* service : {
+                'domain' : 'local.',
+                'type' : '_http._tcp.',
+                'name': 'Becvert\'s iPad',
+                'port' : 80,
+                'hostname' : 'ipad-of-becvert.local',
+                'ipv4Addresses' : [ '192.168.1.125' ],
+                'ipv6Addresses' : [ '2001:0:5ef5:79fb:10cb:1dbf:3f57:feb0' ],
+                'txtRecord' : {
+                    'foo' : 'bar'
+                } */
+            } else {
+                console.log('service removed', service);
+            }
+        });
 }    });
 
 // Template.hello.onCreated(function helloOnCreated() {

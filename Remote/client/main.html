@@ -28,13 +28,14 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap.min.css">
     <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="/main.css">
     <title>Camera</title>
 </head>
 <body>
 <div class="display-cover">
-    <video autoplay></video>
+    <video style="width: 100%;height: 100%" autoplay></video>
     <canvas class="d-none"></canvas>
 
     <div class="video-options">
@@ -59,7 +60,7 @@ const video = document.querySelector('video');
 const canvas = document.querySelector('canvas');
 const screenshotImage = document.querySelector('img');
 const buttons = [...controls.querySelectorAll('button')];
-let streamStarted = true;
+let streamStarted = false;
 
 const [play, pause, screenshot] = buttons;
 
@@ -84,6 +85,7 @@ const constraints = {
 const getCameraSelection = async () => {
     const devices = await navigator.mediaDevices.enumerateDevices();
     const videoDevices = devices.filter(device => device.kind === 'videoinput');
+    console.log(videoDevices);
     const options = videoDevices.map(videoDevice => {
         return `<option value="${videoDevice.deviceId}">${videoDevice.label}</option>`;
     });
@@ -104,6 +106,7 @@ play.onclick = () => {
                 exact: cameraOptions.value
             }
         };
+        console.log(updatedConstraints);
         startStream(updatedConstraints);
     }
 };
@@ -145,7 +148,6 @@ const doScreenshot = () => {
     screenshotImage.src = canvas.toDataURL('image/webp');
     screenshotImage.classList.remove('d-none');
 };
-
 pause.onclick = pauseStream;
 screenshot.onclick = doScreenshot;</script>
 </body>

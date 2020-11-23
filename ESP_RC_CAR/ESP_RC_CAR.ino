@@ -3,8 +3,9 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 
-const char* ssid = "STUDBME2";
-const char* password = "BME2Stud";
+const char* ssid = "";
+const char* password = "";
+int auto_mode = 0;
 
 #define CONNECTED D1
 #define FORWARD D2
@@ -22,7 +23,6 @@ void setup() {
   // put your setup code here, to run once:
   
     Serial.begin(115200);
-    Serial1.begin(115200);
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     delay(100);
@@ -50,18 +50,20 @@ void setup() {
     SSDP.setHTTPPort(80);
     SSDP.setName("CoolESP");
     SSDP.setModelName("esp8266");
-    SSDP.setSerialNumber("001788102321");
+    SSDP.setSerialNumber("1234");
     SSDP.setManufacturer("Nobody");
     SSDP.setURL("/");
+    SSDP.setInterval(750);
     SSDP.setDeviceType("upnp:rootdevice");
     SSDP.begin();
     server.on("/forward", [](){
     Serial.println("forward");
+    digitalWrite(CONNECTED, LOW);
     digitalWrite(BACKWARDS, LOW);
     digitalWrite(LEFT, LOW);
     digitalWrite(RIGHT, LOW);
-    digitalWrite(FORWARD, HIGH);
-    digitalWrite(STOP, LOW);
+    digitalWrite(FORWARD, LOW);
+    digitalWrite(STOP, HIGH);
     server.send(200, "text/plain", "forward");
   });
 
@@ -104,6 +106,22 @@ void setup() {
     digitalWrite(STOP, HIGH);
     server.send(200, "text/plain", "Stop");
   });
+
+  server.on("/play", [](){
+    Serial.println("play");
+    auto_mode = 1;
+    server.send(200, "text/plain", "Play");
+  });
+
+  server.on("/check", [](){
+    Serial.println("check");
+    if (auto_mode == 1) {
+      server.send(200, "text/plain", "on");
+    } else {
+      server.send(400, "text/plain", "off");
+    }
+  });
+
   server.on("/speed", [](){
     if (!server.hasArg("value")) {
       server.send(404, "text / plain", "Speed undefined");
@@ -144,13 +162,17 @@ void connectToWiFi()
         delay(250);
         Serial.print(".");
         delay(100);
+        digitalWrite(CONNECTED, LOW);
+        digitalWrite(RIGHT, LOW);
+        digitalWrite(FORWARD, LOW);
+        digitalWrite(BACKWARDS, LOW);
+        digitalWrite(LEFT, LOW);
+        digitalWrite(STOP, LOW);
     }
 
     Serial.println();
     Serial.print("connected: ");
     Serial.println(WiFi.localIP());
-    Serial1.println(WiFi.localIP());
-    
 }
 
 void handleNotFound() {
