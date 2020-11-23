@@ -1,22 +1,25 @@
 import { Template } from 'meteor/templating';
-import { ReactiveVar } from 'meteor/reactive-var';
 
 import './main.html';
 
-Template.hello.onCreated(function helloOnCreated() {
-  // counter starts at 0
-  this.counter = new ReactiveVar(0);
+// WifiWizard2.scan({});
+// let networks = WifiWizard2.getScanResults({});
+// console.log(networks);
+
+Template.ConnectESP.events({
+    'click #connectESP' (event, instance) {
+        console.log("ESP Clicked");
+        
+        // let serviceType = "ssdp:all";
+        // let success = function(devices) {
+        //   console.log(devices);
+        // }
+        //
+        // let failure = function() {
+        //     alert("Error calling Service Discovery Plugin");
+        // }
+        //
+        // serviceDiscovery.getNetworkServices(serviceType, true, success, failure);
+    }
 });
 
-Template.hello.helpers({
-  counter() {
-    return Template.instance().counter.get();
-  },
-});
-
-Template.hello.events({
-  'click button'(event, instance) {
-    // increment the counter when button is clicked
-    instance.counter.set(instance.counter.get() + 1);
-  },
-});

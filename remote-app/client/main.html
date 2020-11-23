@@ -1,29 +1,199 @@
 <head>
-  <title>remote-app</title>
+    <title>remote-app</title>
+    <meta charset="utf-8">
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="/fontawesome-free/css/all.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/css/adminlte.min.css">
+
+  <script type="text/javascript" charset="utf-8">
+    // Wait for device API libraries to load
+    document.addEventListener("deviceready", onDeviceReady, false);
+    
+    // device APIs are available
+    function onDeviceReady() {
+        console.log("Device is ready now!");
+        // Now safe to use device APIs
+        let serviceType = "ssdp:all";
+        let success = function(devices) {
+          console.log(devices);
+        }
+    
+        let failure = function() {
+            alert("Error calling Service Discovery Plugin");
+        }
+
+        serviceDiscovery.getNetworkServices(serviceType, true, success, failure);
+    }
+  </script>
+
+    <!-- jQuery -->
+    <script src="/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="/js/adminlte.min.js"></script>
+
 </head>
 
 <body>
-  <h1>Remote Control App</h1>
-  <h3>This is app for controlling the movement of our car</h3>
-  {{> hello}}
-  {{> info}}
+  <div class="container">
+      <h1>Remote Control App</h1>
+      {{> ConnectESP }}
+      {{> DrivingMode }}
+      {{> ActionButtons }}
+      {{> ControlArrows }}
+  </div>
+
+  <!-- Handler Functions for Arrows  -->
+  <script type="text/javascript">
+      let ESP_IP = '172.28.133.132';
+
+      // Send GET request to /forward
+      $(".up").click(() => {
+          $.ajax({
+              url: ESP_IP + '/forward',
+              success: () => {
+                  console.log("Moving Forward..");
+              }
+          });
+      });
+
+      // Send GET request to /left
+      $(".left").click(() => {
+          $.ajax({
+              url: ESP_IP + '/left',
+              success: () => {
+                  console.log("Moving Left..");
+              }
+          });
+      });
+
+      // Send GET request to /backward
+      $(".down").click(() => {
+          $.ajax({
+              url: ESP_IP + '/back',
+              success: () => {
+                  console.log("Moving Backward..");
+              }
+          });
+      });
+
+      // Send GET request to /right
+      $(".right").click(() => {
+          $.ajax({
+              url: ESP_IP + '/right',
+              success: () => {
+                  console.log("Moving Right..");
+              }
+          });
+      });
+
+      function ArrowUp(btn) {
+          // Stop the car
+          $.ajax({
+              url: ESP_IP + '/stop',
+              success: () => {
+                  console.log("Stop Car..");
+              }
+          });
+      }
+
+      // Ajax For Handling play and pause in AutoMode
+      // Send GET request to /play
+      $("#play").click(() => {
+          $.ajax({
+              url: ESP_IP + '/play',
+              success: () => {
+                  console.log("Start Moving The Car..");
+              }
+          });
+      });
+
+      // Send GET request to /right
+      $("#pause").click(() => {
+          $.ajax({
+              url: ESP_IP + '/stop',
+              success: () => {
+                  console.log("Stop The Car..");
+              }
+          });
+      });
+
+      $("#drive-mode").click(toggleAutoButtons);
+
+      function toggleAutoButtons() {
+          let autoCard = document.getElementById("autoButtons");
+          if ($('#option1').is(':checked')){
+              autoCard.style.display = "none";
+          } else if ($('#option2').is(':checked')){
+              autoCard.style.display = "block";
+          }
+      }
+
+  </script>
+
 </body>
 
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
-  <button>Up</button>
-  <button>Down</button>
-  <button>Left</button>
-  <button>Right</button>
-  <p>These buttons for sending commands to the car</p>
-  <h1>woah xD</h1>
+<!-- Templates -->
+<template name="ConnectESP">
+    <button class="btn btn-success mb-2" id="connectESP">Connect ESP</button>
 </template>
 
-<template name="info">
-  <h2>Learn Meteor!</h2>
-  <ul>
-    <li><a href="https://www.meteor.com/try" target="_blank">Do the Tutorial</a></li>
-    <li><a href="http://guide.meteor.com" target="_blank">Follow the Guide</a></li>
-  </ul>
+<template name="DrivingMode">
+    <!-- Start Driving Mode Card -->
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-1">Driving Mode</h4>
+        </div>
+        <div class="card-body table-responsive pad">
+            <div class="btn-group btn-group-toggle" data-toggle="buttons" id="drive-mode">
+                <label class="btn btn-secondary active">
+                    <input type="radio" name="options" id="option1" autocomplete="off" checked> Manual
+                </label>
+                <label class="btn btn-secondary">
+                    <input type="radio" name="options" id="option2" autocomplete="off"> Auto
+                </label>
+            </div>
+        </div>
+    </div>
+    <!-- End Driving Mode Card -->
 </template>
+
+<template name="ActionButtons">
+    <!-- Start Action Button For Auto Mode -->
+    <div class="card" id="autoButtons" style="display:none">
+        <div class="card-header">
+            <h4>Action Buttons</h4>
+        </div>
+        <div class="card-body">
+            <a class="btn btn-app" id="play">
+                <i class="fas fa-play"></i> Play
+            </a>
+            <a class="btn btn-app" id="pause">
+                <i class="fas fa-pause"></i> Pause
+            </a>
+        </div>
+    </div>
+    <!-- End Action Button For Auto Mode -->
+</template>
+
+
+<template name="ControlArrows">
+    <div class="arrow-key-container">
+        <div class="arrow-key up" data-key="38" onmouseup="ArrowUp(this)"></div><br>
+        <div class="arrow-key left" data-key="37" onmouseup="ArrowUp(this)"></div>
+        <div class="arrow-key down" data-key="40" onmouseup="ArrowUp(this)"></div>
+        <div class="arrow-key right" data-key="39" onmouseup="ArrowUp(this)"></div>
+    </div>
+</template>
+
+
+
+
+
+
+
