@@ -12,12 +12,12 @@
 #define STOP 39
 #define SPEED A0
 #define CONNECTED 52 
-#define FORWARDLED 22
-#define BACKWARDSLED 24
-#define RIGHTLED 26
-#define LEFTLED 28
-#define STOPLED 30
-#define CONNECTEDLED 32
+#define FORWARDLED A10
+#define BACKWARDSLED A11
+#define RIGHTLED A12
+#define LEFTLED A13
+#define STOPLED A9
+#define CONNECTEDLED A8
 int connected = 0;
 int speed = 0;
 int temp = 0;
