@@ -67,8 +67,8 @@ if (Meteor.isCordova) {
                 }
                 else if (action === 'resolved')
                 {
-                    console.log('service resolved', service);
-                    console.log(service["domain"] + " : "+ service["hostname"] + " : " + service["ipv4Addresses"]);
+                    // console.log('service resolved', service);
+                    // console.log(service["domain"] + " : "+ service["hostname"] + " : " + service["ipv4Addresses"]);
                     /* service : {
                     'domain' : 'local.',
                     'type' : '_http._tcp.',
