@@ -11,23 +11,24 @@
 
   <script type="text/javascript" charset="utf-8">
     // Wait for device API libraries to load
-    document.addEventListener("deviceready", onDeviceReady, false);
-    
-    // device APIs are available
-    function onDeviceReady() {
-        console.log("Device is ready now!");
-        // Now safe to use device APIs
-        let serviceType = "ssdp:all";
-        let success = function(devices) {
-          console.log(devices);
-        }
-    
-        let failure = function() {
-            alert("Error calling Service Discovery Plugin");
-        }
-
-        serviceDiscovery.getNetworkServices(serviceType, true, success, failure);
-    }
+    // const serviceDiscovery = require("../plugins/cordova-plugin-discovery/www/serviceDiscovery");
+    // document.addEventListener("deviceready", onDeviceReady, false);
+    //
+    // // device APIs are available
+    // function onDeviceReady() {
+    //     console.log("Device is ready now!");
+    //     // Now safe to use device APIs
+    //     let serviceType = "ssdp:all";
+    //     let success = function(devices) {
+    //       console.log(devices);
+    //     }
+    //
+    //     let failure = function() {
+    //         alert("Error calling Service Discovery Plugin");
+    //     }
+    //
+    //     serviceDiscovery.getNetworkServices(serviceType, true, success, failure);
+    // }
   </script>
 
     <!-- jQuery -->
@@ -43,6 +44,7 @@
   <div class="container">
       <h1>Remote Control App</h1>
       {{> ConnectESP }}
+      <p></p>
       {{> DrivingMode }}
       {{> ActionButtons }}
       {{> ControlArrows }}
