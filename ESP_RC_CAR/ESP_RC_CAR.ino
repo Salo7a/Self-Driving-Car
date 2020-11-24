@@ -2,9 +2,10 @@
 #include <ESP8266SSDP.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
 
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "STUDBME2";
+const char* password = "BME2Stud";
 int auto_mode = 0;
 
 #define CONNECTED D1
@@ -41,7 +42,9 @@ void setup() {
     digitalWrite(RIGHT, LOW);
     digitalWrite(LEFT, LOW);
     digitalWrite(STOP, LOW);
-
+    if (MDNS.begin("nodemcu")) {
+      Serial.println("MDNS Responder Started");
+    }
      //SSDP makes device visible on windows network
     server.on("/description.xml", HTTP_GET, [&]() {
       SSDP.schema(server.client());
@@ -53,7 +56,7 @@ void setup() {
     SSDP.setSerialNumber("1234");
     SSDP.setManufacturer("Nobody");
     SSDP.setURL("/");
-    SSDP.setInterval(750);
+    SSDP.setInterval(1);
     SSDP.setDeviceType("upnp:rootdevice");
     SSDP.begin();
     server.on("/forward", [](){
@@ -147,6 +150,7 @@ void loop() {
     }
     server.handleClient();
     digitalWrite(CONNECTED, HIGH);
+    MDNS.update();
 }
 void connectToWiFi()
 {

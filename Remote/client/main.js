@@ -3,8 +3,7 @@ import { ReactiveVar } from 'meteor/reactive-var';
 
 import './main.html';
 
-let zeroconf = cordova.plugins.zeroconf;
-zeroconf.watchAddressFamily = 'ipv4';
+
 
 Meteor.startup(function() {
     if (Meteor.isCordova){
@@ -27,11 +26,14 @@ Meteor.startup(function() {
     }, function(error){
         console.error("The following error occurred: "+error);
     }, cordova.plugins.diagnostic.permission.CAMERA);
-        zeroconf.watch('_http._tcp.', 'local.', function(result) {
+        let zeroconf = cordova.plugins.zeroconf;
+        zeroconf.watchAddressFamily = 'ipv4';
+        zeroconf.watch('upnp', 'local.', function(result) {
             var action = result.action;
             var service = result.service;
             if (action == 'added') {
                 console.log('service added', service);
+                console.log(service.Name + ": " + service.ipv4Addresses);
             } else if (action == 'resolved') {
                 console.log('service resolved', service);
                 /* service : {
