@@ -11,6 +11,8 @@
     "@babel/runtime": "^7.11.2",
     "admin-lte": "^3.0.5",
     "cordova": "^10.0.0",
+    "fast-xml-parser": "^3.17.4",
+    "he": "^1.2.0",
     "jquery": "^3.5.1",
     "meteor-node-stubs": "^1.0.1"
   },
