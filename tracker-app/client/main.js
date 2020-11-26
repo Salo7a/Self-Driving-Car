@@ -73,6 +73,7 @@ Template.peerTable.onRendered(function() {
     sendButton = this.$("#sendButton");
     clearMsgsButton = this.$("#clearMsgsButton");
     connectButton = this.$("#connect-button");
+    connectStreamButton = this.$("#connect-stream-button");
     cueString = "<span class=\"cueMsg\">Cue: </span>";
 
     // Initialize the peer
@@ -164,7 +165,7 @@ Template.peerTable.helpers({
      */
     join() {
         const instance = Template.instance();
-        const destID = Template.instance().find('#receiver-id').value;
+        destID = Template.instance().find('#receiver-id').value;
 
         // Close old connection
         if (conn) {
@@ -193,13 +194,7 @@ Template.peerTable.helpers({
             Template.peerTable.__helpers.get('addMessage')("<span class=\"peerMsg\">Peer:</span> " + data);
         });
 
-        // Call a peer, providing our mediaStream
-        const mediaStream = videoTag.srcObject;
-        const call = peer.call(destID, mediaStream);
-        
-
         conn.on('close', function () {
-            // status.innerHTML = "Connection closed";
             instance.status.set("Connection closed")
         });
 
@@ -237,6 +232,38 @@ Template.peerTable.helpers({
         
     },
 
+    async joinStream() {
+        // Call a peer, providing our mediaStream
+        const constraints = {
+            video: {
+                width: {
+                    min: 1280,
+                    ideal: 1920,
+                    max: 2560,
+                },
+                height: {
+                    min: 720,
+                    ideal: 1080,
+                    max: 1440
+                },
+                // facingMode: {
+                //     exact: 'environment'
+                // }
+            }
+        };
+        const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        // const mediaStream = videoTag.srcObject;
+        const call = peer.call(destID, mediaStream);
+
+        // Handle call error
+        call.on('error', function (err) {
+            console.log(err);
+            alert('' + err);
+        });
+
+        
+    },
+
     addMessage(msg) {
         let now = new Date();
         let h = now.getHours();
@@ -270,6 +297,11 @@ Template.peerTable.events({
     // Start peer connection on click
     'click #connect-button' (event, instance) {
         Template.peerTable.__helpers.get('join')();
+    },
+
+    // Start connection for streaming
+    'click #connect-stream-button' (event, instance) {
+        Template.peerTable.__helpers.get('joinStream')();
     },
     
     'keypress #sendMessageBox' (event, instance) {

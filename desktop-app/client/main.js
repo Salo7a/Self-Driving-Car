@@ -104,7 +104,8 @@ Template.peerTable.helpers({
         // Answer Call
         peer.on('call', function(call) {
             // Answer the call, providing our mediaStream
-            call.answer(mediaStream);
+            // call.answer(mediaStream);
+            call.answer();
 
             call.on('stream', function(stream) {
                 videoTag.srcObject = stream;
