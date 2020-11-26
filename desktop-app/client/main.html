@@ -1,0 +1,42 @@
+<head>
+  <title>Desktop App</title>
+  <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+</head>
+
+<body>
+  <h1>Live Tracker App</h1>
+  <!-- {{> connectBtn}} -->
+  {{> peerTable}}
+</body>
+
+<!-- <template name="connectBtn">
+  <button class="initBtn">Init</button>
+</template> -->
+
+<template name="peerTable">
+  <button class="initBtn">Init</button>
+
+  <table class="control">
+    <tr>
+        <td class="title">Status:</td>
+        <td class="title">Messages:</td>
+    </tr>
+
+    <tr>
+      <td>
+          <div id="receiver-id" style="font-weight: bold;" title="Copy this ID to the input on send.html.">ID: {{receiver_id}}</div>
+      </td>
+      <td>
+          <input type="text" id="sendMessageBox" placeholder="Enter a message..." autofocus="true" />
+          <button type="button" id="sendButton">Send</button>
+          <button type="button" id="clearMsgsButton">Clear Msgs (Local)</button>
+      </td>
+    </tr>
+
+    <tr>
+      <td><div id="status" class="status">{{status}}</div></td>
+      <td><div class="message" id="message">{{{message}}}</div></td>
+    </tr>
+  </table>
+</template>
+
