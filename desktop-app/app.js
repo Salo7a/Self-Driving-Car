@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const ExpressPeerServer = require('peer').ExpressPeerServer;
+const port = process.env.PORT || 5000;
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -37,5 +39,16 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+// Listen to Port
+const srv = app.listen(port, () => {
+  console.log(`Server started at ${port}`);
+});
+
+// const srv = app.listen(process.env.PORT || 4000);
+
+app.use('/peerjs', ExpressPeerServer(srv, {
+  debug: true
+}));
 
 module.exports = app;
