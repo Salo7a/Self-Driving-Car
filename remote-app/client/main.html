@@ -52,47 +52,46 @@
 
   <!-- Handler Functions for Arrows  -->
   <script type="text/javascript">
-      let ESP_IP = '172.28.133.132';
-
+      let ESP_IP = 'http://192.168.1.13';
       // Send GET request to /forward
-      $(".up").click(() => {
-          $.ajax({
-              url: ESP_IP + '/forward',
-              success: () => {
-                  console.log("Moving Forward..");
-              }
-          });
-      });
+      // $(".up").mousedown(() => {
+      //     $.ajax({
+      //         url: ESP_IP + '/forward',
+      //         success: () => {
+      //             console.log("Moving Forward..");
+      //         }
+      //     });
+      // });
 
       // Send GET request to /left
-      $(".left").click(() => {
-          $.ajax({
-              url: ESP_IP + '/left',
-              success: () => {
-                  console.log("Moving Left..");
-              }
-          });
-      });
+      // $(".left").mousedown(() => {
+      //     $.ajax({
+      //         url: ESP_IP + '/left',
+      //         success: () => {
+      //             console.log("Moving Left..");
+      //         }
+      //     });
+      // });
 
       // Send GET request to /backward
-      $(".down").click(() => {
-          $.ajax({
-              url: ESP_IP + '/back',
-              success: () => {
-                  console.log("Moving Backward..");
-              }
-          });
-      });
+      // $(".down").mousedown(() => {
+      //     $.ajax({
+      //         url: ESP_IP + '/back',
+      //         success: () => {
+      //             console.log("Moving Backward..");
+      //         }
+      //     });
+      // });
 
       // Send GET request to /right
-      $(".right").click(() => {
-          $.ajax({
-              url: ESP_IP + '/right',
-              success: () => {
-                  console.log("Moving Right..");
-              }
-          });
-      });
+      // $(".right").mousedown(() => {
+      //     $.ajax({
+      //         url: ESP_IP + '/right',
+      //         success: () => {
+      //             console.log("Moving Right..");
+      //         }
+      //     });
+      // });
 
       function ArrowUp(btn) {
           // Stop the car
@@ -103,7 +102,14 @@
               }
           });
       }
-
+        // $().on("mouseup mouseleave touchend",".arrow-key",function () {
+        //     $.ajax({
+        //         url: ESP_IP + '/stop',
+        //         success: () => {
+        //             console.log("Stop Car..");
+        //         }
+        //     });
+        // })
       // Ajax For Handling play and pause in AutoMode
       // Send GET request to /play
       $("#play").click(() => {
@@ -185,11 +191,11 @@
 
 
 <template name="ControlArrows">
-    <div class="arrow-key-container">
-        <div class="arrow-key up" data-key="38" onmouseup="ArrowUp(this)"></div><br>
-        <div class="arrow-key left" data-key="37" onmouseup="ArrowUp(this)"></div>
-        <div class="arrow-key down" data-key="40" onmouseup="ArrowUp(this)"></div>
-        <div class="arrow-key right" data-key="39" onmouseup="ArrowUp(this)"></div>
+    <div class="arrow-key-container" style="margin-right: auto; margin-left: auto">
+        <div class="arrow-key up" data-key="38" onmouseup="ArrowUp(this)" ontouchend="ArrowUp(this)" ></div><br>
+        <div class="arrow-key left" data-key="37" onmouseup="ArrowUp(this)" ontouchend="ArrowUp(this)"></div>
+        <div class="arrow-key down" data-key="40" onmouseup="ArrowUp(this)" ontouchend="ArrowUp(this)"></div>
+        <div class="arrow-key right" data-key="39" onmouseup="ArrowUp(this)" ontouchend="ArrowUp(this)"></div>
     </div>
 </template>
 

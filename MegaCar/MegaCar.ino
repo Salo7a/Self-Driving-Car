@@ -1,10 +1,10 @@
 #define SPEEDR 8
 #define SPEEDL 9
-#define R1 4
-#define R2 5
-#define L1 6
-#define L2 7
-#define MAXSPEED 40 //Don't make it higher than 120
+#define L1 4
+#define L2 5
+#define R1 6
+#define R2 7
+#define MAXSPEED 80 //Don't make it higher than 120
 #define FORWARD 31
 #define BACKWARDS 33
 #define RIGHT 35

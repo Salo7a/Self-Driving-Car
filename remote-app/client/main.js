@@ -1,5 +1,5 @@
 import { Template } from 'meteor/templating';
-
+import { ReactiveVar } from 'meteor/reactive-var';
 import './main.html';
 
 const parser = require('fast-xml-parser');
@@ -7,9 +7,9 @@ const he = require('he');
 
 let zeroconf = null;
 let serviceDiscovery = null;
-let ESP_MAC = '';
+let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
-let ESP_IP = '';
+let ESP_IP = 'http://192.168.1.13';
 
 Meteor.startup(function() {
     if (Meteor.isCordova)
@@ -31,6 +31,40 @@ Meteor.startup(function() {
     }
 });
 
+Template.ControlArrows.events({
+    'mousedown .up, touchstart .up' (e, i) {
+        $.ajax({
+            url: ESP_IP + '/forward',
+            success: () => {
+                console.log("Moving Forward..");
+            }
+        });
+    },
+    'mousedown .down, touchstart .down' (e, i) {
+        $.ajax({
+            url: ESP_IP + '/back',
+            success: () => {
+                console.log("Moving Backward..");
+            }
+        });
+    },
+    'mousedown .right, touchstart .right' (e, i) {
+        $.ajax({
+            url: ESP_IP + '/right',
+            success: () => {
+                console.log("Moving Right..");
+            }
+        });
+    },
+    'mousedown .left, touchstart .left' (e, i) {
+        $.ajax({
+            url: ESP_IP + '/left',
+            success: () => {
+                console.log("Moving Left..");
+            }
+        });
+    }
+});
 if (Meteor.isCordova) {
     Template.ConnectESP.events({
         'click #connectESP' (event, instance) {
@@ -39,10 +73,12 @@ if (Meteor.isCordova) {
             let serviceType = "ssdp:all";
 
             let success = function(devices) {
-                console.log("Hi2");
                 devices.forEach(device=>{
                     if (device["Server"] === "Arduino/1.0 UPNP/1.1 esp8266/"){
+                        let loc = device["LOCATION"];
                         console.log(device["LOCATION"]); // http://192.168.1.13:80/description.xml
+                        ESP_IP = loc.slice(0, loc.search(":80"));
+                        console.log(ESP_IP);
                     }
 
                     // let options = {
@@ -125,5 +161,6 @@ if (Meteor.isCordova) {
         }
     });
 }
+
 
 
