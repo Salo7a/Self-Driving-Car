@@ -5,13 +5,9 @@
 
 <body>
   <h1>Live Tracker App</h1>
-  <!-- {{> connectBtn}} -->
+
   {{> peerTable}}
 </body>
-
-<!-- <template name="connectBtn">
-  <button class="initBtn">Init</button>
-</template> -->
 
 <template name="peerTable">
   <button class="initBtn">Init</button>
@@ -34,7 +30,7 @@
     </tr>
 
     <tr>
-      <td><div id="status" class="status">{{status}}</div></td>
+      <td><div id="status" class="status">{{{status}}}</div></td>
       <td><div class="message" id="message">{{{message}}}</div></td>
     </tr>
   </table>

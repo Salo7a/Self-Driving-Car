@@ -27,6 +27,7 @@ Template.peerTable.onRendered(function() {
     sendMessageBox = this.$("#sendMessageBox");
     sendButton = this.$("#sendButton");
     clearMsgsButton = this.$("#clearMsgsButton");
+    cueString = "<span class=\"cueMsg\">Cue: </span>";
 
     // Initialize the peer
     Template.peerTable.__helpers.get('initialize')();
@@ -92,7 +93,7 @@ Template.peerTable.helpers({
             console.log("Connected to: " + conn.peer);
             // status.innerHTML = "Connected";
             instance.status.set("Connected");
-            ready();
+            Template.peerTable.__helpers.get('ready')();
         });
 
         peer.on('disconnected', function () {
@@ -130,7 +131,7 @@ Template.peerTable.helpers({
             let cueString = "<span class=\"cueMsg\">Cue: </span>";
             switch (data) {
                 default:
-                    addMessage("<span class=\"peerMsg\">Peer: </span>" + data);
+                    Template.peerTable.__helpers.get('addMessage')("<span class=\"peerMsg\">Peer: </span>" + data);
                     break;
             };
         });
@@ -142,6 +143,7 @@ Template.peerTable.helpers({
     },
 
     addMessage(msg) {
+        const instance = Template.instance();
         let now = new Date();
         let h = now.getHours();
         let m = addZero(now.getMinutes());
@@ -157,8 +159,9 @@ Template.peerTable.helpers({
                 t = "0" + t;
             return t;
         };
+        
         const timeString = "<br><span class=\"msg-time\">" + h + ":" + m + ":" + s + "</span>  -  "
-        Template.instance().message.set(timeString + msg + Template.instance().message.get());
+        instance.message.set(timeString + msg + instance.message.get());
     },
 
     clearMessages() {
@@ -185,7 +188,8 @@ Template.peerTable.events({
 
     'click #sendButton' (event, instance) {
       if (conn && conn.open) {
-        const msg = instance.sendMessageBox.get();
+        // const msg = instance.sendMessageBox.get();
+        const msg = instance.find('#sendMessageBox').value;
         instance.sendMessageBox.set("");
         conn.send(msg);
         console.log("Sent: " + msg)
