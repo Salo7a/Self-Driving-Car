@@ -39,14 +39,5 @@ if (Meteor.isClient) {
 
 if (Meteor.isCordova) {
   console.log("Printed only in mobile Cordova apps");
-
-  //     MeteorCameraUI.getPicture({width: 500, height: 500, quality: 50}, function(error, data) {
-  //       if (error) {
-  //         throw error;
-  //       }
-
-  //       let image = document.getElementById('myImage');
-  //       image.src = data;
-  //     });
 }
 

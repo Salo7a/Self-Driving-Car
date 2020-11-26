@@ -26,25 +26,55 @@
 
     <!--  PeerJS Code Here  -->
     <script type="text/javascript" charset="utf-8">
-        const peer = new Peer();
+        const peerID = 'gdkh23mrsd500000';
+        const destId = 'imwu98plfw300000';
+
+        const peer = new Peer(peerID, {
+            host: location.hostname,
+            port: location.port || (location.protocol === 'https:' ? 443 : 80),
+            path: '/peerjs',
+            debug: 3
+        });
+
         peer.on('open', function(id) {
             console.log('My peer ID is: ' + id);
+            console.log(peer.options);
         });
 
         // Start new connection
-        let dest_peer_id = 'gdkh23mxsd700000';
-        const conn = peer.connect(dest_peer_id);
+        const conn = peer.connect(destId);
 
-        conn.on('open', function() {
-            // // Receive messages
-            // conn.on('data', function(data) {
-            //     console.log('Received', data);
-            // });
+        // Receive connection
+        peer.on('connection', function(conn) {
+            console.log("Receiving connection..");
+
+            conn.on('error', function (err) {
+                console.log("Error ", err);
+            });
 
             // Send messages
             console.log("Sending message");
             conn.send('Hello!');
         });
+
+        // conn.on('error', function (err) {
+        //    console.log("Error ", err);
+        // });
+        //
+        // conn.on('connection', function () {
+        //     console.log("Peer Connected!");
+        // });
+        //
+        // conn.on('open', function() {
+        //     // Receive messages
+        //     conn.on('data', function(data) {
+        //         console.log('Received', data);
+        //     });
+        //
+        //     // Send messages
+        //     console.log("Sending message");
+        //     conn.send('Hello!');
+        // });
 
     </script>
 
