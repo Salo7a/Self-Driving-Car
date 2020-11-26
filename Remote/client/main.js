@@ -28,9 +28,10 @@ Meteor.startup(function() {
     }, cordova.plugins.diagnostic.permission.CAMERA);
         let zeroconf = cordova.plugins.zeroconf;
         zeroconf.watchAddressFamily = 'ipv4';
-        zeroconf.watch('upnp', 'local.', function(result) {
+        zeroconf.watch('_http._tcp.', 'local.', function(result) {
             var action = result.action;
             var service = result.service;
+            console.log(JSON.stringify(result));
             if (action == 'added') {
                 console.log('service added', service);
                 console.log(service.Name + ": " + service.ipv4Addresses);
@@ -51,6 +52,7 @@ Meteor.startup(function() {
                 console.log('service removed', service);
             }
         });
+
 }    });
 
 // Template.hello.onCreated(function helloOnCreated() {

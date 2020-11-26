@@ -4,8 +4,8 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-const char* ssid = "STUDBME2";
-const char* password = "BME2Stud";
+const char* ssid = "";
+const char* password = "";
 int auto_mode = 0;
 
 #define CONNECTED D1
@@ -67,6 +67,7 @@ void setup() {
       digitalWrite(RIGHT, LOW);
       digitalWrite(FORWARD, HIGH);
       digitalWrite(STOP, LOW);
+      server.sendHeader("Access-Control-Allow-Origin", "*");
       server.send(200, "text/plain", "forward");
     });
 
@@ -77,6 +78,7 @@ void setup() {
     digitalWrite(RIGHT, LOW);
     digitalWrite(BACKWARDS, HIGH);
     digitalWrite(STOP, LOW);
+    server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/plain", "back");
   });
 
@@ -87,6 +89,7 @@ void setup() {
     digitalWrite(BACKWARDS, LOW);
     digitalWrite(RIGHT, HIGH);
     digitalWrite(STOP, LOW);
+    server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/plain", "right");
   });
 
@@ -97,6 +100,7 @@ void setup() {
     digitalWrite(BACKWARDS, LOW);
     digitalWrite(LEFT, HIGH);
     digitalWrite(STOP, LOW);
+    server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/plain", "left");
   });
 
@@ -107,26 +111,31 @@ void setup() {
     digitalWrite(BACKWARDS, LOW);
     digitalWrite(LEFT, LOW);
     digitalWrite(STOP, HIGH);
+    server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/plain", "Stop");
   });
 
   server.on("/play", [](){
     Serial.println("play");
     auto_mode = 1;
+    server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/plain", "Play");
   });
 
   server.on("/check", [](){
     Serial.println("check");
     if (auto_mode == 1) {
+      server.sendHeader("Access-Control-Allow-Origin", "*");
       server.send(200, "text/plain", "on");
     } else {
+      server.sendHeader("Access-Control-Allow-Origin", "*");
       server.send(400, "text/plain", "off");
     }
   });
 
   server.on("/speed", [](){
     if (!server.hasArg("value")) {
+      server.sendHeader("Access-Control-Allow-Origin", "*");
       server.send(404, "text / plain", "Speed undefined");
       return;
     }
@@ -134,6 +143,7 @@ void setup() {
     int speed = directionS.toInt();
     analogWrite(SPEED, speed);
     Serial.println(speed);
+    server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text / plain", server.arg("value"));
   });
   server.onNotFound(handleNotFound);
@@ -180,5 +190,6 @@ void connectToWiFi()
 }
 
 void handleNotFound() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(404, "text / plain", "404: Not found");
 }
