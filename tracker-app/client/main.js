@@ -45,6 +45,13 @@ if (Meteor.isCordova) {
   console.log("Printed only in mobile Cordova apps");
 }
 
+
+Template.streamArea.onRendered(function getVideoTag() {
+  videoTag = this.$("video");
+  console.log(videoTag);
+});
+
+
 Template.peerTable.onCreated(function peerTableOnCreated() {
   this.recvIdInput = new ReactiveVar('');
   this.status = new ReactiveVar('');
@@ -185,6 +192,11 @@ Template.peerTable.helpers({
             console.log(data);
             Template.peerTable.__helpers.get('addMessage')("<span class=\"peerMsg\">Peer:</span> " + data);
         });
+
+        // Call a peer, providing our mediaStream
+        const mediaStream = videoTag.srcObject;
+        const call = peer.call(destID, mediaStream);
+        
 
         conn.on('close', function () {
             // status.innerHTML = "Connection closed";

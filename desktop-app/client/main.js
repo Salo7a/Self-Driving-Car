@@ -7,6 +7,11 @@ if (Meteor.isClient) {
   console.log("From Client");
 }
 
+Template.streamArea.onRendered(function getVideoTag() {
+    videoTag = this.$("video");
+    console.log(videoTag);
+});
+
 Template.peerTable.onCreated(function peerTableOnCreated() {
   this.receiver_id = new ReactiveVar('');
   this.status = new ReactiveVar('');
@@ -94,6 +99,16 @@ Template.peerTable.helpers({
             console.log("Connected to: " + conn.peer);
             instance.status.set("Connected");
             Template.peerTable.__helpers.get('ready')();
+        });
+
+        // Answer Call
+        peer.on('call', function(call) {
+            // Answer the call, providing our mediaStream
+            call.answer(mediaStream);
+
+            call.on('stream', function(stream) {
+                videoTag.srcObject = stream;
+            });
         });
 
         peer.on('disconnected', function () {
