@@ -99,6 +99,7 @@ Template.peerTable.helpers({
         // Template.instance() can't be used inside conn.on() listner
         // So I used it before the event
         const instance = Template.instance();
+        g_instance = Template.instance();
         // Create own peer object with connection to shared PeerJS server
         peer = new Peer(null, {
             debug: 2
@@ -241,7 +242,7 @@ Template.peerTable.helpers({
             return t;
         };
         const timeString = "<br><span class=\"msg-time\">" + h + ":" + m + ":" + s + "</span>  -  "
-        Template.instance().message.set(timeString + msg + Template.instance().message.get());
+        g_instance.message.set(timeString + msg + g_instance.message.get());
     },
 
     clearMessages() {

@@ -92,13 +92,11 @@ Template.peerTable.helpers({
 
             conn = c;
             console.log("Connected to: " + conn.peer);
-            // status.innerHTML = "Connected";
             instance.status.set("Connected");
             Template.peerTable.__helpers.get('ready')();
         });
 
         peer.on('disconnected', function () {
-            // status.innerHTML = "Connection lost. Please reconnect";
             instance.status.set("Connection lost. Please reconnect");
             console.log('Connection lost. Please reconnect');
 
@@ -110,7 +108,6 @@ Template.peerTable.helpers({
 
         peer.on('close', function() {
             conn = null;
-            // status.innerHTML = "Connection destroyed. Please refresh";
             instance.status.set("Connection destroyed. Please refresh");
             console.log('Connection destroyed');
         });
@@ -144,7 +141,6 @@ Template.peerTable.helpers({
     },
 
     addMessage(msg) {
-        console.log(g_instance);
         let now = new Date();
         let h = now.getHours();
         let m = addZero(now.getMinutes());
@@ -187,7 +183,7 @@ Template.peerTable.events({
     'click #sendButton' (event, instance) {
       if (conn && conn.open) {
           const msg = instance.find('#sendMessageBox').value;
-          instance.sendMessageBox.set("");
+          instance.find('#sendMessageBox').value = "";
           conn.send(msg);
           console.log("Sent: " + msg)
           Template.peerTable.__helpers.get('addMessage')("<span class=\"selfMsg\">Self: </span>" + msg);
