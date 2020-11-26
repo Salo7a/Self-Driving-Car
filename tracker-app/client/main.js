@@ -253,9 +253,6 @@ Template.peerTable.helpers({
 
 
 Template.peerTable.events({
-    'click .initBtn' (event, instance) {
-        console.log("clicked");
-    },
 
     // Start peer connection on click
     'click #connect-button' (event, instance) {
@@ -273,13 +270,11 @@ Template.peerTable.events({
 
     'click #sendButton' (event, instance) {
       if (conn && conn.open) {
-        // const msg = instance.sendMessageBox.get();
-        const msg = instance.find('#sendMessageBox').value;
-        instance.sendMessageBox.set("");
-        conn.send(msg);
-        console.log("Sent: " + msg)
-        // addMessage("<span class=\"selfMsg\">Self: </span>" + msg);
-        Template.peerTable.__helpers.get('addMessage')("<span class=\"selfMsg\">Self: </span>" + msg);
+          let msg = instance.find('#sendMessageBox').value;
+          instance.find('#sendMessageBox').value = "";
+          conn.send(msg);
+          console.log("Sent: " + msg)
+          Template.peerTable.__helpers.get('addMessage')("<span class=\"selfMsg\">Self: </span>" + msg);
       } else {
           console.log('Connection is closed');
       }
@@ -287,7 +282,7 @@ Template.peerTable.events({
 
     // Clear messages box
     'click #clearMsgsButton' (event, instance) {
-      Template.peerTable.__helpers.get('clearMessages')();
+        Template.peerTable.__helpers.get('clearMessages')();
     },
 
 });

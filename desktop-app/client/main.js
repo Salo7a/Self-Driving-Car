@@ -60,6 +60,7 @@ Template.peerTable.helpers({
         // Template.instance() can't be used inside conn.on() listner
         // So I used it before the event
         const instance = Template.instance();
+        g_instance = Template.instance();
         // Create own peer object with connection to shared PeerJS server
         peer = new Peer(null, {
             debug: 2
@@ -143,7 +144,7 @@ Template.peerTable.helpers({
     },
 
     addMessage(msg) {
-        const instance = Template.instance();
+        console.log(g_instance);
         let now = new Date();
         let h = now.getHours();
         let m = addZero(now.getMinutes());
@@ -161,7 +162,7 @@ Template.peerTable.helpers({
         };
         
         const timeString = "<br><span class=\"msg-time\">" + h + ":" + m + ":" + s + "</span>  -  "
-        instance.message.set(timeString + msg + instance.message.get());
+        g_instance.message.set(timeString + msg + g_instance.message.get());
     },
 
     clearMessages() {
@@ -173,10 +174,7 @@ Template.peerTable.helpers({
 
 
 Template.peerTable.events({
-    'click .initBtn' (event, instance) {
-        console.log("clicked");
-    },
-    
+
     'keypress #sendMessageBox' (event, instance) {
       // const event = e || window.event;
       const char = event.which || event.keyCode;
@@ -188,13 +186,11 @@ Template.peerTable.events({
 
     'click #sendButton' (event, instance) {
       if (conn && conn.open) {
-        // const msg = instance.sendMessageBox.get();
-        const msg = instance.find('#sendMessageBox').value;
-        instance.sendMessageBox.set("");
-        conn.send(msg);
-        console.log("Sent: " + msg)
-        // addMessage("<span class=\"selfMsg\">Self: </span>" + msg);
-        Template.peerTable.__helpers.get('addMessage')("<span class=\"selfMsg\">Self: </span>" + msg);
+          const msg = instance.find('#sendMessageBox').value;
+          instance.sendMessageBox.set("");
+          conn.send(msg);
+          console.log("Sent: " + msg)
+          Template.peerTable.__helpers.get('addMessage')("<span class=\"selfMsg\">Self: </span>" + msg);
       } else {
           console.log('Connection is closed');
       }
@@ -202,7 +198,7 @@ Template.peerTable.events({
 
     // Clear messages box
     'click #clearMsgsButton' (event, instance) {
-      Template.peerTable.__helpers.get('clearMessages')();
+        Template.peerTable.__helpers.get('clearMessages')();
     },
 });
 
