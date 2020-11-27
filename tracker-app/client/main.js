@@ -255,6 +255,12 @@ Template.peerTable.helpers({
         // const mediaStream = videoTag.srcObject;
         const call = peer.call(destID, mediaStream);
 
+        // Emitted when a remote peer adds a stream.
+
+        call.on('stream', function (stream) {
+            console.log("added stream", stream);
+        });
+
         // Handle call error
         call.on('error', function (err) {
             console.log(err);
