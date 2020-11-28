@@ -8,6 +8,14 @@ Meteor.startup(function() {
   if (Meteor.isCordova) 
   {
       // Here we can be sure the plugin has been initialized
+        // Wait for device API libraries to load
+        document.addEventListener("deviceready", onDeviceReady, false);
+
+        // device APIs are available
+        function onDeviceReady() {
+            console.log("Device is ready now!");
+            // Now safe to use device APIs
+        }
 
       // Check Camera Permissions
       cordova.plugins.diagnostic.requestRuntimePermission(function(status) {
@@ -32,23 +40,10 @@ Meteor.startup(function() {
   }
 });
 
-if (Meteor.isServer) {
-  console.log("Printed on the server");
-}
-
-if (Meteor.isClient) {
-    console.log("Printed in browsers and mobile apps");
-    
-}
-
-if (Meteor.isCordova) {
-  console.log("Printed only in mobile Cordova apps");
-}
-
 
 Template.streamArea.onRendered(function getVideoTag() {
-  videoTag = this.$("video");
-  console.log(videoTag);
+    videoTag = Template.instance().find("video");
+    console.log(videoTag);
 });
 
 
@@ -165,7 +160,8 @@ Template.peerTable.helpers({
      */
     join() {
         const instance = Template.instance();
-        destID = Template.instance().find('#receiver-id').value;
+        // destID = Template.instance().find('#receiver-id').value;
+        destID = 'xdm24wjo00324';
 
         // Close old connection
         if (conn) {
@@ -232,27 +228,9 @@ Template.peerTable.helpers({
         
     },
 
-    async joinStream() {
+    joinStream() {
         // Call a peer, providing our mediaStream
-        const constraints = {
-            video: {
-                width: {
-                    min: 1280,
-                    ideal: 1920,
-                    max: 2560,
-                },
-                height: {
-                    min: 720,
-                    ideal: 1080,
-                    max: 1440
-                },
-                // facingMode: {
-                //     exact: 'environment'
-                // }
-            }
-        };
-        const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-        // const mediaStream = videoTag.srcObject;
+        const mediaStream = videoTag.srcObject;
         const call = peer.call(destID, mediaStream);
 
         // Emitted when a remote peer adds a stream.
@@ -266,8 +244,6 @@ Template.peerTable.helpers({
             console.log(err);
             alert('' + err);
         });
-
-        
     },
 
     addMessage(msg) {
