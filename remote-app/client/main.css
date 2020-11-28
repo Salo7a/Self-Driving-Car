@@ -40,14 +40,14 @@ body {
   box-shadow: -1px 1px 0 #999, -2px 2px 0 #999, -3px 3px 0 #999, -4px 4px 0 #999;
   color: #fff;
   display: inline-flex;
-  font-size: 30px;
+  font-size: 25px;
   font-weight: bold;
-  height: 75px;
+  height: 45px;
   justify-content: center;
   margin: 5px;
   transform: translate3d(0, 0, 0);
   transition: box-shadow .1s linear, transform .1s linear;
-  width: 75px;
+  width: 45px;
 }
 .arrow-key:active, .arrow-key.press {
   box-shadow: 0px 0px 0 #999, 0px 0px 0 #999, 0px 0px 0 #999, -1px 1px 0 #999;
@@ -67,3 +67,87 @@ body {
 }
 
 
+
+
+/* Styles For PeerTable and VideoStream */
+.display {
+  width: 100%;
+  min-height: 400px;
+  padding-bottom: 20px;
+}
+
+.control {
+  width: 100%;
+  padding-bottom: 20px;
+}
+
+.control-button {
+  width: 100%;
+  min-height: 50px;
+}
+
+.display-box {
+  border: 2px solid black;
+}
+
+.title {
+  vertical-align: top;
+}
+
+.standby {
+  background-color: red;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.no-display {
+  display: none;
+}
+
+.status {
+  vertical-align: text-top;
+  font-weight: bold;  
+}
+
+.message {
+  overflow: auto;
+}
+
+.msg-time {
+  color: blue;
+}
+
+.cueMsg {
+  color: orange;
+}
+
+.selfMsg {
+  color: green;
+}
+
+.peerMsg {
+  color: red;
+}
+
+
+/* Video Streaming Styles */
+
+.display-cover {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 5% auto;
+  position: relative;
+}
+
+video {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+#live-stream-body {
+  max-height: 500px;
+}

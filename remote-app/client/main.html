@@ -9,153 +9,132 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="/css/adminlte.min.css">
 
-  <script type="text/javascript" charset="utf-8">
-    // Wait for device API libraries to load
-    // const serviceDiscovery = require("../plugins/cordova-plugin-discovery/www/serviceDiscovery");
-    // document.addEventListener("deviceready", onDeviceReady, false);
-    //
-    // // device APIs are available
-    // function onDeviceReady() {
-    //     console.log("Device is ready now!");
-    //     // Now safe to use device APIs
-    //     let serviceType = "ssdp:all";
-    //     let success = function(devices) {
-    //       console.log(devices);
-    //     }
-    //
-    //     let failure = function() {
-    //         alert("Error calling Service Discovery Plugin");
-    //     }
-    //
-    //     serviceDiscovery.getNetworkServices(serviceType, true, success, failure);
-    // }
-  </script>
-
     <!-- jQuery -->
     <script src="/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
     <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="/js/adminlte.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 
 </head>
 
 <body>
   <div class="container">
-      <h1>Remote Control App</h1>
-      {{> ConnectESP }}
-      <p></p>
-      {{> DrivingMode }}
-      {{> ActionButtons }}
-      {{> ControlArrows }}
+      <h1>Remote Control</h1>
+      {{> MainLayout}}
+
+      <!-- {{> peerTable}} -->
   </div>
 
-  <!-- Handler Functions for Arrows  -->
-  <script type="text/javascript">
-      let ESP_IP = 'http://192.168.1.13';
-      // Send GET request to /forward
-      // $(".up").mousedown(() => {
-      //     $.ajax({
-      //         url: ESP_IP + '/forward',
-      //         success: () => {
-      //             console.log("Moving Forward..");
-      //         }
-      //     });
-      // });
-
-      // Send GET request to /left
-      // $(".left").mousedown(() => {
-      //     $.ajax({
-      //         url: ESP_IP + '/left',
-      //         success: () => {
-      //             console.log("Moving Left..");
-      //         }
-      //     });
-      // });
-
-      // Send GET request to /backward
-      // $(".down").mousedown(() => {
-      //     $.ajax({
-      //         url: ESP_IP + '/back',
-      //         success: () => {
-      //             console.log("Moving Backward..");
-      //         }
-      //     });
-      // });
-
-      // Send GET request to /right
-      // $(".right").mousedown(() => {
-      //     $.ajax({
-      //         url: ESP_IP + '/right',
-      //         success: () => {
-      //             console.log("Moving Right..");
-      //         }
-      //     });
-      // });
-
-      function ArrowUp(btn) {
-          // Stop the car
-          $.ajax({
-              url: ESP_IP + '/stop',
-              success: () => {
-                  console.log("Stop Car..");
-              }
-          });
-      }
-        // $().on("mouseup mouseleave touchend",".arrow-key",function () {
-        //     $.ajax({
-        //         url: ESP_IP + '/stop',
-        //         success: () => {
-        //             console.log("Stop Car..");
-        //         }
-        //     });
-        // })
-      // Ajax For Handling play and pause in AutoMode
-      // Send GET request to /play
-      $("#play").click(() => {
-          $.ajax({
-              url: ESP_IP + '/play',
-              success: () => {
-                  console.log("Start Moving The Car..");
-              }
-          });
-      });
-
-      // Send GET request to /right
-      $("#pause").click(() => {
-          $.ajax({
-              url: ESP_IP + '/stop',
-              success: () => {
-                  console.log("Stop The Car..");
-              }
-          });
-      });
-
-      $("#drive-mode").click(toggleAutoButtons);
-
-      function toggleAutoButtons() {
-          let autoCard = document.getElementById("autoButtons");
-          if ($('#option1').is(':checked')){
-              autoCard.style.display = "none";
-          } else if ($('#option2').is(':checked')){
-              autoCard.style.display = "block";
-          }
-      }
-
-  </script>
-
+  <script src="/js/feather.min.js"></script>
 </body>
 
-<!-- Templates -->
+
+<template name="MainLayout">
+    <div class="row">
+        <div class="col-md-6">
+          <div class="card card-default">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-gamepad"></i>
+                Controls
+              </h3>
+            </div>
+            <!-- /.card-header -->
+
+            <div class="card-body">
+                <!-- Peer Connections Row -->
+                <div class="row">
+                    <div class="col-md-12">
+                        {{> peerTable}}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        {{> Controls}}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-7">
+                        {{> ControlArrows}}
+                    </div>
+                    
+                </div>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- /.col -->
+
+        <div class="col-md-6">
+          <div class="card card-default">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-video"></i>
+                Live Stream
+              </h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                {{> StreamArea}}
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- /.col -->
+      </div>
+</template>
+
+
+<template name="Controls">
+    {{> ConnectESP}}
+    {{> DrivingMode }}
+    {{#if autoMode}}
+        {{> AutoModeButtons }}
+    {{/if}}
+</template>
+
+<!-- ConnectESP Template -->
 <template name="ConnectESP">
     <button class="btn btn-success mb-2" id="connectESP">Connect ESP</button>
+    {{#if isPending espConnected}}
+    {{/if}}
+
+    {{#if isConnected espConnected}}
+        {{> SuccessAlert}}
+    {{/if}}
+
+    {{#if isDisconnect espConnected}}
+        {{> FailureAlert}}
+    {{/if}}
+</template>
+
+<template name="SuccessAlert">
+    <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h5><i class="icon fas fa-check"></i> Alert!</h5>
+        Connected to ESP Successfully!
+    </div>
+</template>
+
+<template name="FailureAlert">
+    <div class="alert alert-warning alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <h5><i class="icon fas fa-exclamation-triangle"></i> Alert!</h5>
+        Error while connecting to ESP!!
+      </div>
 </template>
 
 <template name="DrivingMode">
     <!-- Start Driving Mode Card -->
     <div class="card">
         <div class="card-header">
-            <h4 class="mb-1">Driving Mode</h4>
+            <h5 class="mb-1">Driving Mode</h5>
         </div>
         <div class="card-body table-responsive pad">
             <div class="btn-group btn-group-toggle" data-toggle="buttons" id="drive-mode">
@@ -171,9 +150,9 @@
     <!-- End Driving Mode Card -->
 </template>
 
-<template name="ActionButtons">
+<template name="AutoModeButtons">
     <!-- Start Action Button For Auto Mode -->
-    <div class="card" id="autoButtons" style="display:none">
+    <div class="card" id="autoButtons">
         <div class="card-header">
             <h4>Action Buttons</h4>
         </div>
@@ -192,16 +171,37 @@
 
 <template name="ControlArrows">
     <div class="arrow-key-container" style="margin-right: auto; margin-left: auto">
-        <div class="arrow-key up" data-key="38" onmouseup="ArrowUp(this)" ontouchend="ArrowUp(this)" ></div><br>
-        <div class="arrow-key left" data-key="37" onmouseup="ArrowUp(this)" ontouchend="ArrowUp(this)"></div>
-        <div class="arrow-key down" data-key="40" onmouseup="ArrowUp(this)" ontouchend="ArrowUp(this)"></div>
-        <div class="arrow-key right" data-key="39" onmouseup="ArrowUp(this)" ontouchend="ArrowUp(this)"></div>
+        <div class="arrow-key up" data-key="38"></div><br>
+        <div class="arrow-key left" data-key="37"></div>
+        <div class="arrow-key down" data-key="40"></div>
+        <div class="arrow-key right" data-key="39"></div>
     </div>
 </template>
 
+<!-- PeerTable Template -->
+<template name="peerTable">
+    <div class="row">
+        <div class="col-md-6">
+            <div id="receiver-id" style="font-weight: bold;" title="Copy this ID to the input on send.html.">ID: {{receiver_id}}</div>
+            <div id="status" class="status">{{{status}}}</div>
+        </div>
+        <div class="col-md-6">
+            <input type="text" class="form-control mb-1" id="sendMessageBox" placeholder="Enter a message..." />
+            <button class="btn btn-default mb-2" id="sendButton">Send</button>
+            <button class="btn btn-default mb-2" id="clearMsgsButton">Clear Msgs (Local)</button>
+            <div class="message" id="message">{{{message}}}</div>
+        </div>
+    </div>
+  </template>
 
-
-
+<!-- StreamArea Template -->
+<template name="StreamArea">
+    <!-- Video Streaming Part -->
+    <div class="display-cover">
+      <video style="width: 100%; height: 100%" id="live-stream-body" autoplay></video>
+      <canvas class="d-none"></canvas>
+    </div>
+</template>
 
 
 
