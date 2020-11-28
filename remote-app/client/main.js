@@ -4,8 +4,8 @@ import { Session } from 'meteor/session'
 
 import './main.html';
 
-const parser = require('fast-xml-parser');
-const he = require('he');
+// const parser = require('fast-xml-parser');
+// const he = require('he');
 
 let serviceDiscovery = null;
 let ESP_MAC = '2c:f4:32:71:5b:b7';
@@ -370,8 +370,6 @@ Template.peerTable.events({
 
 
 
-
-
 if (Meteor.isCordova) {
     Template.ConnectESP.events({
         'click #connectESP' (event, instance) {
@@ -381,14 +379,20 @@ if (Meteor.isCordova) {
             let serviceType = "ssdp:all";
 
             let success = function(devices) {
-                devices.forEach(device=>{
-                    if (device["Server"] === "Arduino/1.0 UPNP/1.1 esp8266/"){
+                devices.forEach(device => {
+                    if (device["Server"] === "Arduino/1.0 UPNP/1.1 esp8266/") {
                         let loc = device["LOCATION"];
                         console.log(device["LOCATION"]); // http://192.168.1.13:80/description.xml
                         ESP_IP = loc.slice(0, loc.search(":80"));
                         console.log(ESP_IP);
+                        Session.set('espConnected', '1');
                     }
+                })
 
+                if (ESP_IP === 'null') {
+                    Session.set('espConnected', '2');
+                }
+            }
                     // let options = {
                     //     attributeNamePrefix : "@_",
                     //     attrNodeName: "attr", //default is 'false'
@@ -415,8 +419,8 @@ if (Meteor.isCordova) {
                     //
                     //     }
                     // }
-                })
-                }
+                
+
             let failure = function() {
                 alert("Error calling Service Discovery Plugin");
             }
