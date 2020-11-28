@@ -41,7 +41,7 @@ Meteor.startup(function() {
 });
 
 
-Template.streamArea.onRendered(function getVideoTag() {
+Template.StreamArea.onRendered(function getVideoTag() {
     videoTag = Template.instance().find("video");
     console.log(videoTag);
 });
@@ -160,7 +160,6 @@ Template.peerTable.helpers({
      */
     join() {
         const instance = Template.instance();
-        // destID = Template.instance().find('#receiver-id').value;
         destID = 'xdm24wjo00324';
 
         // Close old connection
@@ -224,8 +223,6 @@ Template.peerTable.helpers({
                 console.log('Connection is closed');
             }
         }
-
-        
     },
 
     joinStream() {
@@ -279,12 +276,13 @@ Template.peerTable.events({
     // Start peer connection on click
     'click #connect-button' (event, instance) {
         Template.peerTable.__helpers.get('join')();
+        Template.peerTable.__helpers.get('joinStream')();
     },
 
     // Start connection for streaming
-    'click #connect-stream-button' (event, instance) {
-        Template.peerTable.__helpers.get('joinStream')();
-    },
+    // 'click #connect-stream-button' (event, instance) {
+    //     Template.peerTable.__helpers.get('joinStream')();
+    // },
     
     'keypress #sendMessageBox' (event, instance) {
       // const event = e || window.event;

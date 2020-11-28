@@ -21,16 +21,16 @@
 </head>
 
 <body>
-    <h1>Track Streamer App</h1>
-
-    <!-- Peer Table Part -->
-    {{> peerTable}}
-
-    {{> streamArea}}
+    <div class="container">
+        <h1>Track Streamer App</h1>
+        {{> MainLayout}}
+        <!-- {{> MainLayout2}} -->
+    </div>
 
     <script src="/js/feather.min.js"></script>
 
-    <script>const controls = document.querySelector('.controls');
+    <script>
+        const controls = document.querySelector('.controls');
         const cameraOptions = document.querySelector('.video-options>select');
         const video = document.querySelector('video');
         const canvas = document.querySelector('canvas');
@@ -133,30 +133,151 @@
 
 </body>
 
-<template name="streamArea">
-    <!-- Video Streaming Part -->
-    <div class="display-cover">
-        <video style="width: 100%;height: 100%" autoplay></video>
-        <canvas class="d-none"></canvas>
 
-        <div class="video-options">
-            <select name="" id="" class="custom-select">
-                <option value="">Select camera</option>
-            </select>
+<template name="MainLayout2">
+    <div class="col">
+        <div class="row-md-6">
+            <div class="card card-default">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-gamepad"></i>
+                        Connections
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+
+                <div class="card-body">
+                    <!-- Peer Connections -->
+                    {{> peerTable}}
+                </div>
+
+            </div>
         </div>
 
-        <img class="screenshot-image d-none" alt="">
 
-        <div class="controls">
-            <button class="btn btn-danger play" title="Play"><i data-feather="play-circle"></i></button>
-            <button class="btn btn-info pause d-none" title="Pause"><i data-feather="pause"></i></button>
-            <button class="btn btn-outline-success screenshot d-none" title="ScreenShot"><i data-feather="image"></i></button>
+        <div class="row-md-6">
+            <div class="card card-default">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-video"></i>
+                        Live Stream
+                    </h3>
+                </div>
+                <!-- /.card-header -->
+                
+                <div class="card-body">
+                    <!-- Stream Area -->
+                    {{> StreamArea}}
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+</template>
+
+
+<template name="MainLayout">
+    <div class="row">
+        <div class="col-md-6">
+          <div class="card card-default">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-gamepad"></i>
+                Connections
+              </h3>
+            </div>
+            <!-- /.card-header -->
+
+            <div class="card-body">
+                <!-- Peer Connections Row -->
+                {{> peerTable}}
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- /.col -->
+
+        <div class="col-md-6">
+          <div class="card card-default">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-video"></i>
+                Live Stream
+              </h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                {{> StreamArea}}
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- /.col -->
+      </div>
+</template>
+
+
+<!-- StreamArea Template -->
+<template name="StreamArea">
+    <!-- Video Streaming Part -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="display-cover">
+                <video style="width: 100%;height: 100%" autoplay></video>
+                <canvas class="d-none"></canvas>
+        
+                <div class="video-options">
+                    <select name="" id="" class="custom-select">
+                        <option value="">Select camera</option>
+                    </select>
+                </div>
+        
+                <img class="screenshot-image d-none" alt="">
+        
+                <div class="controls">
+                    <button class="btn btn-danger play" title="Play"><i data-feather="play-circle"></i></button>
+                    <button class="btn btn-info pause d-none" title="Pause"><i data-feather="pause"></i></button>
+                    <button class="btn btn-outline-success screenshot d-none" title="ScreenShot"><i data-feather="image"></i></button>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 
+<!-- PeerTable Template -->
 <template name="peerTable">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group row">
+                <div class="col-sm-7">
+                  <input type="text" class="form-control" id="receiver-id" title="Input the ID from receive" value="{{recvIdInput}}" placeholder="Enter Receiver ID">
+                </div>
+            </div>
+            <button class="btn btn-default" id="connect-button">Connect</button>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group row">
+                <div class="col-sm-10">
+                    <input type="text" class="form-control mb-1" id="sendMessageBox" placeholder="Enter a message..." />
+                </div>
+            </div>
+            <button class="btn btn-default mb-2" id="sendButton">Send</button>
+            <button class="btn btn-default mb-2" id="clearMsgsButton">Clear Msgs (Local)</button>
+
+            <div class="message" id="message">{{{message}}}</div>
+        </div>
+    </div>
+</template>
+
+
+<!-- <template name="peerTable">
     <table class="control">
         <tr>
             <td class="title">Status:</td>
@@ -180,4 +301,4 @@
             <td><div class="message" id="message">{{{message}}}</div></td>
         </tr>
     </table>
-</template>
+</template> -->
