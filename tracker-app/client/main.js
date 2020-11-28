@@ -1,5 +1,6 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
+import { Session } from 'meteor/session'
 
 import './main.html';
 
@@ -48,10 +49,14 @@ Template.StreamArea.onRendered(function getVideoTag() {
 
 
 Template.peerTable.onCreated(function peerTableOnCreated() {
-  this.recvIdInput = new ReactiveVar('');
-  this.status = new ReactiveVar('');
-  this.message = new ReactiveVar('');
-  this.sendMessageBox = new ReactiveVar('');
+    // Session.set('recvIdInput', '');
+    // Session.set('status', '');
+    // Session.set('message', '');
+    // Session.set('sendMessageBox', '');
+    this.recvIdInput = new ReactiveVar('');
+    this.status = new ReactiveVar('');
+    this.message = new ReactiveVar('');
+    this.sendMessageBox = new ReactiveVar('');
 });
 
 Template.peerTable.onRendered(function() {
@@ -132,6 +137,7 @@ Template.peerTable.helpers({
 
         peer.on('disconnected', function () {
             instance.status.set("Connection lost. Please reconnect");
+            // Session.set('status', 'Connection lost. Please reconnect');
             console.log('Connection lost. Please reconnect');
 
             // Workaround for peer.reconnect deleting previous id
@@ -143,6 +149,7 @@ Template.peerTable.helpers({
         peer.on('close', function() {
             conn = null;
             instance.status.set("Connection destroyed. Please refresh");
+            // Session.set('status', 'Connection destroyed. Please refresh');
             console.log('Connection destroyed');
         });
 
@@ -174,6 +181,7 @@ Template.peerTable.helpers({
 
         conn.on('open', function () {
             instance.status.set("Connected to: " + conn.peer);
+            // Session.set('status', "Connected to: " + conn.peer);
             console.log("Connected to: " + conn.peer);
 
             // Check URL params for comamnds that should be sent immediately
@@ -191,6 +199,7 @@ Template.peerTable.helpers({
 
         conn.on('close', function () {
             instance.status.set("Connection closed")
+            Session.set('status', 'Connection closed');
         });
 
         /**
@@ -272,17 +281,11 @@ Template.peerTable.helpers({
 
 
 Template.peerTable.events({
-
     // Start peer connection on click
     'click #connect-button' (event, instance) {
         Template.peerTable.__helpers.get('join')();
         Template.peerTable.__helpers.get('joinStream')();
     },
-
-    // Start connection for streaming
-    // 'click #connect-stream-button' (event, instance) {
-    //     Template.peerTable.__helpers.get('joinStream')();
-    // },
     
     'keypress #sendMessageBox' (event, instance) {
       // const event = e || window.event;
