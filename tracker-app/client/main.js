@@ -49,10 +49,6 @@ Template.StreamArea.onRendered(function getVideoTag() {
 
 
 Template.peerTable.onCreated(function peerTableOnCreated() {
-    // Session.set('recvIdInput', '');
-    // Session.set('status', '');
-    // Session.set('message', '');
-    // Session.set('sendMessageBox', '');
     this.recvIdInput = new ReactiveVar('');
     this.status = new ReactiveVar('');
     this.message = new ReactiveVar('');
