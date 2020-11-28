@@ -100,7 +100,18 @@
 
 <!-- ConnectESP Template -->
 <template name="ConnectESP">
-    <button class="btn btn-success mb-2" id="connectESP">Connect ESP</button>
+    <div class="row">
+        <div class="col-md-6">
+            <button class="btn btn-success mb-2" id="connectESP">Connect ESP</button>
+        </div>
+        <div class="col-md-6">
+            <ul class="list-group list-group-unbordered mb-3">
+                <li class="list-group-item">
+                  <b>RFID:</b><span class="float-right" id="rfid">{{rfid_reading}}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
     {{#if isPending espConnected}}
     {{/if}}
 
@@ -188,10 +199,10 @@
             <input type="text" class="form-control mb-1" id="sendMessageBox" placeholder="Enter a message..." />
             <button class="btn btn-default mb-2" id="sendButton">Send</button>
             <button class="btn btn-default mb-2" id="clearMsgsButton">Clear Msgs (Local)</button>
-            <div class="message" id="message">{{{message}}}</div>
+            <div class="message mb-3" id="message">{{{message}}}</div>
         </div>
     </div>
-  </template>
+</template>
 
 <!-- StreamArea Template -->
 <template name="StreamArea">

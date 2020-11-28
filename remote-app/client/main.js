@@ -28,26 +28,20 @@ Meteor.startup(function() {
     }
 });
 
-// DrivingMode Template Configurations
-Template.DrivingMode.events({
-    'click #drive-mode' (e, i) {
-        if (Template.instance().$('#option1').is(':checked')){
-            Session.set('autoMode', false);
-        } else if (Template.instance().$('#option2').is(':checked')){
-            Session.set('autoMode', true);
-        }
-    },
-});
-
 
 // ConnectESP Template Configurations
 Template.ConnectESP.onCreated(() => {
     Session.set('espConnected', '0');
+    Session.set('rfid_reading', 'null');
 });
 
 Template.ConnectESP.helpers({
     espConnected() {
         return Session.get('espConnected');
+    },
+
+    rfid_reading() {
+        return Session.get('rfid_reading');
     },
 
     isPending(state) {
@@ -60,8 +54,21 @@ Template.ConnectESP.helpers({
 
     isDisconnect(state) {
         return state === '2';
-    }
+    },
 });
+
+
+// DrivingMode Template Configurations
+Template.DrivingMode.events({
+    'click #drive-mode' (e, i) {
+        if (Template.instance().$('#option1').is(':checked')){
+            Session.set('autoMode', false);
+        } else if (Template.instance().$('#option2').is(':checked')){
+            Session.set('autoMode', true);
+        }
+    },
+});
+
 
 // Controls Template Configurations
 Template.Controls.onRendered(() => {
@@ -369,6 +376,7 @@ if (Meteor.isCordova) {
     Template.ConnectESP.events({
         'click #connectESP' (event, instance) {
             console.log("Connecting to ESP...");
+            instance.rfid_reading.set("0bat4q3");
 
             let serviceType = "ssdp:all";
 
