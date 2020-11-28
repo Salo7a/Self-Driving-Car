@@ -24,7 +24,6 @@
     <div class="container">
         <h1>Track Streamer App</h1>
         {{> MainLayout}}
-        <!-- {{> MainLayout2}} -->
     </div>
 
     <script src="/js/feather.min.js"></script>
@@ -132,51 +131,6 @@
     </script>
 
 </body>
-
-
-<template name="MainLayout2">
-    <div class="col">
-        <div class="row-md-6">
-            <div class="card card-default">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-gamepad"></i>
-                        Connections
-                    </h3>
-                </div>
-                <!-- /.card-header -->
-
-                <div class="card-body">
-                    <!-- Peer Connections -->
-                    {{> peerTable}}
-                </div>
-
-            </div>
-        </div>
-
-
-        <div class="row-md-6">
-            <div class="card card-default">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-video"></i>
-                        Live Stream
-                    </h3>
-                </div>
-                <!-- /.card-header -->
-                
-                <div class="card-body">
-                    <!-- Stream Area -->
-                    {{> StreamArea}}
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-
-
-</template>
 
 
 <template name="MainLayout">
