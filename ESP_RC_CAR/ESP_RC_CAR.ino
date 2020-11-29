@@ -7,7 +7,7 @@
 const char* ssid = "";
 const char* password = "";
 int auto_mode = 0;
-const char* rfid_reading = "";
+String rfid_reading = "";
 
 #define CONNECTED D1
 #define FORWARD D2
@@ -168,6 +168,11 @@ void loop() {
     server.handleClient();
     digitalWrite(CONNECTED, HIGH);
     MDNS.update();
+    if (Serial.available()) {      // If anything comes in Serial (USB),
+      rfid_reading = Serial.readString();
+      Serial.println(rfid_reading);   // read it and send it out Serial1 (pins 0 & 1)
+    }
+
 }
 void connectToWiFi()
 {
