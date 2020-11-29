@@ -175,7 +175,7 @@ def stabilizeSteeringAngle(currSteeringAngle, newSteeringAngle, numOfLaneLines, 
         stabilizedSteeringAngle = int(currSteeringAngle + maxAngleDeviation * angleDeviation / abs(angleDeviation))
     else:
         stabilizedSteeringAngle = newSteeringAngle
-    print('Proposed angle: ',newSteeringAngle, ', stabilized angle: ' ,stabilizedSteeringAngle))
+    print('Proposed angle: ',newSteeringAngle, ', stabilized angle: ' ,stabilizedSteeringAngle)
     return stabilizedSteeringAngle
 
 def displayHeadingLine(frame, steeringAngle, lineColor=(0, 0, 255), lineWidth=15):
