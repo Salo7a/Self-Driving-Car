@@ -24,9 +24,36 @@
     <div class="container">
         <h1>Track Streamer App</h1>
         {{> MainLayout}}
+        {{> ImagesArea}}
     </div>
 
     <script src="/js/feather.min.js"></script>
+    <script type="text/javascript">
+        function onOpenCvReady() {
+          console.log('OpenCV.js is ready.');
+
+        //   let img1 = document.getElementById("img1");
+        //   img1 = $("#img1");
+        //   let img2 = document.getElementById("img2");
+        //   let img3 = document.getElementById("img3");
+        //   console.log(img1);
+
+        //   canvas1 = document.getElementById('canvas1');
+        //   canvas2 = document.getElementById('canvas2');
+        //   canvas3 = document.getElementById('canvas3');
+
+        //   img1.onload = function () {
+        //       console.log("loaded image");
+        //       let mat = cv.imread(img1);
+        //       console.log(mat);
+        //       //   cv.imshow(canvas1, mat);
+        //   }
+        }
+
+        
+    </script>
+
+    <script async src="js/opencv.js" onload="onOpenCvReady();"  type="text/javascript"></script>
 
     <script>
         const controls = document.querySelector('.controls');
@@ -129,7 +156,6 @@
         pause.onclick = pauseStream;
         screenshot.onclick = doScreenshot;
     </script>
-
 </body>
 
 
@@ -232,28 +258,65 @@
 </template>
 
 
-<!-- <template name="peerTable">
-    <table class="control">
-        <tr>
-            <td class="title">Status:</td>
-            <td class="title">Messages:</td>
-        </tr>
-        <tr>
-            <td>
-                <span style="font-weight: bold">ID: </span>
-                <input type="text" id="receiver-id" title="Input the ID from receive.html" value="{{recvIdInput}}">
-                <button id="connect-button">Connect</button>
-                <button id="connect-stream-button">Connect Stream</button>
-            </td>
-            <td>
-                <input type="text" id="sendMessageBox" placeholder="Enter a message..." autofocus="true" />
-                <button type="button" id="sendButton">Send</button>
-                <button type="button" id="clearMsgsButton">Clear Msgs (Local)</button>
-            </td>
-        </tr>
-        <tr>
-            <td><div id="status" class="status">{{status}}</div></td>
-            <td><div class="message" id="message">{{{message}}}</div></td>
-        </tr>
-    </table>
-</template> -->
+<template name="ImagesArea">
+    <!-- <img src="{{img_src}}" id="imageSrc" alt="No Image" />
+    <div class="caption">imageSrc <input type="file" id="fileInput" name="file" /></div> -->
+    <button class="testCV">Click</button>
+
+    <div class="row">
+        <div class="card">
+            <div class="card-header">
+                Images
+            </div>
+            <div class="card-body">
+                <div>
+                    <div class="filter-container p-0 row">
+                      <div class="filtr-item col-sm-2" data-category="1" data-sort="white sample">
+                          <img src="/images/lane6.jpg" id="img1" class="img-fluid mb-2" alt="white sample"/>
+                      </div>
+                      <div class="filtr-item col-sm-2" data-category="2, 4" data-sort="black sample">
+                          <img src="/images/laneBlue1.jpg" id="img2" class="img-fluid mb-2" alt="black sample"/>
+                      </div>
+                      <div class="filtr-item col-sm-2" data-category="3, 4" data-sort="red sample">
+                          <img src="https://via.placeholder.com/300/FF0000/FFFFFF?text=3" id="img3" class="img-fluid mb-2" alt="red sample"/>
+                      </div>
+                      <div class="filtr-item col-sm-2" data-category="3, 4" data-sort="red sample">
+                          <img src="https://via.placeholder.com/300/FF0000/FFFFFF?text=4" id="img4" class="img-fluid mb-2" alt="red sample"/>
+                      </div>
+                      <div class="filtr-item col-sm-2" data-category="2, 4" data-sort="black sample">
+                          <img src="https://via.placeholder.com/300/000000?text=5" id="img5" class="img-fluid mb-2" alt="black sample"/>
+                      </div>
+                      <div class="filtr-item col-sm-2" data-category="1" data-sort="white sample">
+                          <img src="https://via.placeholder.com/300/FFFFFF?text=6" id="img6" class="img-fluid mb-2" alt="white sample"/>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+
+            <div class="card-body">
+                <div>
+                    <div class="filter-container p-0 row">
+                      <div class="filtr-item col-sm-2" data-category="1" data-sort="white sample">
+                          <canvas class="img-fluid mb-2" id="canvas1"></canvas>
+                      </div>
+                      <div class="filtr-item col-sm-2" data-category="2, 4" data-sort="black sample">
+                          <canvas class="img-fluid mb-2" id="canvas2"></canvas>
+                      </div>
+                      <div class="filtr-item col-sm-2" data-category="3, 4" data-sort="red sample">
+                          <canvas class="img-fluid mb-2" id="canvas3"></canvas>
+                      </div>
+                      <div class="filtr-item col-sm-2" data-category="3, 4" data-sort="red sample">
+                          <canvas class="img-fluid mb-2" id="canvas4"></canvas>
+                      </div>
+                      <div class="filtr-item col-sm-2" data-category="2, 4" data-sort="black sample">
+                          <canvas class="img-fluid mb-2" id="canvas5"></canvas>
+                      </div>
+                      <div class="filtr-item col-sm-2" data-category="1" data-sort="white sample">
+                          <canvas class="img-fluid mb-2" id="canvas6"></canvas>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+</template>

@@ -3,6 +3,8 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { Session } from 'meteor/session'
 
 import './main.html';
+// import '../public/js/lanedetection'
+import {detectEdges, showImage, showImageBGR} from '../public/js/lanedetection'
 
 // code to run on server at startup
 Meteor.startup(function() {
@@ -44,9 +46,63 @@ Meteor.startup(function() {
 
 Template.StreamArea.onRendered(function getVideoTag() {
     videoTag = Template.instance().find("video");
-    console.log(videoTag);
 });
 
+// Configurations for ImageArea Template
+Template.ImagesArea.onCreated(function helloOnCreated() {
+    // counter starts at 0
+    this.img_src = new ReactiveVar('');
+});
+
+Template.ImagesArea.onRendered(function getImagesTags() {
+    img1 = Template.instance().find("#img1");
+    img2 = Template.instance().find("#img2");
+    img3 = Template.instance().find("#img3");
+    img4 = Template.instance().find("#img4");
+    img5 = Template.instance().find("#img5");
+    img6 = Template.instance().find("#img6");
+
+    canvas1 = Template.instance().find("#canvas1");
+    canvas2 = Template.instance().find("#canvas2");
+    canvas3 = Template.instance().find("#canvas3");
+    canvas4 = Template.instance().find("#canvas4");
+    canvas5 = Template.instance().find("#canvas5");
+    canvas6 = Template.instance().find("#canvas6");
+});
+
+
+Template.ImagesArea.helpers({
+    img_src() {
+        return Template.instance().img_src.get();
+    },
+});
+
+Template.ImagesArea.events({
+    'change input' (event, instance) {
+        console.log("change input");
+    },
+    
+    'click .testCV' (event, instance) {
+        let matData = cv.imread(img1);
+        showImage(canvas1, matData);
+
+        // range of white in HSV
+        console.log(matData.type());
+        let lowerWhite = new cv.Mat(matData.rows, matData.cols, matData.type(), [0, 0, 168, 0]);
+        let upperWhite = new cv.Mat(matData.rows, matData.cols, matData.type(), [172, 111, 125, 255]);
+        // let upperWhite = cv.matFromArray(1, 3, cv.CV_8UC4, [172, 111, 125]);
+        
+        console.log("lowerWhite", lowerWhite);
+        console.log("upperWhite", upperWhite);
+        // mat.delete();
+
+        let {hsvMat, maskMat, edgesMat} = detectEdges(matData, lowerWhite, upperWhite);
+        console.log(hsvMat, maskMat, edgesMat);
+        showImage(canvas2, hsvMat);
+        showImage(canvas3, maskMat);
+        showImage(canvas4, edgesMat);
+    },
+});
 
 Template.peerTable.onCreated(function peerTableOnCreated() {
     this.recvIdInput = new ReactiveVar('');
