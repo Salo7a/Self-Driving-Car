@@ -11,13 +11,17 @@ const showImageBGR = (canvasTag, matData) => {
 }
 
 function detectEdges (frame, lowerColor, upperColor) {
-    
+    // debugger;
     let hsv = new cv.Mat();
     let mask = new cv.Mat();
     let edges = new cv.Mat();
+    let lowerWhite;
+    let upperWhite;
     try {
         // Transform into HSV
         cv.cvtColor(frame, hsv, cv.COLOR_RGB2HSV);
+        lowerWhite = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [0, 0, 0, 168]);
+        upperWhite = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [172, 111, 125, 255]);
     } catch (err) {
         console.error();
         console.log(err);
@@ -25,7 +29,7 @@ function detectEdges (frame, lowerColor, upperColor) {
 
     try {
         // Threshold the HSV image to get only the white
-        cv.inRange(hsv, lowerColor, upperColor, mask);
+        cv.inRange(hsv, lowerWhite, upperWhite, mask);
     } catch (err) {
         console.error();
         console.log(err);
