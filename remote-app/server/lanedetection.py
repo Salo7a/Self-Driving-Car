@@ -2,16 +2,17 @@
 
 import sys 
 
-
 # model file name 
 # filename = 'model.joblib'
 # filename = sys.argv[1]
 
-# Get the strengths values 
+# Get the strengths values
+print("From Python File ...")
 vals = [float(i) for i in sys.argv[1:]]
 
+def predict(vals):
+    return vals*2
 
-def predict(vals, filename):
-    return [vals]*2
 
-
+val = predict(9)
+print(val)
