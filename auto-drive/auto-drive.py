@@ -2,16 +2,17 @@ import cv2
 import math
 import numpy as np
 
-#DETECTION FUNCTIONS
+# DETECTION FUNCTIONS
+
 
 def detectEdges(frame, lowerColor, upperColor):
     # Transform into HSV
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    
+
     # Threshold the HSV image to get only the white
     mask = cv2.inRange(hsv, lowerColor, upperColor)
     # Bitwise-AND mask and original image
-    #res = cv2.bitwise_and(frame, frame, mask= mask)
+    # res = cv2.bitwise_and(frame, frame, mask= mask)
 
     # Detect edges
     edges = cv2.Canny(mask, 200, 400)
@@ -34,6 +35,7 @@ def regionOfInterest(edges):
     cv2.fillPoly(mask, polygon, 255)
     croppedEdges = cv2.bitwise_and(edges, mask)
     return croppedEdges
+
 
 def detectLineSegments(croppedEdges):
     # tuning minThreshold, minLineLength, maxLineGap is a trial and error process by hand
@@ -75,7 +77,7 @@ def averageSlopeIntercept(frame, lineSegments):
 
     boundary = 1/3
     leftRegionBoundary = width * (1 - boundary)  # left lane line segment should be on left 2/3 of the screen
-    rightRegionBoundary = width * boundary # right lane line segment should be on right 2/3 of the screen
+    rightRegionBoundary = width * boundary  # right lane line segment should be on right 2/3 of the screen
 
     for lineSegment in lineSegments:
         for x1, y1, x2, y2 in lineSegment:
@@ -106,7 +108,7 @@ def averageSlopeIntercept(frame, lineSegments):
 
 def detectLane(frame, lowerColor, upperColor):
     edges = detectEdges(frame, lowerColor, upperColor)
-    #croppedEdges = regionOfInterest(edges)
+    croppedEdges = regionOfInterest(edges)
     croppedEdges = edges
     lineSegments = detectLineSegments(croppedEdges)
     laneLines = averageSlopeIntercept(frame, lineSegments)
