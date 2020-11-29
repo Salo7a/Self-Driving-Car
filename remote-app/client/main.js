@@ -11,6 +11,7 @@ let serviceDiscovery = null;
 let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
 let ESP_IP = 'http://192.168.1.13';
+let RFID_Reading = 'null';
 
 Meteor.startup(function() {
     if (Meteor.isCordova)
@@ -32,7 +33,7 @@ Meteor.startup(function() {
 // ConnectESP Template Configurations
 Template.ConnectESP.onCreated(() => {
     Session.set('espConnected', '0');
-    Session.set('rfid_reading', 'null');
+    Session.set('rfid_reading', RFID_Reading);
 });
 
 Template.ConnectESP.helpers({
@@ -374,7 +375,8 @@ if (Meteor.isCordova) {
     Template.ConnectESP.events({
         'click #connectESP' (event, instance) {
             console.log("Connecting to ESP...");
-            instance.rfid_reading.set("0bat4q3");
+            RFID_Reading = "0bat4q3"
+            instance.rfid_reading.set(RFID_Reading);
 
             let serviceType = "ssdp:all";
 
@@ -386,6 +388,21 @@ if (Meteor.isCordova) {
                         ESP_IP = loc.slice(0, loc.search(":80"));
                         console.log(ESP_IP);
                         Session.set('espConnected', '1');
+
+                        // Send a GET request to retrieve RFID readings every 1 second
+                        const getRFID = setInterval(function() {
+                            console.log("request RFID Readings..");
+                            $.ajax({
+                                url: ESP_IP + '/rfid',
+                                success: () => {
+                                    console.log("Moving Right..");
+                                }
+                            });
+                            instance.rfid_reading.set(RFID_Reading);
+                            console.log("RFID: ...");
+                        }, 2000);
+
+                        getRFID;
                     }
                 })
 
