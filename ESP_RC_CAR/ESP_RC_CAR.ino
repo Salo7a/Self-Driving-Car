@@ -7,6 +7,7 @@
 const char* ssid = "";
 const char* password = "";
 int auto_mode = 0;
+const char* rfid_reading = "";
 
 #define CONNECTED D1
 #define FORWARD D2
@@ -113,6 +114,12 @@ void setup() {
     digitalWrite(STOP, HIGH);
     server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/plain", "Stop");
+  });
+
+  server.on("/rfid", [](){
+    Serial.println("rfid");
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.send(200, "text/plain", rfid_reading);
   });
 
   server.on("/play", [](){

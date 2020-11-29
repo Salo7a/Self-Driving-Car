@@ -394,8 +394,9 @@ if (Meteor.isCordova) {
                             console.log("request RFID Readings..");
                             $.ajax({
                                 url: ESP_IP + '/rfid',
-                                success: () => {
-                                    console.log("Moving Right..");
+                                success: (data) => {
+                                    console.log("Get RFID..");
+                                    console.log(data);
                                 }
                             });
                             instance.rfid_reading.set(RFID_Reading);
