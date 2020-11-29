@@ -233,6 +233,13 @@ Template.peerTable.helpers({
     joinStream() {
         // Call a peer, providing our mediaStream
         const mediaStream = videoTag.srcObject;
+
+        // Lane Detection In Mobile
+        // Some Stuff here
+
+        // Send result to ESP
+        
+
         const call = peer.call(destID, mediaStream);
 
         // Emitted when a remote peer adds a stream.
