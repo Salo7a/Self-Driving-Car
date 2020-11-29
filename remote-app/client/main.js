@@ -7,10 +7,11 @@ import './main.html';
 // const parser = require('fast-xml-parser');
 // const he = require('he');
 
-let serviceDiscovery = null;
+// let serviceDiscovery = null;
 let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
-let ESP_IP = 'http://192.168.1.13';
+// let ESP_IP = 'http://192.168.1.13';
+let ESP_IP = 'null';
 let RFID_Reading = 'null';
 
 Meteor.startup(function() {
@@ -24,7 +25,8 @@ Meteor.startup(function() {
         function onDeviceReady() {
             console.log("Device is ready now!");
             // Now safe to use device APIs
-            serviceDiscovery = require("../plugins/cordova-plugin-discovery/www/serviceDiscovery");
+            // serviceDiscovery = cordova.plugins.serviceDiscovery;
+            // serviceDiscovery = require("../plugins/cordova-plugin-discovery/www/serviceDiscovery");
         }
     }
 });
@@ -33,7 +35,7 @@ Meteor.startup(function() {
 // ConnectESP Template Configurations
 Template.ConnectESP.onCreated(() => {
     Session.set('espConnected', '0');
-    Session.set('rfid_reading', RFID_Reading);
+    Session.set('rfidReading', RFID_Reading);
 });
 
 Template.ConnectESP.helpers({
@@ -41,8 +43,8 @@ Template.ConnectESP.helpers({
         return Session.get('espConnected');
     },
 
-    rfid_reading() {
-        return Session.get('rfid_reading');
+    rfidReading() {
+        return Session.get('rfidReading');
     },
 
     isPending(state) {
@@ -55,6 +57,27 @@ Template.ConnectESP.helpers({
 
     isDisconnect(state) {
         return state === '2';
+    },
+
+    getRFIDReadings() {
+        let RFID_Reading = Template.ConnectESP.__helpers.get('rfidReading')();
+
+        // Send a GET request to retrieve RFID readings every 1 second
+        const getRFID = setInterval(function() {
+            console.log("request RFID Readings..");
+            $.ajax({
+                url: ESP_IP + '/rfid',
+                success: (data) => {
+                    console.log("Get RFID..");
+                    console.log(data);
+                    RFID_Reading = data;
+                }
+            });
+            Session.set('rfidReading', RFID_Reading);
+            console.log("RFID: ...");
+        }, 500);
+
+        getRFID;
     },
 });
 
@@ -84,7 +107,7 @@ Template.Controls.helpers({
 
 // ControlArrows Template Configurations
 Template.ControlArrows.events({
-    'mousedown .up' (e, i) {
+    'mousedown .up, touchstart .up' (e, i) {
         console.log("up");
         $.ajax({
             url: ESP_IP + '/forward',
@@ -93,7 +116,7 @@ Template.ControlArrows.events({
             }
         });
     },
-    'mousedown .down' (e, i) {
+    'mousedown .down, touchstart .down' (e, i) {
         console.log("down");
         $.ajax({
             url: ESP_IP + '/back',
@@ -102,7 +125,7 @@ Template.ControlArrows.events({
             }
         });
     },
-    'mousedown .right' (e, i) {
+    'mousedown .right, touchstart .right' (e, i) {
         console.log("right");
         $.ajax({
             url: ESP_IP + '/right',
@@ -111,7 +134,7 @@ Template.ControlArrows.events({
             }
         });
     },
-    'mousedown .left' (e, i) {
+    'mousedown .left, touchstart .left' (e, i) {
         console.log("left");
         $.ajax({
             url: ESP_IP + '/left',
@@ -121,7 +144,7 @@ Template.ControlArrows.events({
         });
     },
 
-    'mouseup .up, mouseup .down, mouseup .right, mouseup .left' (e, i) {
+    'mouseup .arrow-key, touchend .arrow-key' (e, i) {
         // Stop the car
         console.log("stop");
         $.ajax({
@@ -375,37 +398,22 @@ if (Meteor.isCordova) {
     Template.ConnectESP.events({
         'click #connectESP' (event, instance) {
             console.log("Connecting to ESP...");
-            RFID_Reading = "0bat4q3"
-            instance.rfid_reading.set(RFID_Reading);
 
             let serviceType = "ssdp:all";
 
             let success = function(devices) {
+                console.log("success, serching..");
                 devices.forEach(device => {
+                    console.log(device);
                     if (device["Server"] === "Arduino/1.0 UPNP/1.1 esp8266/") {
                         let loc = device["LOCATION"];
                         console.log(device["LOCATION"]); // http://192.168.1.13:80/description.xml
                         ESP_IP = loc.slice(0, loc.search(":80"));
                         console.log(ESP_IP);
                         Session.set('espConnected', '1');
-
-                        // Send a GET request to retrieve RFID readings every 1 second
-                        const getRFID = setInterval(function() {
-                            console.log("request RFID Readings..");
-                            $.ajax({
-                                url: ESP_IP + '/rfid',
-                                success: (data) => {
-                                    console.log("Get RFID..");
-                                    console.log(data);
-                                }
-                            });
-                            instance.rfid_reading.set(RFID_Reading);
-                            console.log("RFID: ...");
-                        }, 2000);
-
-                        getRFID;
+                        Template.ConnectESP.__helpers.get('getRFIDReadings')();
                     }
-                })
+                });
 
                 if (ESP_IP === 'null') {
                     Session.set('espConnected', '2');
