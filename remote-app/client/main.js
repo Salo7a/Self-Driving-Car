@@ -1,4 +1,5 @@
 import { Template } from 'meteor/templating';
+import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { Session } from 'meteor/session'
 
@@ -30,6 +31,7 @@ Meteor.startup(function() {
         }
     }
 });
+
 
 
 // ConnectESP Template Configurations
@@ -186,7 +188,6 @@ Template.AutoModeButtons.events({
 // Configurations for StreamArea Template
 Template.StreamArea.onRendered(function getVideoTag() {
     videoTag = Template.instance().find("video");
-    console.log(videoTag);
 });
 
 // Configurations for peerTable Template
@@ -288,6 +289,13 @@ Template.peerTable.helpers({
                 videoTag.srcObject = stream;
                 console.log(stream);
                 videoTag.play();
+
+                // Send Stream to server-side for processing
+                Meteor.call("getStream", stream, async (error, result) => {
+                    await console.log("finished call from client");
+                    if (error) throw error;
+                    console.log(result);
+                });
             });
         });
 
@@ -411,6 +419,14 @@ if (Meteor.isCordova) {
                         ESP_IP = loc.slice(0, loc.search(":80"));
                         console.log(ESP_IP);
                         Session.set('espConnected', '1');
+
+                        // Send ESP_IP to server-side
+                        Meteor.call("getESPIP", ESP_IP, async (error, result) => {
+                            await console.log("finished call from client");
+                            if (error) throw error;
+                            console.log(result);
+                        });
+
                         Template.ConnectESP.__helpers.get('getRFIDReadings')();
                     }
                 });
@@ -498,6 +514,5 @@ if (Meteor.isCordova) {
         }
     });
 }
-
 
 
