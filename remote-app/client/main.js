@@ -4,14 +4,10 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { Session } from 'meteor/session'
 
 import './main.html';
+// import {  } from '../public/js/lanedetection' 
 
-// const parser = require('fast-xml-parser');
-// const he = require('he');
-
-// let serviceDiscovery = null;
 let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
-// let ESP_IP = 'http://192.168.1.13';
 let ESP_IP = 'null';
 let RFID_Reading = 'null';
 
@@ -31,7 +27,6 @@ Meteor.startup(function() {
         }
     }
 });
-
 
 
 // ConnectESP Template Configurations
@@ -118,6 +113,7 @@ Template.ControlArrows.events({
             }
         });
     },
+
     'mousedown .down, touchstart .down' (e, i) {
         console.log("down");
         $.ajax({
@@ -127,6 +123,7 @@ Template.ControlArrows.events({
             }
         });
     },
+
     'mousedown .right, touchstart .right' (e, i) {
         console.log("right");
         $.ajax({
@@ -136,6 +133,7 @@ Template.ControlArrows.events({
             }
         });
     },
+    
     'mousedown .left, touchstart .left' (e, i) {
         console.log("left");
         $.ajax({
@@ -170,16 +168,26 @@ Template.AutoModeButtons.events({
                 console.log("Start Moving The Car in Auto Mode...");
             }
         });
+
+        // const processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing')(), 1000);
+        // setInterval(Template.StreamArea.__helpers.get('startProcessing')(), 1000);
+        setInterval(() => {
+            console.log("interval done");
+            Template.StreamArea.__helpers.get('startProcessing')();
+        }, 1000);
+        // processInterval;
     },
 
     'mousedown #pause' (e, i) {
         console.log("pause clicked");
+        Template.StreamArea.__helpers.get('stopProcessing')();
         $.ajax({
             url: ESP_IP + '/stop',
             success: () => {
                 console.log("Stop The Car...");
             }
         });
+
     },
 });
 
@@ -231,6 +239,52 @@ Template.StreamArea.helpers({
         screenshotImage.classList.remove('d-none');
         return screenshotImage.src
     },
+
+    getFrame() {
+        canvasTag.width = videoTag.videoWidth;
+        canvasTag.height = videoTag.videoHeight;
+        canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
+        return canvasTag.toDataURL('image/webp');
+    },
+
+    processFrame(frameData) {
+        let result = 100;
+        // Use Function from lanedetection.js
+        console.log(frameData);
+
+
+        return result;
+    },
+
+    startProcessing() {
+        let frame = Template.StreamArea.__helpers.get("getFrame")(); 
+        let angle = Template.StreamArea.__helpers.get("processFrame")(frame);
+        let order;
+        console.log("frame: ", frame);
+        console.log("angle: ", angle);
+        screenshotImage.classList.remove('d-none');
+        screenshotImage.src = frame;
+        // Conditions in angle to send Ajax to ESP
+        // Some Stuff here
+        if (angle > 95) {
+            order = "/forward"
+        } else if (angle < 80) {
+            order = "/back"
+        }
+
+        $.ajax({
+            url: ESP_IP + order,
+            success: () => {
+                console.log("Sent order");
+            }
+        });
+    },
+
+    stopProcessing() {
+        console.log("Stopping Processing");
+        clearInterval(processInterval);
+    },
+
 });
 
 Template.StreamArea.events({
@@ -468,7 +522,6 @@ Template.peerTable.events({
         Template.peerTable.__helpers.get('clearMessages')();
     },
 });
-
 
 
 if (Meteor.isCordova) {

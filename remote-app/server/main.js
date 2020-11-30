@@ -36,25 +36,10 @@ Meteor.startup(() => {
 
 
     Meteor.methods({
-      // getStream(mStream) {
-        // console.log("mediaStream From Server", mStream);
-
-        // let options = {
-        //     mode: 'text',
-        //     // pythonPath: 'path/to/python',
-        //     pythonOptions: ['-u'],
-        //     // scriptPath: './lanedetection.py',
-        //     args: mediaStream
-        // };
-
-        // PythonShell.run(file_path, options, function (err, results) {
-        //   if (err) throw err;
-    
-        //   // results is an array consisting of messages collected during execution
-        //   console.log('results: %j', results);
-        // });
+      getStream(mStream) {
+        console.log("mediaStream From Server", mStream);
         
-      // },
+      },
 
       getESPIP(espIP) {
         ESP_IP = espIP;
