@@ -1,18 +1,16 @@
-# Simple loader script, loads the saved model from the notebook
-
+# Simple loader script
 import sys 
+import cv2
 
-# model file name 
-# filename = 'model.joblib'
-# filename = sys.argv[1]
+# request = json.load( sys.stdin )
+for arg in (sys.argv):
+    print(arg)
 
-# Get the strengths values
-print("From Python File ...")
-# vals = [float(i) for i in sys.argv[1:]]
+# img = cv2.imread(sys.argv[1])
+# print(img)
+# cv2.imshow('image', img)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
-def predict(vals):
-    return vals*2
-
-
-val = predict(9)
-print(val)
+# data = json.load(sys.argv[1])
+# print(data)

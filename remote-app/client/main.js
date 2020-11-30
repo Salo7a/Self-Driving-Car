@@ -1,4 +1,5 @@
 import { Template } from 'meteor/templating';
+import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { Session } from 'meteor/session'
 
@@ -30,6 +31,7 @@ Meteor.startup(function() {
         }
     }
 });
+
 
 
 // ConnectESP Template Configurations
@@ -182,12 +184,80 @@ Template.AutoModeButtons.events({
 });
 
 
-
 // Configurations for StreamArea Template
-Template.StreamArea.onRendered(function getVideoTag() {
+Template.StreamArea.onRendered(function getStreamTags() {
     videoTag = Template.instance().find("video");
-    console.log(videoTag);
+    canvasTag = Template.instance().find("canvas");
+    screenshotImage = Template.instance().find(".screenshot-image");
+    playBtn = Template.instance().find(".playBtn");
+    pauseBtn = Template.instance().find(".pauseBtn");
+    screenshotBtn = Template.instance().find(".screenshotBtn");
 });
+
+
+Template.StreamArea.helpers({
+    handleStream(stream) {
+        console.log("handling stream..");
+        videoTag.srcObject = stream;
+        videoTag.play();
+        playBtn.classList.add('d-none');
+        pauseBtn.classList.remove('d-none');
+        screenshotBtn.classList.remove('d-none');
+        streamStarted = true;
+    },
+
+    playStream() {
+        console.log("playing stream");
+        if (streamStarted) {
+            videoTag.play();
+            playBtn.classList.add('d-none');
+            pauseBtn.classList.remove('d-none');
+        }
+    },
+
+    pauseStream() {
+        console.log("pausing stream..")
+        videoTag.pause();
+        playBtn.classList.remove('d-none');
+        pauseBtn.classList.add('d-none');
+    },
+
+    doScreenshot() {
+        console.log("Taking Screenshoot..");
+        canvasTag.width = videoTag.videoWidth;
+        canvasTag.height = videoTag.videoHeight;
+        canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
+        screenshotImage.src = canvasTag.toDataURL('image/webp');
+        screenshotImage.classList.remove('d-none');
+        return screenshotImage.src
+    },
+});
+
+Template.StreamArea.events({
+    'click .playBtn' (event, instance) {
+        console.log("clicked play");
+        Template.StreamArea.__helpers.get('playStream')();
+    },
+
+    'click .pauseBtn' (event, instance) {
+        console.log("clicked pause");
+        Template.StreamArea.__helpers.get('pauseStream')();
+
+    },
+
+    'click .screenshotBtn' (event, instance) {
+        console.log("clicked screenshot");
+        imgData = Template.StreamArea.__helpers.get('doScreenshot')();
+
+        // Send imgData to server-side for processing
+        Meteor.call("getImgData", imgData, async (error, result) => {
+            await console.log("finished call getImgData from client");
+            if (error) throw error;
+            console.log(result);
+        });
+    },
+});
+
 
 // Configurations for peerTable Template
 Template.peerTable.onCreated(function peerTableOnCreated() {
@@ -285,9 +355,16 @@ Template.peerTable.helpers({
             call.answer();
 
             call.on('stream', function(stream) {
-                videoTag.srcObject = stream;
-                console.log(stream);
-                videoTag.play();
+                // Start Stream Process
+                Template.StreamArea.__helpers.get('handleStream')(stream);
+                console.log("stream in client", stream);
+
+                // Send Stream to server-side for processing
+                // Meteor.call("getStream", stream, async (error, result) => {
+                //     await console.log("finished call from client");
+                //     if (error) throw error;
+                //     console.log(result);
+                // });
             });
         });
 
@@ -379,7 +456,7 @@ Template.peerTable.events({
           const msg = instance.find('#sendMessageBox').value;
           instance.find('#sendMessageBox').value = "";
           conn.send(msg);
-          console.log("Sent: " + msg)
+          console.log("Sent: " + msg);
           Template.peerTable.__helpers.get('addMessage')("<span class=\"selfMsg\">Self: </span>" + msg);
       } else {
           console.log('Connection is closed');
@@ -411,6 +488,14 @@ if (Meteor.isCordova) {
                         ESP_IP = loc.slice(0, loc.search(":80"));
                         console.log(ESP_IP);
                         Session.set('espConnected', '1');
+
+                        // Send ESP_IP to server-side
+                        Meteor.call("getESPIP", ESP_IP, async (error, result) => {
+                            await console.log("finished call from client");
+                            if (error) throw error;
+                            console.log(result);
+                        });
+
                         Template.ConnectESP.__helpers.get('getRFIDReadings')();
                     }
                 });
@@ -498,6 +583,5 @@ if (Meteor.isCordova) {
         }
     });
 }
-
 
 
