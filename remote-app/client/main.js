@@ -4,12 +4,12 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { Session } from 'meteor/session'
 
 import './main.html';
-// import {  } from '../public/js/lanedetection' 
 
 let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
 let ESP_IP = 'null';
 let RFID_Reading = 'null';
+let output_angle;
 
 Meteor.startup(function() {
     if (Meteor.isCordova)
@@ -89,7 +89,6 @@ Template.DrivingMode.events({
         }
     },
 });
-
 
 // Controls Template Configurations
 Template.Controls.onRendered(() => {
@@ -174,7 +173,7 @@ Template.AutoModeButtons.events({
         setInterval(() => {
             console.log("interval done");
             Template.StreamArea.__helpers.get('startProcessing')();
-        }, 1000);
+        }, 100);
         // processInterval;
     },
 
@@ -235,7 +234,7 @@ Template.StreamArea.helpers({
         canvasTag.width = videoTag.videoWidth;
         canvasTag.height = videoTag.videoHeight;
         canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
-        screenshotImage.src = canvasTag.toDataURL('image/webp');
+        screenshotImage.src = canvasTag.toDataURL('image/jpeg', 0.2);
         screenshotImage.classList.remove('d-none');
         return screenshotImage.src
     },
@@ -244,23 +243,29 @@ Template.StreamArea.helpers({
         canvasTag.width = videoTag.videoWidth;
         canvasTag.height = videoTag.videoHeight;
         canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
-        return canvasTag.toDataURL('image/webp');
+        return canvasTag.toDataURL('image/jpeg', 0.5);
     },
 
     processFrame(frameData) {
-        let result = 100;
+        let output = 100;
         // Use Function from lanedetection.js
-        console.log(frameData);
+        // console.log(frameData);
 
+        // Send frameData to server-side for processing
+        Meteor.call("sendImgURI", frameData, async (error, result) => {
+            await console.log("finished call sendImgURI from client");
+            if (error) throw error;
+            console.log(result);
+        });
 
-        return result;
+        return output;
     },
 
     startProcessing() {
         let frame = Template.StreamArea.__helpers.get("getFrame")(); 
         let angle = Template.StreamArea.__helpers.get("processFrame")(frame);
         let order;
-        console.log("frame: ", frame);
+        // console.log("frame: ", frame);
         console.log("angle: ", angle);
         screenshotImage.classList.remove('d-none');
         screenshotImage.src = frame;
@@ -304,8 +309,8 @@ Template.StreamArea.events({
         imgData = Template.StreamArea.__helpers.get('doScreenshot')();
 
         // Send imgData to server-side for processing
-        Meteor.call("getImgData", imgData, async (error, result) => {
-            await console.log("finished call getImgData from client");
+        Meteor.call("sendImgURI", imgData, async (error, result) => {
+            await console.log("finished call sendImgURI from client");
             if (error) throw error;
             console.log(result);
         });
@@ -524,6 +529,13 @@ Template.peerTable.events({
 });
 
 
+Meteor.methods({
+    sendAngle(angle) {
+        output_angle = angle;
+        console.log(output_angle);
+    },
+});
+
 if (Meteor.isCordova) {
     Template.ConnectESP.events({
         'click #connectESP' (event, instance) {
@@ -543,7 +555,7 @@ if (Meteor.isCordova) {
                         Session.set('espConnected', '1');
 
                         // Send ESP_IP to server-side
-                        Meteor.call("getESPIP", ESP_IP, async (error, result) => {
+                        Meteor.call("sendESPIP", ESP_IP, async (error, result) => {
                             await console.log("finished call from client");
                             if (error) throw error;
                             console.log(result);
@@ -631,7 +643,6 @@ if (Meteor.isCordova) {
             //         console.log('service removed', service);
             //     }
             // });
-
 
         }
     });

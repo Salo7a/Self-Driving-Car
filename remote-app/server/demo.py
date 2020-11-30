@@ -1,13 +1,12 @@
 # Simple loader script
-import sys 
+import sys
+import cv2
 
-# print(len(sys.argv))
-# for i in range(len(sys.argv)):
-#     print(sys.argv[i])
+imgFile = sys.argv[1]
 
-# print("py.....")
-# print(sys.argv[0])
-# mediaStream = sys.argv[1]
-
-# print(mediaStream[0])
-# print(mediaStream[1])
+imgData = cv2.imread(imgFile)
+print(imgData)
+print(imgData.shape)
+cv2.imshow('image', imgData)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
