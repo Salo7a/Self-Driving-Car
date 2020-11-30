@@ -4,7 +4,7 @@ import { Session } from 'meteor/session'
 
 import './main.html';
 // import '../public/js/lanedetection'
-import {detectEdges, showImage, showImageBGR} from '../public/js/lanedetection'
+import {detectEdges, showImage, showImageBGR, detectLineSegments, averageSlopeIntercept} from '../public/js/lanedetection'
 
 // code to run on server at startup
 Meteor.startup(function() {
@@ -88,8 +88,12 @@ Template.ImagesArea.events({
 
         // range of white in HSV
         console.log(matData.type());
-        let lowerWhite = new cv.Mat(matData.rows, matData.cols, matData.type(), [0, 0, 168, 0]);
-        let upperWhite = new cv.Mat(matData.rows, matData.cols, matData.type(), [172, 111, 125, 255]);
+        let lowScalar = new cv.Scalar(0, 0, 168, 255);
+        let highScalar = new cv.Scalar(172, 111, 125, 255);
+        let lowerWhite = new cv.Mat(matData.rows, matData.cols, matData.type(), lowScalar);
+        let upperWhite = new cv.Mat(matData.rows, matData.cols, matData.type(), highScalar);
+        // let lowerWhite = new cv.Mat(matData.rows, matData.cols, matData.type(), [0, 0, 168, 0]);
+        // let upperWhite = new cv.Mat(matData.rows, matData.cols, matData.type(), [172, 111, 125, 255]);
         // let upperWhite = cv.matFromArray(1, 3, cv.CV_8UC4, [172, 111, 125]);
         
         console.log("lowerWhite", lowerWhite);
@@ -101,6 +105,11 @@ Template.ImagesArea.events({
         showImage(canvas2, hsvMat);
         showImage(canvas3, maskMat);
         showImage(canvas4, edgesMat);
+        let lines = detectLineSegments(edgesMat);
+        console.log(lines);
+        let segs = averageSlopeIntercept(matData, lines);
+        console.log(segs);
+        // showImage(canvas5, lines);
     },
 });
 

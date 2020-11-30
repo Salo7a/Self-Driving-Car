@@ -23,7 +23,7 @@
 #define RIGHTLED A12
 #define LEFTLED A13
 #define STOPLED A9
-#define CONNECTEDLED A8
+#define CONNECTEDLED 21
 #define RSONICE A1
 #define RSONICT A2 
 #define LSONICE A3
