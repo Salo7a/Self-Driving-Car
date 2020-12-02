@@ -293,17 +293,20 @@ Template.StreamArea.helpers({
 });
 
 Template.StreamArea.events({
+    // Handle click play Button event in the stream
     'click .playBtn' (event, instance) {
         console.log("clicked play");
         Template.StreamArea.__helpers.get('playStream')();
     },
 
+    // Handle click pause Button event in the stream
     'click .pauseBtn' (event, instance) {
         console.log("clicked pause");
         Template.StreamArea.__helpers.get('pauseStream')();
 
     },
 
+    // Handle click screenshot Button event in the stream
     'click .screenshotBtn' (event, instance) {
         console.log("clicked screenshot");
         imgData = Template.StreamArea.__helpers.get('doScreenshot')();
