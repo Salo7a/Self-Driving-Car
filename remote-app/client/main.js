@@ -315,15 +315,15 @@ Template.StreamArea.events({
         let imgSrc = imgVars.imgSrc;
         let imgTag = imgVars.imgTag;
         imgTag = "5555"
-        console.log("src: ", imgSrc);
+        // console.log("src: ", imgSrc);
         // console.log("tag: ", imgTag);
 
         // Send imgData to server-side for processing
         Meteor.call("sendImgURI", imgSrc, (error, result) => {
-            console.log("finished call sendImgURI from client");
             if (error) throw error;
-            console.log(error);
+            // console.log(error);
             console.log(result);
+            console.log("finished call sendImgURI from client");
         });
     },
 });

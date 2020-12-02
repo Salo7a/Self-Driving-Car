@@ -10,6 +10,7 @@
   "dependencies": {
     "@babel/runtime": "^7.11.2",
     "cordova": "^10.0.0",
+    "delay": "^4.4.0",
     "fast-xml-parser": "^3.17.4",
     "he": "^1.2.0",
     "jquery": "^3.5.1",

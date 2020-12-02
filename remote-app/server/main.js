@@ -27,32 +27,34 @@ Meteor.startup(() => {
           // console.log("frame is: ", frame[0]);
           // console.log("tag is: ", frame[1]);
           // let frameTag = frame.imgTag;
-          // console.log("frameData: ", frameData);
+          // console.log("frameData: ", frame);
           // console.log("screenShotTag: ", frameTag);
           let res = 5;
           let angle;
           let updated_frame;
 
           let options = {
-            mode: 'text',
-            pythonPath: 'C:/Users/Refaey/AppData/Local/Programs/Python/Python37/python.exe',
-            pythonOptions: ['-u'],
-            // scriptPath: './lanedetection.py',
-            args: frame
+              mode: 'text',
+              pythonPath: 'C:/Users/Refaey/AppData/Local/Programs/Python/Python37/python.exe',
+              pythonOptions: ['-u'],
+              // scriptPath: './lanedetection.py',
+              args: frame
           };
 
 
           PythonShell.run(file_path, options, function (err, results) {
             if (err) throw err;
-      
-            // results is an array consisting of messages collected during execution
             console.log('results: %j', results);
+
+            // results is an array consisting of messages collected during execution
+            // Some Conditions to choose direction
+            // direction = '/forward';
+            // console.log("Adding results to res");
+           
+            res = results;
+
             // angle = results[0]
             // updated_frame = results[1]
-
-            // Some Conditions to choose direction
-            direction = '/forward';
-            res = results;
           });
 
           // let pyshell = new PythonShell(file_path, options);
@@ -71,6 +73,7 @@ Meteor.startup(() => {
           //   console.log('finished');
           // });
 
+          // console.log("returning res");
           return res;
           
       },
