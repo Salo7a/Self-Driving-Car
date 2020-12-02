@@ -21,38 +21,58 @@ Meteor.startup(() => {
         console.log(ESP_IP);
       },
 
-      sendImgURI(imgData) {
-          // console.log("imgData: ", imgData);
+
+      sendImgURI(frame) {
+          // let frameData = frame.imgSrc;
+          // console.log("frame is: ", frame[0]);
+          // console.log("tag is: ", frame[1]);
+          // let frameTag = frame.imgTag;
+          // console.log("frameData: ", frameData);
+          // console.log("screenShotTag: ", frameTag);
+          let res = 5;
+          let angle;
+          let updated_frame;
 
           let options = {
             mode: 'text',
             pythonPath: 'C:/Users/Refaey/AppData/Local/Programs/Python/Python37/python.exe',
             pythonOptions: ['-u'],
             // scriptPath: './lanedetection.py',
-            args: imgData
+            args: frame
           };
 
-          
+
           PythonShell.run(file_path, options, function (err, results) {
             if (err) throw err;
       
             // results is an array consisting of messages collected during execution
             console.log('results: %j', results);
-
-            // Save the returned angle to send it to client-side for checking direction
-            angle = results[0];
+            // angle = results[0]
+            // updated_frame = results[1]
 
             // Some Conditions to choose direction
             direction = '/forward';
-
+            res = results;
           });
 
-          // $.ajax({
-          //   url: ESP_IP + direction,
-          //   success: (data) => {
-          //       console.log(data);
-          //   }
+          // let pyshell = new PythonShell(file_path, options);
+          // pyshell.send('Hello');
+
+          // pyshell.on('message', function (message) {
+          //   // received a message sent from the Python script (a simple "print" statement)
+          //   console.log(message);
           // });
+
+          // // end the input stream and allow the process to exit
+          // pyshell.end(function (err, code, signal) {
+          //   if (err) throw err;
+          //   console.log('The exit code was: ' + code);
+          //   console.log('The exit signal was: ' + signal);
+          //   console.log('finished');
+          // });
+
+          return res;
+          
       },
 
     });

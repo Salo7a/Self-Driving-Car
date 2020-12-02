@@ -234,9 +234,11 @@ Template.StreamArea.helpers({
         canvasTag.width = videoTag.videoWidth;
         canvasTag.height = videoTag.videoHeight;
         canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
-        screenshotImage.src = canvasTag.toDataURL('image/jpeg', 0.2);
+        let imgSrc = canvasTag.toDataURL('image/jpeg', 0.5);
+        let imgTag = screenshotImage;
+        screenshotImage.src = imgSrc
         screenshotImage.classList.remove('d-none');
-        return screenshotImage.src
+        return {imgSrc, imgTag}
     },
 
     getFrame() {
@@ -309,12 +311,18 @@ Template.StreamArea.events({
     // Handle click screenshot Button event in the stream
     'click .screenshotBtn' (event, instance) {
         console.log("clicked screenshot");
-        imgData = Template.StreamArea.__helpers.get('doScreenshot')();
+        let imgVars = Template.StreamArea.__helpers.get('doScreenshot')();
+        let imgSrc = imgVars.imgSrc;
+        let imgTag = imgVars.imgTag;
+        imgTag = "5555"
+        console.log("src: ", imgSrc);
+        // console.log("tag: ", imgTag);
 
         // Send imgData to server-side for processing
-        Meteor.call("sendImgURI", imgData, async (error, result) => {
-            await console.log("finished call sendImgURI from client");
+        Meteor.call("sendImgURI", imgSrc, (error, result) => {
+            console.log("finished call sendImgURI from client");
             if (error) throw error;
+            console.log(error);
             console.log(result);
         });
     },
