@@ -255,9 +255,10 @@ lowerBlue = np.array([60,40,40])
 upperBlue = np.array([150,255,255])
 
 # Apply Processing
-# frameURI = sys.argv[1]
-# frameTest = data_uri_to_cv2_img(frameURI)
-frameTest = cv2.imread("laneBlue1.jpg")
+# img_path = "D:\Study\Courses\College\Electronics-Tasks-4th-Year/task3-sbe403a_f20_task3_03/remote-app/server/laneBlue1.jpg"
+frameURI = sys.argv[1]
+frameTest = data_uri_to_cv2_img(frameURI)
+# frameTest = cv2.imread(img_path)
 laneLines = detectLane(frameTest, lowerBlue, upperBlue)
 laneLinesImage = displayLines(frameTest, laneLines)
 
@@ -265,5 +266,6 @@ steeringAngle = computeSteeringAngle(frameTest, laneLines)
 finalImage = displayHeadingLine(laneLinesImage, steeringAngle)
 
 showImageBGR(finalImage, "Final Image Lanes & Route")
-
+# steeringAngle = 100
 print("Steering angle: ", steeringAngle)
+# print("laneLines: ", laneLines)

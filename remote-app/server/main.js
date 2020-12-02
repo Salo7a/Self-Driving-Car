@@ -31,6 +31,7 @@ Meteor.startup(() => {
             // scriptPath: './lanedetection.py',
             args: imgData
           };
+
           
           PythonShell.run(file_path, options, function (err, results) {
             if (err) throw err;
@@ -38,9 +39,8 @@ Meteor.startup(() => {
             // results is an array consisting of messages collected during execution
             console.log('results: %j', results);
 
-            // Save the returned angle to send it to client-side
-            // angle = results[]
-            angle = 70;
+            // Save the returned angle to send it to client-side for checking direction
+            angle = results[0];
 
             // Some Conditions to choose direction
             direction = '/forward';
