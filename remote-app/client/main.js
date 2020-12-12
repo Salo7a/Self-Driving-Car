@@ -236,7 +236,7 @@ Template.StreamArea.helpers({
         canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
         let imgSrc = canvasTag.toDataURL('image/jpeg', 0.5);
         let imgTag = screenshotImage;
-        screenshotImage.src = imgSrc
+        // screenshotImage.src = imgSrc
         screenshotImage.classList.remove('d-none');
         return {imgSrc, imgTag}
     },
@@ -314,17 +314,36 @@ Template.StreamArea.events({
         let imgVars = Template.StreamArea.__helpers.get('doScreenshot')();
         let imgSrc = imgVars.imgSrc;
         let imgTag = imgVars.imgTag;
-        imgTag = "5555"
-        // console.log("src: ", imgSrc);
-        // console.log("tag: ", imgTag);
+        console.log("src: ", imgSrc);
 
         // Send imgData to server-side for processing
-        Meteor.call("sendImgURI", imgSrc, (error, result) => {
-            if (error) throw error;
-            // console.log(error);
-            console.log(result);
-            console.log("finished call sendImgURI from client");
+        let url_path = 'http://127.0.0.1:5000/detect/' + imgSrc
+
+        $.ajax({
+            url: url_path,
+            success: (data) => {
+                console.log("Send Image Data..");
+                console.log(JSON.stringify(data));
+                screenshotImage.src = data['imgBase'];
+            },
+            error: (err) => {
+                console.log(err)
+            }
         });
+
+        // Do conditions for the angle
+
+
+        // Send ajax to the car
+
+
+
+        // Meteor.call("sendImgURI", imgSrc, (error, result) => {
+        //     if (error) throw error;
+        //     // console.log(error);
+        //     console.log(result);
+        //     console.log("finished call sendImgURI from client");
+        // });
     },
 });
 

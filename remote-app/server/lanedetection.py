@@ -249,12 +249,12 @@ def displayHeadingLine(frame, steeringAngle, lineColor=(0, 0, 255), lineWidth=15
 
 # Choose Colors Range
 #range of white in HSV
-lowerWhite = np.array([0,0,168])
-upperWhite = np.array([172,111,255])
+# lowerWhite = np.array([0,0,168])
+# upperWhite = np.array([172,111,255])
 
 # Range of Blue in HSV
-# lowerBlue = np.array([60,40,40])
-# upperBlue = np.array([150,255,255])
+lowerBlue = np.array([60,40,40])
+upperBlue = np.array([150,255,255])
 
 # Apply Processing
 # img_path = "D:\Study\Courses\College\Electronics-Tasks-4th-Year/task3-sbe403a_f20_task3_03/remote-app/server/laneBlue1.jpg"
@@ -262,7 +262,7 @@ print(sys.argv[0])
 frameURI = sys.argv[1]
 frameTest = data_uri_to_cv2_img(frameURI)
 # frameTest = cv2.imread(img_path)
-laneLines = detectLane(frameTest, lowerWhite, upperWhite)
+laneLines = detectLane(frameTest, lowerBlue, upperBlue)
 laneLinesImage = displayLines(frameTest, laneLines)
 
 steeringAngle = computeSteeringAngle(frameTest, laneLines)
