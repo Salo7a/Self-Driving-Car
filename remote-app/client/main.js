@@ -4,6 +4,7 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { Session } from 'meteor/session'
 
 import './main.html';
+import { data } from 'jquery';
 
 let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
@@ -314,16 +315,17 @@ Template.StreamArea.events({
         let imgVars = Template.StreamArea.__helpers.get('doScreenshot')();
         let imgSrc = imgVars.imgSrc;
         let imgTag = imgVars.imgTag;
-        console.log("src: ", imgSrc);
+        // console.log("src: ", imgSrc);
 
         // Send imgData to server-side for processing
-        let url_path = 'http://127.0.0.1:5000/detect/' + imgSrc
+        let imgSrcEnc = encodeURIComponent(imgSrc);
+        let url_path = 'http://127.0.0.1:5000/detect?color=blue&frame_uri=' + imgSrcEnc;
 
         $.ajax({
             url: url_path,
             success: (data) => {
                 console.log("Send Image Data..");
-                console.log(JSON.stringify(data));
+                // console.log(JSON.stringify(data));
                 screenshotImage.src = data['imgBase'];
             },
             error: (err) => {
