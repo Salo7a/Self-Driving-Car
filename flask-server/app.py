@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request, after_this_request
-import urllib.parse
 from lanedetection import *
 
 
