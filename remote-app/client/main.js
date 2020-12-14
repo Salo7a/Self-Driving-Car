@@ -8,14 +8,14 @@ import { data } from 'jquery';
 
 let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
-let ESP_IP = 'null';
+let ESP_IP = 'http://192.168.43.66';
 let RFID_Reading = 'null';
 
 
 let processInterval;            // for creating an interval to process frames iteratively
 let output_frame;               // result frame after processing
 let angle;                      // result angle after processing
-let order;                      // order to be sent to ESP (after conditions on output_angle)
+// let order;                      // order to be sent to ESP (after conditions on output_angle)
 
 
 Meteor.startup(function() {
@@ -114,6 +114,7 @@ Template.ControlArrows.events({
         console.log("up");
         $.ajax({
             url: ESP_IP + '/forward',
+            async: false,
             success: () => {
                 console.log("Moving Forward..");
             }
@@ -124,6 +125,7 @@ Template.ControlArrows.events({
         console.log("down");
         $.ajax({
             url: ESP_IP + '/back',
+            async: false,
             success: () => {
                 console.log("Moving Backward..");
             }
@@ -134,6 +136,7 @@ Template.ControlArrows.events({
         console.log("right");
         $.ajax({
             url: ESP_IP + '/right',
+            async: false,
             success: () => {
                 console.log("Moving Right..");
             }
@@ -144,6 +147,7 @@ Template.ControlArrows.events({
         console.log("left");
         $.ajax({
             url: ESP_IP + '/left',
+            async: false,
             success: () => {
                 console.log("Moving Left..");
             }
@@ -155,6 +159,7 @@ Template.ControlArrows.events({
         console.log("stop");
         $.ajax({
             url: ESP_IP + '/stop',
+            async: false,
             success: () => {
                 console.log("Stop Car..");
             }
@@ -170,12 +175,13 @@ Template.AutoModeButtons.events({
         console.log("play clicked");
         $.ajax({
             url: ESP_IP + '/play',
+            async: false,
             success: () => {
                 console.log("Start Moving The Car in Auto Mode...");
             }
         });
 
-        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 1000);
+        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 250);
     },
 
     'mousedown #pause' (e, i) {
@@ -184,6 +190,7 @@ Template.AutoModeButtons.events({
 
         $.ajax({
             url: ESP_IP + '/stop',
+            async: false,
             success: () => {
                 console.log("Stop The Car...");
             }
@@ -276,25 +283,51 @@ Template.StreamArea.helpers({
     startProcessing() {
         let frameURI = Template.StreamArea.__helpers.get("getFrame")(); 
         let {output_frame, angle} = Template.StreamArea.__helpers.get("processFrame")(frameURI);
-        
+        let order = '/stop';
         processedImage.src = output_frame;
         Session.set('angle', angle);
 
         // Conditions on angle to choose which direction to send Ajax to ESP
         // Some Stuff here
-        if (angle > 95) {
-            order = "/forward"
+
+        if (angle > 100) {
+            console.log("order is: ", order);
+            order = "/right"
         } else if (angle < 80) {
-            order = "/back"
+            console.log("order is: ", order);
+            order = "/left"
+        } else if (angle > 79 && angle < 101) {
+            console.log("order is: ", order);
+            order = "/forward"
+        }
+
+        const sendAJAX = (val) => {
+            $.ajax({
+                url: ESP_IP + val,
+                // async: false,
+                success: () => {
+                    console.log("Sent order: ", val);
+                }
+            });
         }
 
         // Send ajax to the car
-        // $.ajax({
-        //     url: ESP_IP + order,
-        //     success: () => {
-        //         console.log("Sent order");
-        //     }
-        // });
+        $.ajax({
+            url: ESP_IP + order,
+            // async: false,
+            success: () => {
+                console.log("Sent order: ", order);
+            }
+        });
+
+        // Send ajax to the car
+        $.ajax({
+            url: ESP_IP + '/stop',
+            async: false,
+            success: () => {
+                console.log("Sent order: stop");
+            }
+        });
     },
 
     stopProcessing() {
@@ -397,7 +430,12 @@ Template.peerTable.helpers({
         const instance = Template.instance();
         g_instance = Template.instance();
         // Create own peer object with connection to shared PeerJS server
-        peerID = 'xdm24wjo00324';
+        if(Meteor.isCordova){
+            peerID = 'xdm24wjo00365';
+        } else{
+            peerID = 'xdm24wjo00324';
+        }
+        
         peer = new Peer(peerID, {
             debug: 2
         });
@@ -418,13 +456,13 @@ Template.peerTable.helpers({
 
         peer.on('connection', function (c) {
             // Allow only a single connection
-            if (conn && conn.open) {
-                c.on('open', function() {
-                    c.send("Already connected to another client");
-                    setTimeout(function() { c.close(); }, 500);
-                });
-                return;
-            }
+            // if (conn && conn.open) {
+            //     c.on('open', function() {
+            //         c.send("Already connected to another client");
+            //         setTimeout(function() { c.close(); }, 500);
+            //     });
+            //     return;
+            // }
 
             conn = c;
             console.log("Connected to: " + conn.peer);
