@@ -131,6 +131,13 @@ body {
   color: red;
 }
 
+#angle {
+  background-color: rgb(241,239,237);
+  font-weight: bold;
+  padding: 3px;
+  border-radius: 5px;
+}
+
 
 /* Video Streaming Styles */
 

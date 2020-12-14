@@ -14,7 +14,7 @@ let RFID_Reading = 'null';
 
 let processInterval;            // for creating an interval to process frames iteratively
 let output_frame;               // result frame after processing
-let angle;               // result angle after processing
+let angle;                      // result angle after processing
 let order;                      // order to be sent to ESP (after conditions on output_angle)
 
 
@@ -29,8 +29,6 @@ Meteor.startup(function() {
         function onDeviceReady() {
             console.log("Device is ready now!");
             // Now safe to use device APIs
-            // serviceDiscovery = cordova.plugins.serviceDiscovery;
-            // serviceDiscovery = require("../plugins/cordova-plugin-discovery/www/serviceDiscovery");
         }
     }
 });
@@ -204,12 +202,6 @@ Template.StreamArea.onRendered(function getStreamTags() {
 });
 
 
-// Configurations for ProcessedArea Template
-Template.ProcessedArea.onRendered(function getImageTag() {
-    processedImage = Template.instance().find("#processed_img");
-});
-
-
 Template.StreamArea.helpers({
     handleStream(stream) {
         console.log("handling stream..");
@@ -283,10 +275,8 @@ Template.StreamArea.helpers({
         let frameURI = Template.StreamArea.__helpers.get("getFrame")(); 
         let {output_frame, angle} = Template.StreamArea.__helpers.get("processFrame")(frameURI);
         
-        console.log("angle: ", angle);
-        // screenshotImage.classList.remove('d-none');
-        // screenshotImage.src = frameURI;
         processedImage.src = output_frame;
+        Session.set('angle', angle);
 
         // Conditions on angle to choose which direction to send Ajax to ESP
         // Some Stuff here
@@ -330,6 +320,23 @@ Template.StreamArea.events({
     'click .screenshotBtn' (event, instance) {
         console.log("clicked screenshot");
         Template.StreamArea.__helpers.get('doScreenshot')();
+    },
+});
+
+
+// Configurations for ProcessedArea Template
+Template.ProcessedArea.onCreated(() => {
+    Session.set('angle', 'null');
+});
+
+
+Template.ProcessedArea.onRendered(function getImageTag() {
+    processedImage = Template.instance().find("#processed_img");
+});
+
+Template.ProcessedArea.helpers({
+    angle() {
+        return Session.get('angle');
     },
 });
 
