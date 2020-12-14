@@ -14,3 +14,4 @@ flask-server/__pycache__
 .vscode/.ropeproject/config.py
 .vscode/settings.json
 
+flask-server/__pycache__/app.cpython-37.pyc
