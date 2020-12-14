@@ -29,6 +29,8 @@ Meteor.startup(function() {
         function onDeviceReady() {
             console.log("Device is ready now!");
             // Now safe to use device APIs
+            // serviceDiscovery = cordova.plugins.serviceDiscovery;
+            // serviceDiscovery = require("../plugins/cordova-plugin-discovery/www/serviceDiscovery");
         }
     }
 });

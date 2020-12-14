@@ -168,7 +168,13 @@ video {
 }
 
 #live-stream-body {
-  max-height: 500px;
+  /* transform: rotate(-90deg); */
+  min-width: 350px;
+  max-width: 200px;
+}
+
+#stream-body {
+  transform: rotate(-90deg);
 }
 
 .video-options {

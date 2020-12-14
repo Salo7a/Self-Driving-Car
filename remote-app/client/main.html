@@ -33,7 +33,7 @@
 
 <template name="MainLayout">
     <div class="row">
-        <div class="col">
+        <div class="col-sm-4">
 
           <!-- .card-header -->
           <div class="card card-default">
@@ -74,7 +74,7 @@
         </div>
         <!-- /.col -->
 
-        <div class="col-md-4">
+        <div class="col-md-6">
           <div class="card card-default">
             <div class="card-header">
               <h3 class="card-title">
@@ -239,8 +239,8 @@
 <!-- StreamArea Template -->
 <template name="StreamArea">
     <!-- Video Streaming Part -->
-    <div class="display-cover">
-      <video style="width: 100%; height: 100%" id="live-stream-body" autoplay></video>
+    <div id="stream-body" class="display-cover">
+      <video style="width: 100%; height: 100%;" id="live-stream-body" autoplay></video>
       <canvas class="d-none"></canvas>
 
       <img class="screenshot-image d-none" alt="">
