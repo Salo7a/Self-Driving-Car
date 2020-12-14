@@ -23,9 +23,6 @@ def main():
     return "main Page"
 
 
-# @app.route('/detect/<path:frameURI>')
-# def process(frameURI):
-
 @app.route('/detect')
 def process():
     @after_this_request
@@ -36,7 +33,6 @@ def process():
 
     color = request.args.get('color')
     frameURI = request.args.get('frame_uri')
-    print(color)
 
     frameTest = data_uri_to_cv2_img(frameURI)
     laneLines = detectLane(frameTest, lowerColors, upperColors)
@@ -47,10 +43,9 @@ def process():
     finalImageRGB = convert_BGR_to_RGB(finalImage)
     finalImageRGBBase64 = img_to_data_uri(finalImageRGB)
 
-    showImage(finalImageRGB, "Final Image in RGB Lanes & Route")
+    # showImage(finalImageRGB, "Final Image in RGB Lanes & Route")
 
-    resultJSON = {"angle": steeringAngle, "imgBase": finalImageRGBBase64}
-    print(resultJSON["angle"])
+    resultJSON = {"angle": steeringAngle, "frame_uri": finalImageRGBBase64}
     return jsonify(resultJSON)
 
 
