@@ -35,6 +35,7 @@ def process():
     frameURI = request.args.get('frame_uri')
 
     frameTest = data_uri_to_cv2_img(frameURI)
+    frameTest = rotate_img(frameTest)
     laneLines = detectLane(frameTest, lowerColors, upperColors)
     laneLinesImage = displayLines(frameTest, laneLines)
 

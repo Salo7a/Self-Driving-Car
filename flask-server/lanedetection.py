@@ -44,6 +44,10 @@ def convert_BGR_to_RGB(image):
 # DETECTION FUNCTIONS
 
 
+def rotate_img(image):
+    return cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
+
 def detectEdges(frame, lowerColor, upperColor):
     # Transform into HSV
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
