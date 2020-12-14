@@ -152,8 +152,8 @@ def averageSlopeIntercept(frame, lineSegments):
 
 def detectLane(frame, lowerColor, upperColor):
     edges = detectEdges(frame, lowerColor, upperColor)
-    croppedEdges = regionOfInterest(edges)
-    # croppedEdges = edges
+    # croppedEdges = regionOfInterest(edges)
+    croppedEdges = edges
     lineSegments = detectLineSegments(croppedEdges)
     laneLines = averageSlopeIntercept(frame, lineSegments)
 

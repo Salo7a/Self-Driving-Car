@@ -16,7 +16,10 @@ elif color_name == "blue":
     # Range of Blue in HSV
     lowerColors = np.array([60, 40, 40])
     upperColors = np.array([150, 255, 255])
-
+elif color_name == "black":
+    # Range of Black in HSV
+    lowerColors = np.array([0, 0, 0])
+    upperColors = np.array([180, 255, 30])
 
 @app.route('/')
 def main():
