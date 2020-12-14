@@ -8,5 +8,9 @@ Remote
 Task3
 face-detection-opencv-js
 playground
+*/.idea
+flask-server/__pycache__
+*/__pycache__
 .vscode/.ropeproject/config.py
 .vscode/settings.json
+
