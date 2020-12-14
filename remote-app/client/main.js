@@ -10,7 +10,13 @@ let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
 let ESP_IP = 'null';
 let RFID_Reading = 'null';
-let output_angle;
+
+
+let processInterval;            // for creating an interval to process frames iteratively
+let output_frame;               // result frame after processing
+let angle;               // result angle after processing
+let order;                      // order to be sent to ESP (after conditions on output_angle)
+
 
 Meteor.startup(function() {
     if (Meteor.isCordova)
@@ -169,18 +175,13 @@ Template.AutoModeButtons.events({
             }
         });
 
-        // const processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing')(), 1000);
-        // setInterval(Template.StreamArea.__helpers.get('startProcessing')(), 1000);
-        setInterval(() => {
-            console.log("interval done");
-            Template.StreamArea.__helpers.get('startProcessing')();
-        }, 100);
-        // processInterval;
+        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 1000);
     },
 
     'mousedown #pause' (e, i) {
         console.log("pause clicked");
         Template.StreamArea.__helpers.get('stopProcessing')();
+
         $.ajax({
             url: ESP_IP + '/stop',
             success: () => {
@@ -200,6 +201,12 @@ Template.StreamArea.onRendered(function getStreamTags() {
     playBtn = Template.instance().find(".playBtn");
     pauseBtn = Template.instance().find(".pauseBtn");
     screenshotBtn = Template.instance().find(".screenshotBtn");
+});
+
+
+// Configurations for ProcessedArea Template
+Template.ProcessedArea.onRendered(function getImageTag() {
+    processedImage = Template.instance().find("#processed_img");
 });
 
 
@@ -235,11 +242,10 @@ Template.StreamArea.helpers({
         canvasTag.width = videoTag.videoWidth;
         canvasTag.height = videoTag.videoHeight;
         canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
-        let imgSrc = canvasTag.toDataURL('image/jpeg', 0.5);
-        let imgTag = screenshotImage;
-        // screenshotImage.src = imgSrc
+        let imgURI = canvasTag.toDataURL('image/jpeg', 0.5);
+        screenshotImage.src = imgURI
         screenshotImage.classList.remove('d-none');
-        return {imgSrc, imgTag}
+        return imgURI
     },
 
     getFrame() {
@@ -249,30 +255,40 @@ Template.StreamArea.helpers({
         return canvasTag.toDataURL('image/jpeg', 0.5);
     },
 
-    processFrame(frameData) {
-        let output = 100;
-        // Use Function from lanedetection.js
-        // console.log(frameData);
+    processFrame(frameURI) {
+        // Percent-Encode for Reserved characters in URL
+        let frameURI_encoded = encodeURIComponent(frameURI);
+        let url_path = 'http://127.0.0.1:5000/detect?color=blue&frame_uri=' + frameURI_encoded;
+        
+        // Send GET request to Flask server for processing
+        // Params: color and frame_uri(base64)
+        $.ajax({
+            type: "GET",
+            url: url_path,
+            async: false,
+            success: (data) => {
+                // console.log(JSON.stringify(data));
+                output_frame = data['frame_uri'];
+                angle = data['angle'];
+            },
+            error: (err) => {
+                console.log(err)
+            }
+        }).responseText;
 
-        // Send frameData to server-side for processing
-        Meteor.call("sendImgURI", frameData, async (error, result) => {
-            await console.log("finished call sendImgURI from client");
-            if (error) throw error;
-            console.log(result);
-        });
-
-        return output;
+        return {output_frame, angle};
     },
 
     startProcessing() {
-        let frame = Template.StreamArea.__helpers.get("getFrame")(); 
-        let angle = Template.StreamArea.__helpers.get("processFrame")(frame);
-        let order;
-        // console.log("frame: ", frame);
+        let frameURI = Template.StreamArea.__helpers.get("getFrame")(); 
+        let {output_frame, angle} = Template.StreamArea.__helpers.get("processFrame")(frameURI);
+        
         console.log("angle: ", angle);
-        screenshotImage.classList.remove('d-none');
-        screenshotImage.src = frame;
-        // Conditions in angle to send Ajax to ESP
+        // screenshotImage.classList.remove('d-none');
+        // screenshotImage.src = frameURI;
+        processedImage.src = output_frame;
+
+        // Conditions on angle to choose which direction to send Ajax to ESP
         // Some Stuff here
         if (angle > 95) {
             order = "/forward"
@@ -280,12 +296,13 @@ Template.StreamArea.helpers({
             order = "/back"
         }
 
-        $.ajax({
-            url: ESP_IP + order,
-            success: () => {
-                console.log("Sent order");
-            }
-        });
+        // Send ajax to the car
+        // $.ajax({
+        //     url: ESP_IP + order,
+        //     success: () => {
+        //         console.log("Sent order");
+        //     }
+        // });
     },
 
     stopProcessing() {
@@ -312,40 +329,7 @@ Template.StreamArea.events({
     // Handle click screenshot Button event in the stream
     'click .screenshotBtn' (event, instance) {
         console.log("clicked screenshot");
-        let imgVars = Template.StreamArea.__helpers.get('doScreenshot')();
-        let imgSrc = imgVars.imgSrc;
-        let imgTag = imgVars.imgTag;
-        // console.log("src: ", imgSrc);
-
-        // Send imgData to server-side for processing
-        let imgSrcEnc = encodeURIComponent(imgSrc);
-        let url_path = 'http://127.0.0.1:5000/detect?color=blue&frame_uri=' + imgSrcEnc;
-
-        $.ajax({
-            url: url_path,
-            success: (data) => {
-                console.log("Send Image Data..");
-                // console.log(JSON.stringify(data));
-                screenshotImage.src = data['imgBase'];
-            },
-            error: (err) => {
-                console.log(err)
-            }
-        });
-
-        // Do conditions for the angle
-
-
-        // Send ajax to the car
-
-
-
-        // Meteor.call("sendImgURI", imgSrc, (error, result) => {
-        //     if (error) throw error;
-        //     // console.log(error);
-        //     console.log(result);
-        //     console.log("finished call sendImgURI from client");
-        // });
+        Template.StreamArea.__helpers.get('doScreenshot')();
     },
 });
 
@@ -449,13 +433,6 @@ Template.peerTable.helpers({
                 // Start Stream Process
                 Template.StreamArea.__helpers.get('handleStream')(stream);
                 console.log("stream in client", stream);
-
-                // Send Stream to server-side for processing
-                // Meteor.call("getStream", stream, async (error, result) => {
-                //     await console.log("finished call from client");
-                //     if (error) throw error;
-                //     console.log(result);
-                // });
             });
         });
 
@@ -561,13 +538,7 @@ Template.peerTable.events({
 });
 
 
-Meteor.methods({
-    sendAngle(angle) {
-        output_angle = angle;
-        console.log(output_angle);
-    },
-});
-
+// Code to be executed in mobile app only
 if (Meteor.isCordova) {
     Template.ConnectESP.events({
         'click #connectESP' (event, instance) {
@@ -584,11 +555,12 @@ if (Meteor.isCordova) {
                         console.log(device["LOCATION"]); // http://192.168.1.13:80/description.xml
                         ESP_IP = loc.slice(0, loc.search(":80"));
                         console.log(ESP_IP);
+
+                        // Add Success Component to UI
                         Session.set('espConnected', '1');
 
                         // Send ESP_IP to server-side
-                        Meteor.call("sendESPIP", ESP_IP, async (error, result) => {
-                            await console.log("finished call from client");
+                        Meteor.call("sendESPIP", ESP_IP, (error, result) => {
                             if (error) throw error;
                             console.log(result);
                         });
@@ -598,41 +570,15 @@ if (Meteor.isCordova) {
                 });
 
                 if (ESP_IP === 'null') {
+                    // Add Failure Component to UI 
                     Session.set('espConnected', '2');
                 }
             }
-                    // let options = {
-                    //     attributeNamePrefix : "@_",
-                    //     attrNodeName: "attr", //default is 'false'
-                    //     textNodeName : "#text",
-                    //     ignoreAttributes : true,
-                    //     ignoreNameSpace : false,
-                    //     allowBooleanAttributes : false,
-                    //     parseNodeValue : true,
-                    //     parseAttributeValue : false,
-                    //     trimValues: true,
-                    //     cdataTagName: "__cdata", //default is 'false'
-                    //     cdataPositionChar: "\\c",
-                    //     parseTrueNumberOnly: false,
-                    //     arrayMode: false, //"strict"
-                    //     attrValueProcessor: (val, attrName) => he.decode(val, {isAttributeValue: true}),//default is a=>a
-                    //     tagValueProcessor : (val, tagName) => he.decode(val), //default is a=>a
-                    //     stopNodes: ["parse-me-as-string"]
-                    // };
-                    // if( parser.validate(device["xml"]) === true) { //optional (it'll return an object in case it's not valid)
-                    //     let jsonObj = parser.parse(device["xml"],options);
-                    //     console.log(JSON.stringify(jsonObj));
-                    //     if (jsonObj["device"]["friendlyName"] === "CoolESP"){
-                    //         console.log(JSON.stringify(jsonObj));
-                    //
-                    //     }
-                    // }
-                
-
+               
             let failure = function() {
                 alert("Error calling Service Discovery Plugin");
             }
-            //
+            
             // /**
             //  * Similar to the W3C specification for Network Service Discovery api 'http://www.w3.org/TR/discovery-api/'
             //  * @method getNetworkServices
@@ -641,40 +587,6 @@ if (Meteor.isCordova) {
             //  * @param {Function} failure callback
             //  */
             serviceDiscovery.getNetworkServices(serviceType, success, failure);
-
-            // Configure zeroconf
-            // zeroconf.watch('_http._tcp.', 'local.', function(result) {
-            //     let action = result.action;
-            //     let service = result.service;
-            //     console.log(JSON.stringify(result));
-            //     if (action === 'added')
-            //     {
-            //         console.log('service added', service);
-            //         console.log(service["domain"] + " : "+ service["hostname"] + " : " + service["ipv4Addresses"]);
-            //         if (service["hostname"] === ESP_SSID) {
-            //             ESP_IP = service["ipv4Addresses"];
-            //         }
-            //     }
-            //     else if (action === 'resolved')
-            //     {
-            //         // console.log('service resolved', service);
-            //         // console.log(service["domain"] + " : "+ service["hostname"] + " : " + service["ipv4Addresses"]);
-            //         /* service : {
-            //         'domain' : 'local.',
-            //         'type' : '_http._tcp.',
-            //         'name': 'Becvert\'s iPad',
-            //         'port' : 80,
-            //         'hostname' : 'ipad-of-becvert.local',
-            //         'ipv4Addresses' : [ '192.168.1.125' ],
-            //         'ipv6Addresses' : [ '2001:0:5ef5:79fb:10cb:1dbf:3f57:feb0' ],
-            //         'txtRecord' : {
-            //             'foo' : 'bar'
-            //         } */
-            //     }
-            //     else {
-            //         console.log('service removed', service);
-            //     }
-            // });
 
         }
     });
