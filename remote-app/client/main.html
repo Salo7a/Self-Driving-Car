@@ -33,7 +33,9 @@
 
 <template name="MainLayout">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col">
+
+          <!-- .card-header -->
           <div class="card card-default">
             <div class="card-header">
               <h3 class="card-title">
@@ -43,10 +45,11 @@
             </div>
             <!-- /.card-header -->
 
+            <!-- .card-body -->
             <div class="card-body">
                 <!-- Peer Connections Row -->
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col">
                         {{> peerTable}}
                     </div>
                 </div>
@@ -65,12 +68,13 @@
                 </div>
             </div>
             <!-- /.card-body -->
+
           </div>
           <!-- /.card -->
         </div>
         <!-- /.col -->
 
-        <div class="col-md-6">
+        <div class="col-md-4">
           <div class="card card-default">
             <div class="card-header">
               <h3 class="card-title">
@@ -87,7 +91,27 @@
           <!-- /.card -->
         </div>
         <!-- /.col -->
+
+        <div class="col-md-4">
+            <div class="card card-default">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-video"></i>
+                  Processed Frames
+                </h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                  {{> ProcessedArea}}
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+
       </div>
+
 </template>
 
 
@@ -99,31 +123,53 @@
     {{/if}}
 </template>
 
-<!-- ConnectESP Template -->
-<template name="ConnectESP">
+
+<!-- PeerTable Template -->
+<template name="peerTable">
     <div class="row">
         <div class="col-md-6">
-            <button class="btn btn-success mb-2" id="connectESP">Connect ESP</button>
-        </div>
-        <div class="col-md-6">
-            <ul class="list-group list-group-unbordered mb-3">
-                <li class="list-group-item">
-                  <b>RFID:</b><span class="float-right" id="rfid">{{rfidReading}}</span>
-                </li>
-            </ul>
+            <div id="receiver-id" style="font-weight: bold;" title="Copy this ID to the input">ID: {{receiver_id}}</div>
+            <div id="status" class="status mb-1">{{{status}}}</div>
         </div>
     </div>
-    {{#if isPending espConnected}}
-    {{/if}}
-
-    {{#if isConnected espConnected}}
-        {{> SuccessAlert}}
-    {{/if}}
-
-    {{#if isDisconnect espConnected}}
-        {{> FailureAlert}}
-    {{/if}}
 </template>
+
+
+<!-- ConnectESP Template -->
+<template name="ConnectESP">
+
+    <!-- Start ConnectESP Card -->
+    <div class="card">
+        <div class="card-body table-responsive pad">
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-success btn-sm" id="connectESP">Connect ESP</button>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-group list-group-unbordered">
+                        <li class="list-group-item">
+                          <b>RFID:</b><span class="float-right" id="rfid">{{rfidReading}}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {{#if isPending espConnected}}
+            {{/if}}
+
+            {{#if isConnected espConnected}}
+                {{> SuccessAlert}}
+            {{/if}}
+
+            {{#if isDisconnect espConnected}}
+                {{> FailureAlert}}
+            {{/if}}
+        </div>
+    </div>
+    <!-- End ConnectESP Card -->
+    
+</template>
+
+
 
 <template name="SuccessAlert">
     <div class="alert alert-success alert-dismissible">
@@ -189,21 +235,6 @@
     </div>
 </template>
 
-<!-- PeerTable Template -->
-<template name="peerTable">
-    <div class="row">
-        <div class="col-md-6">
-            <div id="receiver-id" style="font-weight: bold;" title="Copy this ID to the input">ID: {{receiver_id}}</div>
-            <div id="status" class="status">{{{status}}}</div>
-        </div>
-        <div class="col-md-6">
-            <input type="text" class="form-control mb-1" id="sendMessageBox" placeholder="Enter a message..." />
-            <button class="btn btn-default mb-2" id="sendButton">Send</button>
-            <button class="btn btn-default mb-2" id="clearMsgsButton">Clear Msgs (Local)</button>
-            <div class="message mb-3" id="message">{{{message}}}</div>
-        </div>
-    </div>
-</template>
 
 <!-- StreamArea Template -->
 <template name="StreamArea">
@@ -221,5 +252,13 @@
     </div>
 </template>
 
+
+<!-- ProcessedArea Template -->
+<template name="ProcessedArea">
+    <!-- ProcessedArea Part -->
+    <div class="display-cover">
+      <img style="width: 100%; height: 100%" id="processed_img" alt="No processing yet..">
+    </div>
+</template>
 
 
