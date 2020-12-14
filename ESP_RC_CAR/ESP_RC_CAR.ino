@@ -4,8 +4,8 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "STUDBME2";
+const char* password = "BME2Stud";
 int auto_mode = 0;
 String rfid_reading = "";
 
