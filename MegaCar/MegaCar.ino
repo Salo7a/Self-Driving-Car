@@ -33,6 +33,8 @@
 int connected = 0;
 int speed = 0;
 int temp = 0;
+String distance= "x";
+int x;
 MFRC522 mfrc522(SS_PIN, RST_PIN); 
 
 MFRC522::MIFARE_Key key;
@@ -109,6 +111,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(IRQ_PIN), readCard, FALLING);
   LeftS.Start();
   RightS.Start();
+  x = millis();
 }
 
 
@@ -152,6 +155,7 @@ void loop() {
     digitalWrite(L2, LOW);
   }
   if (bNewInt) { //new read interrupt
+    Serial2.begin(115200);
     mfrc522.PICC_ReadCardSerial(); //read the tag data
     // Show some details of the PICC (that is: the tag/card)
     Serial.print(F("Card UID:"));
@@ -168,10 +172,20 @@ void loop() {
     RightS.Update();
   // The receiving block needs regular retriggering (tell the tag it should transmit??)
   // (mfrc522.PCD_WriteRegister(mfrc522.FIFODataReg,mfrc522.PICC_CMD_REQA);)
-    Serial.print("Left: ");
-  Serial.print(LeftS.GetMeasureMM()/10);
-  Serial.print(", Right: ");
-  Serial.println(RightS.GetMeasureMM()/10);
+  
+  if (millis() - x > 1000){
+      Serial2.begin(115200);
+      x = millis();
+      distance = "@" + String(LeftS.GetMeasureMM()/10) + "," + String(RightS.GetMeasureMM()/10);
+      Serial2.print(distance);
+      Serial.println(distance);
+      Serial2.end();
+  }
+
+//    Serial.print("Left: ");
+//  Serial.print(LeftS.GetMeasureMM()/10);
+//  Serial.print(", Right: ");
+//  Serial.println(RightS.GetMeasureMM()/10);
 
 }
 
@@ -201,6 +215,8 @@ void backwards(){
 }
 void right(){
 //  Serial.println("Right");
+  analogWrite(SPEEDL, 128); 
+  analogWrite(SPEEDR, 128);
   digitalWrite(R1, HIGH);
   digitalWrite(R2, LOW);
   digitalWrite(L1, LOW);
@@ -213,6 +229,8 @@ void right(){
 }
 void left(){
 //  Serial.println("Left");
+  analogWrite(SPEEDL, 128); 
+  analogWrite(SPEEDR, 128);
   digitalWrite(R1, LOW);
   digitalWrite(R2, HIGH);
   digitalWrite(L1, HIGH);
@@ -227,6 +245,8 @@ void stopc(){
 //  if (digitalRead(STOP)) {
 //    Serial.println("Stop");
 //  }
+  analogWrite(SPEEDL, MAXSPEED); 
+  analogWrite(SPEEDR, MAXSPEED);
   digitalWrite(R1, LOW);
   digitalWrite(R2, LOW);
   digitalWrite(L1, LOW);

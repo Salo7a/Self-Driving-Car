@@ -8,7 +8,8 @@ const char* ssid = "";
 const char* password = "";
 int auto_mode = 0;
 String rfid_reading = "";
-
+String distance = "x";
+String temp = "";
 #define CONNECTED D1
 #define FORWARD D2
 #define BACKWARDS D3
@@ -122,6 +123,12 @@ void setup() {
     server.send(200, "text/plain", rfid_reading);
   });
 
+  server.on("/distance", [](){
+    Serial.println("distance");
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.send(200, "text/plain", distance);
+  });
+
   server.on("/play", [](){
     Serial.println("play");
     auto_mode = 1;
@@ -160,6 +167,7 @@ void setup() {
 }
 
 void loop() {
+  server.handleClient();
   // put your main code here, to run repeatedly:
      if(WiFi.status() != WL_CONNECTED)
     {
@@ -168,11 +176,21 @@ void loop() {
     server.handleClient();
     digitalWrite(CONNECTED, HIGH);
     MDNS.update();
-    if (Serial.available()) {      // If anything comes in Serial (USB),
-      rfid_reading = Serial.readString();
-      Serial.println(rfid_reading);   // read it and send it out Serial1 (pins 0 & 1)
+    server.handleClient();
+    if (Serial.available()) { // If anything comes in Serial (USB),
+      server.handleClient();
+      temp = Serial.readString();
+      if (String(temp[0]) == String("@")){
+        Serial.println("Distance");
+        distance = temp;
+      } else{
+        Serial.println("RFID");
+        rfid_reading = temp;
+      }
+      server.handleClient();
+      Serial.println(temp);   // read it and send it out Serial1 (pins 0 & 1)
     }
-
+server.handleClient();
 }
 void connectToWiFi()
 {
