@@ -227,7 +227,7 @@ Template.AutoModeButtons.events({
             }
         });
 
-        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 250);
+        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 2000);
     },
 
     'mousedown #pause' (e, i) {
@@ -328,22 +328,22 @@ Template.StreamArea.helpers({
     startProcessing() {
         let frameURI = Template.StreamArea.__helpers.get("getFrame")(); 
         let {output_frame, angle} = Template.StreamArea.__helpers.get("processFrame")(frameURI);
-        let order = '/stop';
+        let order;
         processedImage.src = output_frame;
         Session.set('angle', angle);
 
         // Conditions on angle to choose which direction to send Ajax to ESP
         // Some Stuff here
 
-        if (angle > 100) {
+        if (angle > 105) {
+            order = "/right";
             console.log("order is: ", order);
-            order = "/right"
-        } else if (angle < 80) {
+        } else if (angle <= 75) {
+            order = "/left";
             console.log("order is: ", order);
-            order = "/left"
-        } else if (angle > 79 && angle < 101) {
+        } else if (angle > 76 && angle < 106) {
+            order = "/forward";
             console.log("order is: ", order);
-            order = "/forward"
         }
 
         const sendAJAX = (val) => {
@@ -366,12 +366,12 @@ Template.StreamArea.helpers({
         });
 
         // Send ajax to the car
-        $.ajax({
-            url: ESP_IP + '/stop',
-            success: () => {
-                console.log("Sent order: stop");
-            }
-        });
+        // $.ajax({
+        //     url: ESP_IP + '/stop',
+        //     success: () => {
+        //         console.log("Sent order: stop");
+        //     }
+        // });
     },
 
     stopProcessing() {
@@ -476,8 +476,8 @@ Template.peerTable.helpers({
         // Create own peer object with connection to shared PeerJS server
         if(Meteor.isCordova){
             peerID = 'xdm24wjo00365';
-        } else{
-            peerID = 'xdm24wjo00324';
+        } else {
+            peerID = 'xdm24wjo09129';
         }
         
         peer = new Peer(peerID, {
