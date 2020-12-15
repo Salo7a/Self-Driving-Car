@@ -68,9 +68,16 @@ def regionOfInterest(edges):
     mask = np.zeros_like(edges)
 
     # only focus bottom half of the screen
+    # polygon = np.array([[
+    #     (0, height * 1 / 2),
+    #     (width, height * 1 / 2),
+    #     (width, height),
+    #     (0, height),
+    # ]], np.int32)
     polygon = np.array([[
-        (0, height * 1 / 2),
-        (width, height * 1 / 2),
+        (0, height * 1
+         / 4),
+        (width, height * 1 / 4),
         (width, height),
         (0, height),
     ]], np.int32)
@@ -152,8 +159,8 @@ def averageSlopeIntercept(frame, lineSegments):
 
 def detectLane(frame, lowerColor, upperColor):
     edges = detectEdges(frame, lowerColor, upperColor)
-    # croppedEdges = regionOfInterest(edges)
-    croppedEdges = edges
+    croppedEdges = regionOfInterest(edges)
+    # croppedEdges = edges
     lineSegments = detectLineSegments(croppedEdges)
     laneLines = averageSlopeIntercept(frame, lineSegments)
 
