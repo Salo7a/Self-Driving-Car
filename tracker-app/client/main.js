@@ -121,7 +121,7 @@ Template.peerTable.onCreated(function peerTableOnCreated() {
 });
 
 Template.peerTable.onRendered(function() {
-    let destID = "xdm24wjo00324";
+    let destID = "xdm24wjo09129";
     // init variables
     lastPeerId = null;
     peer = null; // Own peer object
@@ -231,7 +231,7 @@ Template.peerTable.helpers({
      */
     join() {
         const instance = Template.instance();
-        destID = 'xdm24wjo00324';
+        destID = 'xdm24wjo09129';
 
         // Close old connection
         if (conn) {
