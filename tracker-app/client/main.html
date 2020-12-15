@@ -22,7 +22,7 @@
 
 <body>
     <div class="container">
-        <h1>Track Streamer App</h1>
+        <h1>Track Streamer</h1>
         {{> MainLayout}}
         {{> ImagesArea}}
     </div>
@@ -68,16 +68,10 @@
   
         const constraints = {
             video: {
-                width: {
-                    min: 640,
-                    ideal: 720,
-                    max: 720,
-                },
-                height: {
-                    min: 360,
-                    ideal: 480,
-                    max: 480
-                },
+                width: { min: 512, ideal: 640, max: 640 },
+                height: { min: 288, ideal: 360, max: 360 },
+                zoom: true,
+                aspectRatio: 16/9,
                 facingMode: {
                     exact: 'environment'
                 }
@@ -102,6 +96,9 @@
                 return;
             }
             if ('mediaDevices' in navigator && navigator.mediaDevices.getUserMedia) {
+
+
+
                 const updatedConstraints = {
                     ...constraints,
                     deviceId: {
@@ -115,6 +112,20 @@
   
         const startStream = async (constraints) => {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+            // const [track] = stream.getVideoTracks();
+            // const capabilities = track.getCapabilities();
+            // const settings = track.getSettings();
+
+            // // Check whether zoom is supported or not.
+            // if (!('zoom' in settings)) {
+            //     console.log("nooooot");
+            //     return Promise.reject('Zoom is not supported by ' + track.label);
+            // }
+
+            // track.applyConstraints({advanced: [ {zoom: capabilities.zoom.min} ]});
+
+
             handleStream(stream);
         };
   
@@ -126,7 +137,7 @@
             streamStarted = true;
         };
   
-        // getCameraSelection();
+        getCameraSelection();
         startStream(constraints);
 
         cameraOptions.onchange = () => {
@@ -160,45 +171,52 @@
 
 
 <template name="MainLayout">
-    <div class="row">
-        <div class="col-md-6">
-          <div class="card card-default">
-            <div class="card-header">
-              <h3 class="card-title">
-                <i class="fas fa-gamepad"></i>
-                Connections
-              </h3>
-            </div>
-            <!-- /.card-header -->
-
-            <div class="card-body">
-                <!-- Peer Connections Row -->
-                {{> peerTable}}
-            </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
+    <div class="col">
+        <!-- Connect -->
+        <div class="row">
+            <div class="col">
+                <div class="card card-default">
+                  <div class="card-header">
+                    <h3 class="card-title">
+                      <i class="fas fa-gamepad"></i>
+                      Connections
+                    </h3>
+                  </div>
+                  <!-- /.card-header -->
+      
+                  <div class="card-body">
+                      <!-- Peer Connections Row -->
+                      {{> peerTable}}
+                  </div>
+                  <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+              </div>
+              <!-- /.col -->
         </div>
-        <!-- /.col -->
 
-        <div class="col-md-6">
-          <div class="card card-default">
-            <div class="card-header">
-              <h3 class="card-title">
-                <i class="fas fa-video"></i>
-                Live Stream
-              </h3>
-            </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-                {{> StreamArea}}
-            </div>
-            <!-- /.card-body -->
-          </div>
-          <!-- /.card -->
+        <!-- Live Stream -->
+        <div class="row">
+            <div class="col">
+                <div class="card card-default">
+                  <div class="card-header">
+                    <h3 class="card-title">
+                      <i class="fas fa-video"></i>
+                      Live Stream
+                    </h3>
+                  </div>
+                  <!-- /.card-header -->
+                  <div class="card-body">
+                      {{> StreamArea}}
+                  </div>
+                  <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+              </div>
+              <!-- /.col -->
         </div>
-        <!-- /.col -->
-      </div>
+    </div>
+
 </template>
 
 
@@ -233,26 +251,15 @@
 <!-- PeerTable Template -->
 <template name="peerTable">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col">
             <div class="form-group row">
-                <div class="col-sm-7">
+                <div class="col">
                   <input type="text" class="form-control" id="receiver-id" title="Input the ID from receive" value="{{recvIdInput}}" placeholder="Enter Receiver ID">
                 </div>
+                <button class="btn btn-default mb-2" id="connect-button">Connect</button>
             </div>
-            <button class="btn btn-default mb-2" id="connect-button">Connect</button>
+            <!-- <button class="btn btn-default mb-2" id="connect-button">Connect</button> -->
             <div id="status" class="status">{{{status}}}</div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="form-group row">
-                <div class="col-sm-10">
-                    <input type="text" class="form-control mb-1" id="sendMessageBox" placeholder="Enter a message..." />
-                </div>
-            </div>
-            <button class="btn btn-default mb-2" id="sendButton">Send</button>
-            <button class="btn btn-default mb-2" id="clearMsgsButton">Clear Msgs (Local)</button>
-
-            <div class="message mb-3" id="message">{{{message}}}</div>
         </div>
     </div>
 </template>

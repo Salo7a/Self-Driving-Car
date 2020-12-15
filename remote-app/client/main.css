@@ -27,6 +27,7 @@ body {
   width: 100%;
 }
 
+
 .arrow-key-container {
   display: inline-block;
   text-align: center;
@@ -131,6 +132,13 @@ body {
   color: red;
 }
 
+#angle {
+  background-color: rgb(241,239,237);
+  font-weight: bold;
+  padding: 3px;
+  border-radius: 5px;
+}
+
 
 /* Video Streaming Styles */
 
@@ -151,7 +159,7 @@ body {
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin: 5% auto;
+  margin: 2% auto;
   position: relative;
 }
 
@@ -161,7 +169,38 @@ video {
 }
 
 #live-stream-body {
-  max-height: 500px;
+  /* max-height: 400px; */
+  /* max-width: 320px; */
+}
+
+.rotation-wrapper-outer {
+  display: table;
+}
+
+.rotation-wrapper-inner {
+  padding: 50% 0;
+  height: 0;
+}
+
+.element-to-rotate {
+  display: block;
+  transform-origin: top left;
+  /* Note: for a CLOCKWISE rotation, use the commented-out
+     transform instead of this one. */
+  transform: rotate(-90deg) translate(-100%);
+  /* transform: rotate(90deg) translate(0, -100%); */
+  margin-top: -50%;
+
+  /* Not vital, but possibly a good idea if the element you're rotating contains
+     text and you want a single long vertical line of text and the pre-rotation
+     width of your element is small enough that the text wraps: */
+  white-space: nowrap;
+  /* max-height: 400px; */
+  max-width: 300px;
+}
+
+.streamCard {
+  max-height: 343px;
 }
 
 .video-options {
@@ -244,3 +283,7 @@ video {
 .controls > button:hover svg {
   color: white;
 }
+
+
+
+/* Edit bootstrap classes */

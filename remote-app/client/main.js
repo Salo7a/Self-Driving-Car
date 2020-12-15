@@ -5,15 +5,18 @@ import { Session } from 'meteor/session'
 
 import './main.html';
 
-// const parser = require('fast-xml-parser');
-// const he = require('he');
-
-// let serviceDiscovery = null;
 let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
-// let ESP_IP = 'http://192.168.1.13';
-let ESP_IP = 'null';
+let ESP_IP = 'http://192.168.43.66';
 let RFID_Reading = 'null';
+let ultra1_reading = 'null';
+let ultra2_reading = 'null';
+
+
+let processInterval;            // for creating an interval to process frames iteratively
+let output_frame;               // result frame after processing
+let angle;                      // result angle after processing
+
 
 Meteor.startup(function() {
     if (Meteor.isCordova)
@@ -33,11 +36,12 @@ Meteor.startup(function() {
 });
 
 
-
 // ConnectESP Template Configurations
 Template.ConnectESP.onCreated(() => {
     Session.set('espConnected', '0');
     Session.set('rfidReading', RFID_Reading);
+    Session.set('ultra1_reading', ultra1_reading);
+    Session.set('ultra2_reading', ultra2_reading);
 });
 
 Template.ConnectESP.helpers({
@@ -47,6 +51,14 @@ Template.ConnectESP.helpers({
 
     rfidReading() {
         return Session.get('rfidReading');
+    },
+
+    ultra1_reading() {
+        return Session.get('ultra1_reading');
+    },
+
+    ultra2_reading() {
+        return Session.get('ultra2_reading');
     },
 
     isPending(state) {
@@ -81,6 +93,48 @@ Template.ConnectESP.helpers({
 
         getRFID;
     },
+
+    getUltra1Reading() {
+        let ultra1_reading = Template.ConnectESP.__helpers.get('ultra1_reading')();
+
+        // Send a GET request to retrieve ultra1 reading every 100ms
+        const getUltra1 = setInterval(function() {
+            console.log("request Ultra1 Readings..");
+            $.ajax({
+                url: ESP_IP + '/ultra1',
+                success: (data) => {
+                    console.log("Get Ultra1..");
+                    console.log(data);
+                    ultra1_reading = data;
+                }
+            });
+            Session.set('ultra1_reading', ultra1_reading);
+            console.log("Ultra1: ...");
+        }, 100);
+
+        getUltra1;
+    },
+
+    getUltra2Reading() {
+        let ultra2_reading = Template.ConnectESP.__helpers.get('ultra2_reading')();
+
+        // Send a GET request to retrieve ultra2 reading every 100ms
+        const getUltra2 = setInterval(function() {
+            console.log("request Ultra2 Readings..");
+            $.ajax({
+                url: ESP_IP + '/ultra2',
+                success: (data) => {
+                    console.log("Get Ultra2..");
+                    console.log(data);
+                    ultra1_reading = data;
+                }
+            });
+            Session.set('ultra2_reading', ultra2_reading);
+            console.log("Ultra2: ...");
+        }, 100);
+
+        getUltra2;
+    }
 });
 
 
@@ -94,7 +148,6 @@ Template.DrivingMode.events({
         }
     },
 });
-
 
 // Controls Template Configurations
 Template.Controls.onRendered(() => {
@@ -118,6 +171,7 @@ Template.ControlArrows.events({
             }
         });
     },
+
     'mousedown .down, touchstart .down' (e, i) {
         console.log("down");
         $.ajax({
@@ -127,6 +181,7 @@ Template.ControlArrows.events({
             }
         });
     },
+
     'mousedown .right, touchstart .right' (e, i) {
         console.log("right");
         $.ajax({
@@ -136,6 +191,7 @@ Template.ControlArrows.events({
             }
         });
     },
+    
     'mousedown .left, touchstart .left' (e, i) {
         console.log("left");
         $.ajax({
@@ -170,16 +226,21 @@ Template.AutoModeButtons.events({
                 console.log("Start Moving The Car in Auto Mode...");
             }
         });
+
+        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 2000);
     },
 
     'mousedown #pause' (e, i) {
         console.log("pause clicked");
+        Template.StreamArea.__helpers.get('stopProcessing')();
+
         $.ajax({
             url: ESP_IP + '/stop',
             success: () => {
                 console.log("Stop The Car...");
             }
         });
+
     },
 });
 
@@ -227,34 +288,134 @@ Template.StreamArea.helpers({
         canvasTag.width = videoTag.videoWidth;
         canvasTag.height = videoTag.videoHeight;
         canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
-        screenshotImage.src = canvasTag.toDataURL('image/webp');
+        let imgURI = canvasTag.toDataURL('image/jpeg', 0.5);
+        screenshotImage.src = imgURI
         screenshotImage.classList.remove('d-none');
-        return screenshotImage.src
+        return imgURI
     },
+
+    getFrame() {
+        canvasTag.width = videoTag.videoWidth;
+        canvasTag.height = videoTag.videoHeight;
+        canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
+        return canvasTag.toDataURL('image/jpeg', 0.5);
+    },
+
+    processFrame(frameURI) {
+        // Percent-Encode for Reserved characters in URL
+        let frameURI_encoded = encodeURIComponent(frameURI);
+        let url_path = 'http://127.0.0.1:5000/detect?color=blue&frame_uri=' + frameURI_encoded;
+        
+        // Send GET request to Flask server for processing
+        // Params: color and frame_uri(base64)
+        $.ajax({
+            type: "GET",
+            url: url_path,
+            async: false,
+            success: (data) => {
+                // console.log(JSON.stringify(data));
+                output_frame = data['frame_uri'];
+                angle = data['angle'];
+            },
+            error: (err) => {
+                console.log(err)
+            }
+        }).responseText;
+
+        return {output_frame, angle};
+    },
+
+    startProcessing() {
+        let frameURI = Template.StreamArea.__helpers.get("getFrame")(); 
+        let {output_frame, angle} = Template.StreamArea.__helpers.get("processFrame")(frameURI);
+        let order;
+        processedImage.src = output_frame;
+        Session.set('angle', angle);
+
+        // Conditions on angle to choose which direction to send Ajax to ESP
+        // Some Stuff here
+
+        if (angle > 105) {
+            order = "/right";
+            console.log("order is: ", order);
+        } else if (angle <= 75) {
+            order = "/left";
+            console.log("order is: ", order);
+        } else if (angle > 76 && angle < 106) {
+            order = "/forward";
+            console.log("order is: ", order);
+        }
+
+        const sendAJAX = (val) => {
+            $.ajax({
+                url: ESP_IP + val,
+                // async: false,
+                success: () => {
+                    console.log("Sent order: ", val);
+                }
+            });
+        }
+
+        // Send ajax to the car
+        $.ajax({
+            url: ESP_IP + order,
+            // async: false,
+            success: () => {
+                console.log("Sent order: ", order);
+            }
+        });
+
+        // Send ajax to the car
+        // $.ajax({
+        //     url: ESP_IP + '/stop',
+        //     success: () => {
+        //         console.log("Sent order: stop");
+        //     }
+        // });
+    },
+
+    stopProcessing() {
+        console.log("Stopping Processing");
+        clearInterval(processInterval);
+    },
+
 });
 
 Template.StreamArea.events({
+    // Handle click play Button event in the stream
     'click .playBtn' (event, instance) {
         console.log("clicked play");
         Template.StreamArea.__helpers.get('playStream')();
     },
 
+    // Handle click pause Button event in the stream
     'click .pauseBtn' (event, instance) {
         console.log("clicked pause");
         Template.StreamArea.__helpers.get('pauseStream')();
 
     },
 
+    // Handle click screenshot Button event in the stream
     'click .screenshotBtn' (event, instance) {
         console.log("clicked screenshot");
-        imgData = Template.StreamArea.__helpers.get('doScreenshot')();
+        Template.StreamArea.__helpers.get('doScreenshot')();
+    },
+});
 
-        // Send imgData to server-side for processing
-        Meteor.call("getImgData", imgData, async (error, result) => {
-            await console.log("finished call getImgData from client");
-            if (error) throw error;
-            console.log(result);
-        });
+
+// Configurations for ProcessedArea Template
+Template.ProcessedArea.onCreated(() => {
+    Session.set('angle', 'null');
+});
+
+
+Template.ProcessedArea.onRendered(function getImageTag() {
+    processedImage = Template.instance().find("#processed_img");
+});
+
+Template.ProcessedArea.helpers({
+    angle() {
+        return Session.get('angle');
     },
 });
 
@@ -313,7 +474,12 @@ Template.peerTable.helpers({
         const instance = Template.instance();
         g_instance = Template.instance();
         // Create own peer object with connection to shared PeerJS server
-        peerID = 'xdm24wjo00324';
+        if(Meteor.isCordova){
+            peerID = 'xdm24wjo00365';
+        } else {
+            peerID = 'xdm24wjo09129';
+        }
+        
         peer = new Peer(peerID, {
             debug: 2
         });
@@ -334,13 +500,13 @@ Template.peerTable.helpers({
 
         peer.on('connection', function (c) {
             // Allow only a single connection
-            if (conn && conn.open) {
-                c.on('open', function() {
-                    c.send("Already connected to another client");
-                    setTimeout(function() { c.close(); }, 500);
-                });
-                return;
-            }
+            // if (conn && conn.open) {
+            //     c.on('open', function() {
+            //         c.send("Already connected to another client");
+            //         setTimeout(function() { c.close(); }, 500);
+            //     });
+            //     return;
+            // }
 
             conn = c;
             console.log("Connected to: " + conn.peer);
@@ -358,13 +524,6 @@ Template.peerTable.helpers({
                 // Start Stream Process
                 Template.StreamArea.__helpers.get('handleStream')(stream);
                 console.log("stream in client", stream);
-
-                // Send Stream to server-side for processing
-                // Meteor.call("getStream", stream, async (error, result) => {
-                //     await console.log("finished call from client");
-                //     if (error) throw error;
-                //     console.log(result);
-                // });
             });
         });
 
@@ -470,7 +629,7 @@ Template.peerTable.events({
 });
 
 
-
+// Code to be executed in mobile app only
 if (Meteor.isCordova) {
     Template.ConnectESP.events({
         'click #connectESP' (event, instance) {
@@ -487,55 +646,32 @@ if (Meteor.isCordova) {
                         console.log(device["LOCATION"]); // http://192.168.1.13:80/description.xml
                         ESP_IP = loc.slice(0, loc.search(":80"));
                         console.log(ESP_IP);
+
+                        // Add Success Component to UI
                         Session.set('espConnected', '1');
 
                         // Send ESP_IP to server-side
-                        Meteor.call("getESPIP", ESP_IP, async (error, result) => {
-                            await console.log("finished call from client");
+                        Meteor.call("sendESPIP", ESP_IP, (error, result) => {
                             if (error) throw error;
                             console.log(result);
                         });
 
                         Template.ConnectESP.__helpers.get('getRFIDReadings')();
+                        Template.ConnectESP.__helpers.get('getUltra1Reading')();
+                        Template.ConnectESP.__helpers.get('getUltra2Reading')();
                     }
                 });
 
                 if (ESP_IP === 'null') {
+                    // Add Failure Component to UI 
                     Session.set('espConnected', '2');
                 }
             }
-                    // let options = {
-                    //     attributeNamePrefix : "@_",
-                    //     attrNodeName: "attr", //default is 'false'
-                    //     textNodeName : "#text",
-                    //     ignoreAttributes : true,
-                    //     ignoreNameSpace : false,
-                    //     allowBooleanAttributes : false,
-                    //     parseNodeValue : true,
-                    //     parseAttributeValue : false,
-                    //     trimValues: true,
-                    //     cdataTagName: "__cdata", //default is 'false'
-                    //     cdataPositionChar: "\\c",
-                    //     parseTrueNumberOnly: false,
-                    //     arrayMode: false, //"strict"
-                    //     attrValueProcessor: (val, attrName) => he.decode(val, {isAttributeValue: true}),//default is a=>a
-                    //     tagValueProcessor : (val, tagName) => he.decode(val), //default is a=>a
-                    //     stopNodes: ["parse-me-as-string"]
-                    // };
-                    // if( parser.validate(device["xml"]) === true) { //optional (it'll return an object in case it's not valid)
-                    //     let jsonObj = parser.parse(device["xml"],options);
-                    //     console.log(JSON.stringify(jsonObj));
-                    //     if (jsonObj["device"]["friendlyName"] === "CoolESP"){
-                    //         console.log(JSON.stringify(jsonObj));
-                    //
-                    //     }
-                    // }
-                
-
+               
             let failure = function() {
                 alert("Error calling Service Discovery Plugin");
             }
-            //
+            
             // /**
             //  * Similar to the W3C specification for Network Service Discovery api 'http://www.w3.org/TR/discovery-api/'
             //  * @method getNetworkServices
@@ -544,41 +680,6 @@ if (Meteor.isCordova) {
             //  * @param {Function} failure callback
             //  */
             serviceDiscovery.getNetworkServices(serviceType, success, failure);
-
-            // Configure zeroconf
-            // zeroconf.watch('_http._tcp.', 'local.', function(result) {
-            //     let action = result.action;
-            //     let service = result.service;
-            //     console.log(JSON.stringify(result));
-            //     if (action === 'added')
-            //     {
-            //         console.log('service added', service);
-            //         console.log(service["domain"] + " : "+ service["hostname"] + " : " + service["ipv4Addresses"]);
-            //         if (service["hostname"] === ESP_SSID) {
-            //             ESP_IP = service["ipv4Addresses"];
-            //         }
-            //     }
-            //     else if (action === 'resolved')
-            //     {
-            //         // console.log('service resolved', service);
-            //         // console.log(service["domain"] + " : "+ service["hostname"] + " : " + service["ipv4Addresses"]);
-            //         /* service : {
-            //         'domain' : 'local.',
-            //         'type' : '_http._tcp.',
-            //         'name': 'Becvert\'s iPad',
-            //         'port' : 80,
-            //         'hostname' : 'ipad-of-becvert.local',
-            //         'ipv4Addresses' : [ '192.168.1.125' ],
-            //         'ipv6Addresses' : [ '2001:0:5ef5:79fb:10cb:1dbf:3f57:feb0' ],
-            //         'txtRecord' : {
-            //             'foo' : 'bar'
-            //         } */
-            //     }
-            //     else {
-            //         console.log('service removed', service);
-            //     }
-            // });
-
 
         }
     });

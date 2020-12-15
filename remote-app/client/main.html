@@ -17,11 +17,12 @@
     <!-- AdminLTE App -->
     <script src="/js/adminlte.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script src="/js/lanedetection.js"></script>
 
 </head>
 
 <body>
-  <div class="container">
+  <div class="container-fluid">
       <h1>Remote Control</h1>
       {{> MainLayout}}
   </div>
@@ -32,8 +33,10 @@
 
 <template name="MainLayout">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-3 col-sm-12">
+
           <div class="card card-default">
+            <!-- .card-header -->
             <div class="card-header">
               <h3 class="card-title">
                 <i class="fas fa-gamepad"></i>
@@ -42,34 +45,31 @@
             </div>
             <!-- /.card-header -->
 
+            <!-- .card-body -->
             <div class="card-body">
                 <!-- Peer Connections Row -->
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col">
                         {{> peerTable}}
                     </div>
                 </div>
 
+                <!-- Controls Row -->
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col">
                         {{> Controls}}
                     </div>
                 </div>
-
-                <div class="row">
-                    <div class="col-md-7">
-                        {{> ControlArrows}}
-                    </div>
-                    
-                </div>
             </div>
             <!-- /.card-body -->
+
           </div>
           <!-- /.card -->
         </div>
         <!-- /.col -->
 
-        <div class="col-md-6">
+
+        <div class="col-5">
           <div class="card card-default">
             <div class="card-header">
               <h3 class="card-title">
@@ -78,15 +78,37 @@
               </h3>
             </div>
             <!-- /.card-header -->
-            <div class="card-body">
+
+            <div class="card-body streamCard">
                 {{> StreamArea}}
             </div>
             <!-- /.card-body -->
+
           </div>
           <!-- /.card -->
         </div>
         <!-- /.col -->
+
+        <div class="col-4">
+            <div class="card card-default">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-video"></i>
+                  Processed Frames
+                </h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                  {{> ProcessedArea}}
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+
       </div>
+
 </template>
 
 
@@ -98,31 +120,52 @@
     {{/if}}
 </template>
 
-<!-- ConnectESP Template -->
-<template name="ConnectESP">
+
+<!-- PeerTable Template -->
+<template name="peerTable">
     <div class="row">
         <div class="col-md-6">
-            <button class="btn btn-success mb-2" id="connectESP">Connect ESP</button>
-        </div>
-        <div class="col-md-6">
-            <ul class="list-group list-group-unbordered mb-3">
-                <li class="list-group-item">
-                  <b>RFID:</b><span class="float-right" id="rfid">{{rfidReading}}</span>
-                </li>
-            </ul>
+            <div id="receiver-id" style="font-weight: bold;" title="Copy this ID to the input">ID: {{receiver_id}}</div>
+            <div id="status" class="status mb-1">{{{status}}}</div>
         </div>
     </div>
-    {{#if isPending espConnected}}
-    {{/if}}
-
-    {{#if isConnected espConnected}}
-        {{> SuccessAlert}}
-    {{/if}}
-
-    {{#if isDisconnect espConnected}}
-        {{> FailureAlert}}
-    {{/if}}
 </template>
+
+
+<!-- ConnectESP Template -->
+<template name="ConnectESP">
+
+    <!-- Start ConnectESP Card -->
+    <div class="card">
+        <div class="card-body table-responsive pad">
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-success" id="connectESP">Connect ESP</button>
+                </div>
+                <div class="col">
+                    <p><b>RFID: </b><span id="rfid">{{rfidReading}}</span></p>
+                    <p>
+                        <b>US1: </b><span id="rfid">{{ultra1_reading}}</span>
+                        <b>US2: </b><span id="rfid">{{ultra2_reading}}</span>
+                    </p>
+                </div>
+            </div>
+            {{#if isPending espConnected}}
+            {{/if}}
+
+            {{#if isConnected espConnected}}
+                {{> SuccessAlert}}
+            {{/if}}
+
+            {{#if isDisconnect espConnected}}
+                {{> FailureAlert}}
+            {{/if}}
+        </div>
+    </div>
+    <!-- End ConnectESP Card -->
+    
+</template>
+
 
 <template name="SuccessAlert">
     <div class="alert alert-success alert-dismissible">
@@ -147,14 +190,21 @@
             <h5 class="mb-1">Driving Mode</h5>
         </div>
         <div class="card-body table-responsive pad">
-            <div class="btn-group btn-group-toggle" data-toggle="buttons" id="drive-mode">
-                <label class="btn btn-secondary active">
-                    <input type="radio" name="options" id="option1" autocomplete="off" checked> Manual
-                </label>
-                <label class="btn btn-secondary">
-                    <input type="radio" name="options" id="option2" autocomplete="off"> Auto
-                </label>
+            <div class="col">
+                <div class="btn-group btn-group-toggle mb-1" data-toggle="buttons" id="drive-mode">
+                    <label class="btn btn-secondary active">
+                        <input type="radio" name="options" id="option1" autocomplete="off" checked> Manual
+                    </label>
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="options" id="option2" autocomplete="off"> Auto
+                    </label>
+                </div>
             </div>
+
+            <div class="col">
+                {{> ControlArrows}}
+            </div>
+            
         </div>
     </div>
     <!-- End Driving Mode Card -->
@@ -188,37 +238,44 @@
     </div>
 </template>
 
-<!-- PeerTable Template -->
-<template name="peerTable">
-    <div class="row">
-        <div class="col-md-6">
-            <div id="receiver-id" style="font-weight: bold;" title="Copy this ID to the input">ID: {{receiver_id}}</div>
-            <div id="status" class="status">{{{status}}}</div>
-        </div>
-        <div class="col-md-6">
-            <input type="text" class="form-control mb-1" id="sendMessageBox" placeholder="Enter a message..." />
-            <button class="btn btn-default mb-2" id="sendButton">Send</button>
-            <button class="btn btn-default mb-2" id="clearMsgsButton">Clear Msgs (Local)</button>
-            <div class="message mb-3" id="message">{{{message}}}</div>
-        </div>
-    </div>
-</template>
 
 <!-- StreamArea Template -->
 <template name="StreamArea">
     <!-- Video Streaming Part -->
-    <div class="display-cover">
-      <video style="width: 100%; height: 100%" id="live-stream-body" autoplay></video>
-      <canvas class="d-none"></canvas>
 
-      <img class="screenshot-image d-none" alt="">
-      <div class="controls">
-        <button class="btn btn-danger playBtn" title="Play"><i data-feather="play-circle"></i></button>
-        <button class="btn btn-info pauseBtn d-none" title="Pause"><i data-feather="pause"></i></button>
-        <button class="btn btn-outline-success screenshotBtn d-none" title="ScreenShot"><i data-feather="image"></i></button>
-      </div>
+    <div class="container">
+        <div class="rotation-wrapper-outer">
+            <div class="rotation-wrapper-inner">
+                <div class="row">
+                    <div class="col">
+                        <div id="stream-body" class="display-cover element-to-rotate">
+                            <video id="live-stream-body" autoplay></video>
+                            <canvas class="d-none"></canvas>
+                      
+                            <img class="screenshot-image d-none" alt="">
+                            <div class="controls">
+                              <button class="btn btn-danger playBtn" title="Play"><i data-feather="play-circle"></i></button>
+                              <button class="btn btn-info pauseBtn d-none" title="Pause"><i data-feather="pause"></i></button>
+                              <button class="btn btn-outline-success screenshotBtn d-none" title="ScreenShot"><i data-feather="image"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>    
+        </div>
     </div>
+        
 </template>
 
+
+<!-- ProcessedArea Template -->
+<template name="ProcessedArea">
+    <!-- ProcessedArea Part -->
+    <div class="display-cover">
+      <img id="processed_img" style="width: 100%; height: 100%" alt="No processing yet..">
+    </div>
+    <div id="angle">Steering Angle = {{angle}}</div>
+</template>
 
 
