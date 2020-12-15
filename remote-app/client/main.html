@@ -22,7 +22,7 @@
 </head>
 
 <body>
-  <div class="container">
+  <div class="container-fluid">
       <h1>Remote Control</h1>
       {{> MainLayout}}
   </div>
@@ -33,10 +33,10 @@
 
 <template name="MainLayout">
     <div class="row">
-        <div class="col-sm-4">
+        <div class="col-3">
 
-          <!-- .card-header -->
           <div class="card card-default">
+            <!-- .card-header -->
             <div class="card-header">
               <h3 class="card-title">
                 <i class="fas fa-gamepad"></i>
@@ -54,17 +54,11 @@
                     </div>
                 </div>
 
+                <!-- Controls Row -->
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col">
                         {{> Controls}}
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-7">
-                        {{> ControlArrows}}
-                    </div>
-                    
                 </div>
             </div>
             <!-- /.card-body -->
@@ -74,7 +68,8 @@
         </div>
         <!-- /.col -->
 
-        <div class="col-md-6">
+
+        <div class="col-5">
           <div class="card card-default">
             <div class="card-header">
               <h3 class="card-title">
@@ -83,16 +78,18 @@
               </h3>
             </div>
             <!-- /.card-header -->
-            <div class="card-body">
+
+            <div class="card-body streamCard">
                 {{> StreamArea}}
             </div>
             <!-- /.card-body -->
+
           </div>
           <!-- /.card -->
         </div>
         <!-- /.col -->
 
-        <div class="col-md-4">
+        <div class="col-4">
             <div class="card card-default">
               <div class="card-header">
                 <h3 class="card-title">
@@ -143,14 +140,14 @@
         <div class="card-body table-responsive pad">
             <div class="row">
                 <div class="col">
-                    <button class="btn btn-success btn-sm" id="connectESP">Connect ESP</button>
+                    <button class="btn btn-success" id="connectESP">Connect ESP</button>
                 </div>
-                <div class="col-md-6">
-                    <ul class="list-group list-group-unbordered">
-                        <li class="list-group-item">
-                          <b>RFID:</b><span class="float-right" id="rfid">{{rfidReading}}</span>
-                        </li>
-                    </ul>
+                <div class="col">
+                    <p><b>RFID: </b><span id="rfid">{{rfidReading}}</span></p>
+                    <p>
+                        <b>US1: </b><span id="rfid">{{ultra1_reading}}</span>
+                        <b>US2: </b><span id="rfid">{{ultra2_reading}}</span>
+                    </p>
                 </div>
             </div>
             {{#if isPending espConnected}}
@@ -168,7 +165,6 @@
     <!-- End ConnectESP Card -->
     
 </template>
-
 
 
 <template name="SuccessAlert">
@@ -194,14 +190,21 @@
             <h5 class="mb-1">Driving Mode</h5>
         </div>
         <div class="card-body table-responsive pad">
-            <div class="btn-group btn-group-toggle" data-toggle="buttons" id="drive-mode">
-                <label class="btn btn-secondary active">
-                    <input type="radio" name="options" id="option1" autocomplete="off" checked> Manual
-                </label>
-                <label class="btn btn-secondary">
-                    <input type="radio" name="options" id="option2" autocomplete="off"> Auto
-                </label>
+            <div class="col">
+                <div class="btn-group btn-group-toggle mb-1" data-toggle="buttons" id="drive-mode">
+                    <label class="btn btn-secondary active">
+                        <input type="radio" name="options" id="option1" autocomplete="off" checked> Manual
+                    </label>
+                    <label class="btn btn-secondary">
+                        <input type="radio" name="options" id="option2" autocomplete="off"> Auto
+                    </label>
+                </div>
             </div>
+
+            <div class="col">
+                {{> ControlArrows}}
+            </div>
+            
         </div>
     </div>
     <!-- End Driving Mode Card -->
@@ -239,17 +242,30 @@
 <!-- StreamArea Template -->
 <template name="StreamArea">
     <!-- Video Streaming Part -->
-    <div id="stream-body" class="display-cover">
-      <video style="width: 100%; height: 100%;" id="live-stream-body" autoplay></video>
-      <canvas class="d-none"></canvas>
 
-      <img class="screenshot-image d-none" alt="">
-      <div class="controls">
-        <button class="btn btn-danger playBtn" title="Play"><i data-feather="play-circle"></i></button>
-        <button class="btn btn-info pauseBtn d-none" title="Pause"><i data-feather="pause"></i></button>
-        <button class="btn btn-outline-success screenshotBtn d-none" title="ScreenShot"><i data-feather="image"></i></button>
-      </div>
+    <div class="container">
+        <div class="rotation-wrapper-outer">
+            <div class="rotation-wrapper-inner">
+                <div class="row">
+                    <div class="col">
+                        <div id="stream-body" class="display-cover element-to-rotate">
+                            <video id="live-stream-body" autoplay></video>
+                            <canvas class="d-none"></canvas>
+                      
+                            <img class="screenshot-image d-none" alt="">
+                            <div class="controls">
+                              <button class="btn btn-danger playBtn" title="Play"><i data-feather="play-circle"></i></button>
+                              <button class="btn btn-info pauseBtn d-none" title="Pause"><i data-feather="pause"></i></button>
+                              <button class="btn btn-outline-success screenshotBtn d-none" title="ScreenShot"><i data-feather="image"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>    
+        </div>
     </div>
+        
 </template>
 
 

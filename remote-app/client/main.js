@@ -4,18 +4,18 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { Session } from 'meteor/session'
 
 import './main.html';
-import { data } from 'jquery';
 
 let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
 let ESP_IP = 'http://192.168.43.66';
 let RFID_Reading = 'null';
+let ultra1_reading = 'null';
+let ultra2_reading = 'null';
 
 
 let processInterval;            // for creating an interval to process frames iteratively
 let output_frame;               // result frame after processing
 let angle;                      // result angle after processing
-// let order;                      // order to be sent to ESP (after conditions on output_angle)
 
 
 Meteor.startup(function() {
@@ -40,6 +40,8 @@ Meteor.startup(function() {
 Template.ConnectESP.onCreated(() => {
     Session.set('espConnected', '0');
     Session.set('rfidReading', RFID_Reading);
+    Session.set('ultra1_reading', ultra1_reading);
+    Session.set('ultra2_reading', ultra2_reading);
 });
 
 Template.ConnectESP.helpers({
@@ -49,6 +51,14 @@ Template.ConnectESP.helpers({
 
     rfidReading() {
         return Session.get('rfidReading');
+    },
+
+    ultra1_reading() {
+        return Session.get('ultra1_reading');
+    },
+
+    ultra2_reading() {
+        return Session.get('ultra2_reading');
     },
 
     isPending(state) {
@@ -83,6 +93,48 @@ Template.ConnectESP.helpers({
 
         getRFID;
     },
+
+    getUltra1Reading() {
+        let ultra1_reading = Template.ConnectESP.__helpers.get('ultra1_reading')();
+
+        // Send a GET request to retrieve ultra1 reading every 100ms
+        const getUltra1 = setInterval(function() {
+            console.log("request Ultra1 Readings..");
+            $.ajax({
+                url: ESP_IP + '/ultra1',
+                success: (data) => {
+                    console.log("Get Ultra1..");
+                    console.log(data);
+                    ultra1_reading = data;
+                }
+            });
+            Session.set('ultra1_reading', ultra1_reading);
+            console.log("Ultra1: ...");
+        }, 100);
+
+        getUltra1;
+    },
+
+    getUltra2Reading() {
+        let ultra2_reading = Template.ConnectESP.__helpers.get('ultra2_reading')();
+
+        // Send a GET request to retrieve ultra2 reading every 100ms
+        const getUltra2 = setInterval(function() {
+            console.log("request Ultra2 Readings..");
+            $.ajax({
+                url: ESP_IP + '/ultra2',
+                success: (data) => {
+                    console.log("Get Ultra2..");
+                    console.log(data);
+                    ultra1_reading = data;
+                }
+            });
+            Session.set('ultra2_reading', ultra2_reading);
+            console.log("Ultra2: ...");
+        }, 100);
+
+        getUltra2;
+    }
 });
 
 
@@ -114,7 +166,6 @@ Template.ControlArrows.events({
         console.log("up");
         $.ajax({
             url: ESP_IP + '/forward',
-            async: false,
             success: () => {
                 console.log("Moving Forward..");
             }
@@ -125,7 +176,6 @@ Template.ControlArrows.events({
         console.log("down");
         $.ajax({
             url: ESP_IP + '/back',
-            async: false,
             success: () => {
                 console.log("Moving Backward..");
             }
@@ -136,7 +186,6 @@ Template.ControlArrows.events({
         console.log("right");
         $.ajax({
             url: ESP_IP + '/right',
-            async: false,
             success: () => {
                 console.log("Moving Right..");
             }
@@ -147,7 +196,6 @@ Template.ControlArrows.events({
         console.log("left");
         $.ajax({
             url: ESP_IP + '/left',
-            async: false,
             success: () => {
                 console.log("Moving Left..");
             }
@@ -159,7 +207,6 @@ Template.ControlArrows.events({
         console.log("stop");
         $.ajax({
             url: ESP_IP + '/stop',
-            async: false,
             success: () => {
                 console.log("Stop Car..");
             }
@@ -175,7 +222,6 @@ Template.AutoModeButtons.events({
         console.log("play clicked");
         $.ajax({
             url: ESP_IP + '/play',
-            async: false,
             success: () => {
                 console.log("Start Moving The Car in Auto Mode...");
             }
@@ -190,7 +236,6 @@ Template.AutoModeButtons.events({
 
         $.ajax({
             url: ESP_IP + '/stop',
-            async: false,
             success: () => {
                 console.log("Stop The Car...");
             }
@@ -323,7 +368,6 @@ Template.StreamArea.helpers({
         // Send ajax to the car
         $.ajax({
             url: ESP_IP + '/stop',
-            async: false,
             success: () => {
                 console.log("Sent order: stop");
             }
@@ -613,6 +657,8 @@ if (Meteor.isCordova) {
                         });
 
                         Template.ConnectESP.__helpers.get('getRFIDReadings')();
+                        Template.ConnectESP.__helpers.get('getUltra1Reading')();
+                        Template.ConnectESP.__helpers.get('getUltra2Reading')();
                     }
                 });
 
