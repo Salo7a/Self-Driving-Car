@@ -169,6 +169,16 @@ Template.ControlArrows.events({
             url: ESP_IP + '/forward',
             success: () => {
                 console.log("Moving Forward..");
+            },
+            tryCount: 0,
+            retryLimit: 5,
+            error: function (xhr, textStatus, errorThrown) {
+                this.tryCount++;
+                toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
+                if (this.tryCount <= this.retryLimit) {
+                    //try again
+                    $.ajax(this);
+                }
             }
         });
     },
@@ -179,6 +189,16 @@ Template.ControlArrows.events({
             url: ESP_IP + '/back',
             success: () => {
                 console.log("Moving Backward..");
+            },
+            tryCount: 0,
+            retryLimit: 5,
+            error: function (xhr, textStatus, errorThrown) {
+                this.tryCount++;
+                toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
+                if (this.tryCount <= this.retryLimit) {
+                    //try again
+                    $.ajax(this);
+                }
             }
         });
     },
@@ -189,6 +209,25 @@ Template.ControlArrows.events({
             url: ESP_IP + '/right',
             success: () => {
                 console.log("Moving Right..");
+            },
+            tryCount: 0,
+            retryLimit: 5,
+            error: function (xhr, textStatus, errorThrown) {
+                if (textStatus === 'timeout') {
+                    this.tryCount++;
+                    toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
+                    if (this.tryCount <= this.retryLimit) {
+                        //try again
+                        $.ajax(this);
+                        return;
+                    }
+                    return;
+                }
+                if (xhr.status === 500) {
+                    toastr.error("Error! " + xhr.status + " " + textStatus);
+                } else {
+                    toastr.error("Error! " + xhr.status + " " + textStatus);
+                }
             }
         });
     },
@@ -199,6 +238,25 @@ Template.ControlArrows.events({
             url: ESP_IP + '/left',
             success: () => {
                 console.log("Moving Left..");
+            },
+            tryCount: 0,
+            retryLimit: 5,
+            error: function (xhr, textStatus, errorThrown) {
+                if (textStatus === 'timeout') {
+                    this.tryCount++;
+                    toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
+                    if (this.tryCount <= this.retryLimit) {
+                        //try again
+                        $.ajax(this);
+                        return;
+                    }
+                    return;
+                }
+                if (xhr.status === 500) {
+                    toastr.error("Error! " + xhr.status + " " + textStatus);
+                } else {
+                    toastr.error("Error! " + xhr.status + " " + textStatus);
+                }
             }
         });
     },
@@ -208,9 +266,19 @@ Template.ControlArrows.events({
         console.log("stop");
         $.ajax({
             url: ESP_IP + '/stop',
+            tryCount: 0,
+            retryLimit: 5,
             success: () => {
                 console.log("Stop Car..");
-            }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                    this.tryCount++;
+                    toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
+                    if (this.tryCount <= this.retryLimit) {
+                        //try again
+                        $.ajax(this);
+                    }
+                }
         });
     },
 
