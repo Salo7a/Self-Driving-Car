@@ -4,8 +4,16 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-const char* ssid = "STUDBME2";
-const char* password = "BME2Stud";
+//const char* ssid = "BODY-ALREFAEY-9031";
+//const char* password = "%rG15399";
+
+const char* ssid = "Nadod";
+const char* password = "toty12345";
+
+//const char* ssid = "Baka_kun";
+//const char* password = "kudo123Okiya45Sub";
+
+
 int auto_mode = 0;
 String rfid_reading = "";
 String distance = "x";
