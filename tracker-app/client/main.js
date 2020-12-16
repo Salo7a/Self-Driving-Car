@@ -6,6 +6,8 @@ import './main.html';
 // import '../public/js/lanedetection'
 import {detectEdges, showImage, showImageBGR, detectLineSegments, averageSlopeIntercept} from '../public/js/lanedetection'
 
+let destID = '';
+
 // code to run on server at startup
 Meteor.startup(function() {
   if (Meteor.isCordova) 
@@ -121,7 +123,7 @@ Template.peerTable.onCreated(function peerTableOnCreated() {
 });
 
 Template.peerTable.onRendered(function() {
-    let destID = "xdm24wjo09189";
+    destID = "xdm24wjo09189";
     // init variables
     lastPeerId = null;
     peer = null; // Own peer object
@@ -231,7 +233,6 @@ Template.peerTable.helpers({
      */
     join() {
         const instance = Template.instance();
-        destID = 'xdm24wjo09189';
 
         // Close old connection
         if (conn) {
