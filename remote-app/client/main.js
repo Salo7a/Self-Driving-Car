@@ -7,7 +7,8 @@ import './main.html';
 
 let ESP_MAC = '2c:f4:32:71:5b:b7';
 let ESP_SSID = '';
-let ESP_IP = 'http://192.168.43.66';
+// let ESP_IP = 'http://192.168.43.66';
+let ESP_IP = '192.168.43.213';
 let RFID_Reading = 'null';
 let ultra1_reading = 'null';
 let ultra2_reading = 'null';
@@ -112,7 +113,7 @@ Template.ConnectESP.helpers({
             console.log("Ultra1: ...");
         }, 100);
 
-        getUltra1;
+        // getUltra1;
     },
 
     getUltra2Reading() {
@@ -133,7 +134,7 @@ Template.ConnectESP.helpers({
             console.log("Ultra2: ...");
         }, 100);
 
-        getUltra2;
+        // getUltra2;
     }
 });
 
@@ -477,7 +478,7 @@ Template.peerTable.helpers({
         if(Meteor.isCordova){
             peerID = 'xdm24wjo00365';
         } else {
-            peerID = 'xdm24wjo09129';
+            peerID = 'xdm24wjo09189';
         }
         
         peer = new Peer(peerID, {
@@ -639,9 +640,12 @@ if (Meteor.isCordova) {
 
             let success = function(devices) {
                 console.log("success, serching..");
+                console.log(JSON.stringify(devices));
                 devices.forEach(device => {
+                    console.log(device["Server"]);
                     console.log(device);
                     if (device["Server"] === "Arduino/1.0 UPNP/1.1 esp8266/") {
+                        
                         let loc = device["LOCATION"];
                         console.log(device["LOCATION"]); // http://192.168.1.13:80/description.xml
                         ESP_IP = loc.slice(0, loc.search(":80"));
@@ -656,9 +660,9 @@ if (Meteor.isCordova) {
                             console.log(result);
                         });
 
-                        Template.ConnectESP.__helpers.get('getRFIDReadings')();
-                        Template.ConnectESP.__helpers.get('getUltra1Reading')();
-                        Template.ConnectESP.__helpers.get('getUltra2Reading')();
+                        // Template.ConnectESP.__helpers.get('getRFIDReadings')();
+                        // Template.ConnectESP.__helpers.get('getUltra1Reading')();
+                        // Template.ConnectESP.__helpers.get('getUltra2Reading')();
                     }
                 });
 
