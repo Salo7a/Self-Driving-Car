@@ -173,14 +173,14 @@ void loop() {
   // The receiving block needs regular retriggering (tell the tag it should transmit??)
   // (mfrc522.PCD_WriteRegister(mfrc522.FIFODataReg,mfrc522.PICC_CMD_REQA);)
   
-  if (millis() - x > 1000){
-      Serial2.begin(115200);
-      x = millis();
-      distance = "@" + String(LeftS.GetMeasureMM()/10) + "," + String(RightS.GetMeasureMM()/10);
-      Serial2.print(distance);
-      Serial.println(distance);
-      Serial2.end();
-  }
+//  if (millis() - x > 1000){
+//      Serial2.begin(115200);
+//      x = millis();
+//      distance = "@" + String(LeftS.GetMeasureMM()/10) + "," + String(RightS.GetMeasureMM()/10);
+//      Serial2.print(distance);
+//      Serial.println(distance);
+//      Serial2.end();
+//  }
 
 //    Serial.print("Left: ");
 //  Serial.print(LeftS.GetMeasureMM()/10);
