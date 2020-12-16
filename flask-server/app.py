@@ -26,6 +26,16 @@ def main():
     return "main Page"
 
 
+@app.route('/detect/<path:imgData>')
+def testing(imgData):
+    @after_this_request
+    def add_header(response):
+        # To allow CORS (Cross Origin Resource Sharing)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response
+    return imgData
+
+
 @app.route('/detect')
 def process():
     @after_this_request
