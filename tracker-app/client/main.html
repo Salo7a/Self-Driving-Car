@@ -112,20 +112,6 @@
   
         const startStream = async (constraints) => {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
-
-            // const [track] = stream.getVideoTracks();
-            // const capabilities = track.getCapabilities();
-            // const settings = track.getSettings();
-
-            // // Check whether zoom is supported or not.
-            // if (!('zoom' in settings)) {
-            //     console.log("nooooot");
-            //     return Promise.reject('Zoom is not supported by ' + track.label);
-            // }
-
-            // track.applyConstraints({advanced: [ {zoom: capabilities.zoom.min} ]});
-
-
             handleStream(stream);
         };
   
