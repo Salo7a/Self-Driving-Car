@@ -7,8 +7,11 @@
 //const char* ssid = "BODY-ALREFAEY-9031";
 //const char* password = "%rG15399";
 
-const char* ssid = "Nadod";
-const char* password = "toty12345";
+//const char* ssid = "Nadod";
+//const char* password = "toty12345";
+
+const char* ssid = "yomnosh";
+const char* password = "yomnomconan";
 
 //const char* ssid = "Baka_kun";
 //const char* password = "kudo123Okiya45Sub";
@@ -81,7 +84,7 @@ void setup() {
       server.send(200, "text/plain", "forward");
     });
 
-  server.on("/back", [](){
+  server.on("/backward", [](){
     Serial.println("back");
     digitalWrite(FORWARD, LOW);
     digitalWrite(LEFT, LOW);
