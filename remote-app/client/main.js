@@ -5,19 +5,22 @@ import { Session } from 'meteor/session'
 
 import './main.html';
 
-let ESP_MAC = '2c:f4:32:71:5b:b7';
-let ESP_SSID = '';
 // let ESP_IP = 'http://192.168.43.66';
-let ESP_IP = '192.168.43.213';
+// let ESP_IP = '192.168.43.213';
+let ESP_IP = "null";
 let RFID_Reading = 'null';
 let ultra1_reading = 'null';
 let ultra2_reading = 'null';
-
 
 let processInterval;            // for creating an interval to process frames iteratively
 let output_frame;               // result frame after processing
 let angle;                      // result angle after processing
 
+// Control Arrows
+let up_btn;
+let down_btn;
+let left_btn;
+let right_btn;
 
 Meteor.startup(function() {
     if (Meteor.isCordova)
@@ -30,8 +33,6 @@ Meteor.startup(function() {
         function onDeviceReady() {
             console.log("Device is ready now!");
             // Now safe to use device APIs
-            // serviceDiscovery = cordova.plugins.serviceDiscovery;
-            // serviceDiscovery = require("../plugins/cordova-plugin-discovery/www/serviceDiscovery");
         }
     }
 });
@@ -80,16 +81,8 @@ Template.ConnectESP.helpers({
         // Send a GET request to retrieve RFID readings every 1 second
         const getRFID = setInterval(function() {
             console.log("request RFID Readings..");
-            $.ajax({
-                url: ESP_IP + '/rfid',
-                success: (data) => {
-                    console.log("Get RFID..");
-                    console.log(data);
-                    RFID_Reading = data;
-                }
-            });
+            send_ajax(ESP_IP+'/rfid', "Get RFID..").then(result => RFID_Reading = result);
             Session.set('rfidReading', RFID_Reading);
-            console.log("RFID: ...");
         }, 500);
 
         getRFID;
@@ -101,17 +94,10 @@ Template.ConnectESP.helpers({
         // Send a GET request to retrieve ultra1 reading every 100ms
         const getUltra1 = setInterval(function() {
             console.log("request Ultra1 Readings..");
-            $.ajax({
-                url: ESP_IP + '/ultra1',
-                success: (data) => {
-                    console.log("Get Ultra1..");
-                    console.log(data);
-                    ultra1_reading = data;
-                }
-            });
+            ultra1_reading = send_ajax(ESP_IP + '/ultra1', "Get Ultra1..");
             Session.set('ultra1_reading', ultra1_reading);
             console.log("Ultra1: ...");
-        }, 100);
+        }, 200);
 
         // getUltra1;
     },
@@ -122,17 +108,10 @@ Template.ConnectESP.helpers({
         // Send a GET request to retrieve ultra2 reading every 100ms
         const getUltra2 = setInterval(function() {
             console.log("request Ultra2 Readings..");
-            $.ajax({
-                url: ESP_IP + '/ultra2',
-                success: (data) => {
-                    console.log("Get Ultra2..");
-                    console.log(data);
-                    ultra1_reading = data;
-                }
-            });
+            ultra2_reading = send_ajax(ESP_IP + '/ultra2', "Get Ultra2..");
             Session.set('ultra2_reading', ultra2_reading);
             console.log("Ultra2: ...");
-        }, 100);
+        }, 200);
 
         // getUltra2;
     }
@@ -161,155 +140,50 @@ Template.Controls.helpers({
     }
 });
 
+
 // ControlArrows Template Configurations
+Template.ControlArrows.onRendered(function getTags() {
+    up_btn    = Template.instance().find(".up");
+    down_btn  = Template.instance().find(".down");
+    left_btn  = Template.instance().find(".left");
+    right_btn = Template.instance().find(".right");
+});
+
 Template.ControlArrows.events({
-    'mousedown .up, touchstart .up' (e, i) {
-        console.log("up");
-        $.ajax({
-            url: ESP_IP + '/forward',
-            success: () => {
-                console.log("Moving Forward..");
-            },
-            tryCount: 0,
-            retryLimit: 5,
-            error: function (xhr, textStatus, errorThrown) {
-                this.tryCount++;
-                toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
-                if (this.tryCount <= this.retryLimit) {
-                    //try again
-                    $.ajax(this);
-                }
-            }
-        });
+    'mousedown/keydown .up, touchstart .up' (e, i) {
+        send_ajax(ESP_IP + '/forward', "Moving Forward..");
     },
 
-    'mousedown .down, touchstart .down' (e, i) {
-        console.log("down");
-        $.ajax({
-            url: ESP_IP + '/back',
-            success: () => {
-                console.log("Moving Backward..");
-            },
-            tryCount: 0,
-            retryLimit: 5,
-            error: function (xhr, textStatus, errorThrown) {
-                this.tryCount++;
-                toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
-                if (this.tryCount <= this.retryLimit) {
-                    //try again
-                    $.ajax(this);
-                }
-            }
-        });
+    'mousedown/keydown .down, touchstart .down' (e, i) {
+        send_ajax(ESP_IP + '/backward', "Moving Backward..");
     },
 
-    'mousedown .right, touchstart .right' (e, i) {
-        console.log("right");
-        $.ajax({
-            url: ESP_IP + '/right',
-            success: () => {
-                console.log("Moving Right..");
-            },
-            tryCount: 0,
-            retryLimit: 5,
-            error: function (xhr, textStatus, errorThrown) {
-                if (textStatus === 'timeout') {
-                    this.tryCount++;
-                    toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
-                    if (this.tryCount <= this.retryLimit) {
-                        //try again
-                        $.ajax(this);
-                        return;
-                    }
-                    return;
-                }
-                if (xhr.status === 500) {
-                    toastr.error("Error! " + xhr.status + " " + textStatus);
-                } else {
-                    toastr.error("Error! " + xhr.status + " " + textStatus);
-                }
-            }
-        });
+    'mousedown/keydown .right, touchstart .right' (e, i) {
+        send_ajax(ESP_IP + '/right', "Moving Right..");
     },
     
-    'mousedown .left, touchstart .left' (e, i) {
-        console.log("left");
-        $.ajax({
-            url: ESP_IP + '/left',
-            success: () => {
-                console.log("Moving Left..");
-            },
-            tryCount: 0,
-            retryLimit: 5,
-            error: function (xhr, textStatus, errorThrown) {
-                if (textStatus === 'timeout') {
-                    this.tryCount++;
-                    toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
-                    if (this.tryCount <= this.retryLimit) {
-                        //try again
-                        $.ajax(this);
-                        return;
-                    }
-                    return;
-                }
-                if (xhr.status === 500) {
-                    toastr.error("Error! " + xhr.status + " " + textStatus);
-                } else {
-                    toastr.error("Error! " + xhr.status + " " + textStatus);
-                }
-            }
-        });
+    'mousedown/keydown .left, touchstart .left' (e, i) {
+        send_ajax(ESP_IP + '/left', "Moving Left..");
     },
 
-    'mouseup .arrow-key, touchend .arrow-key' (e, i) {
+    'mouseup/keyup .arrow-key, touchend .arrow-key' (e, i) {
         // Stop the car
-        console.log("stop");
-        $.ajax({
-            url: ESP_IP + '/stop',
-            tryCount: 0,
-            retryLimit: 5,
-            success: () => {
-                console.log("Stop Car..");
-            },
-            error: function (xhr, textStatus, errorThrown) {
-                    this.tryCount++;
-                    toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
-                    if (this.tryCount <= this.retryLimit) {
-                        //try again
-                        $.ajax(this);
-                    }
-                }
-        });
+        send_ajax(ESP_IP + '/stop', "Moving Stop..");
     },
-
 });
 
 Template.AutoModeButtons.events({
     // Ajax For Handling play and pause in AutoMode
-    // Send GET request to /play
-    'mousedown #play' (e, i) {
-        console.log("play clicked");
-        $.ajax({
-            url: ESP_IP + '/play',
-            success: () => {
-                console.log("Start Moving The Car in Auto Mode...");
-            }
-        });
+    'mousedown/keydown #play, touchstart #play' (e, i) {
+        send_ajax(ESP_IP + '/play', "Start Moving The Car in Auto Mode...");
 
-        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 2000);
+        // Start Processing The Stream
+        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 1000);
     },
 
-    'mousedown #pause' (e, i) {
-        console.log("pause clicked");
+    'mousedown/keydown #pause, touchstart #pause' (e, i) {
         Template.StreamArea.__helpers.get('stopProcessing')();
-
-        $.ajax({
-            url: ESP_IP + '/stop',
-            success: () => {
-                console.log("Stop The Car...");
-            }
-        });
-
+        send_ajax(ESP_IP + '/stop', "Stop The Car...");
     },
 });
 
@@ -386,9 +260,25 @@ Template.StreamArea.helpers({
                 output_frame = data['frame_uri'];
                 angle = data['angle'];
             },
-            error: (err) => {
-                console.log(err)
-            }
+            tryCount: 0,
+            retryLimit: 5,
+            error: function (xhr, textStatus, errorThrown) {
+                if (textStatus === 'timeout') {
+                    this.tryCount++;
+                    toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
+                    if (this.tryCount <= this.retryLimit) {
+                        //try again
+                        $.ajax(this);
+                        return;
+                    }
+                    return;
+                }
+                if (xhr.status === 500) {
+                    toastr.error("Error! " + xhr.status + " " + textStatus);
+                } else {
+                    toastr.error("Error! " + xhr.status + " " + textStatus);
+                }
+            },
         }).responseText;
 
         return {output_frame, angle};
@@ -402,8 +292,6 @@ Template.StreamArea.helpers({
         Session.set('angle', angle);
 
         // Conditions on angle to choose which direction to send Ajax to ESP
-        // Some Stuff here
-
         if (angle > 105) {
             order = "/right";
             console.log("order is: ", order);
@@ -415,32 +303,8 @@ Template.StreamArea.helpers({
             console.log("order is: ", order);
         }
 
-        const sendAJAX = (val) => {
-            $.ajax({
-                url: ESP_IP + val,
-                // async: false,
-                success: () => {
-                    console.log("Sent order: ", val);
-                }
-            });
-        }
-
-        // Send ajax to the car
-        $.ajax({
-            url: ESP_IP + order,
-            // async: false,
-            success: () => {
-                console.log("Sent order: ", order);
-            }
-        });
-
-        // Send ajax to the car
-        // $.ajax({
-        //     url: ESP_IP + '/stop',
-        //     success: () => {
-        //         console.log("Sent order: stop");
-        //     }
-        // });
+        // Send ajax to move the car
+        send_ajax(ESP_IP + order, "Sent order: " + order);
     },
 
     stopProcessing() {
@@ -476,7 +340,6 @@ Template.StreamArea.events({
 Template.ProcessedArea.onCreated(() => {
     Session.set('angle', 'null');
 });
-
 
 Template.ProcessedArea.onRendered(function getImageTag() {
     processedImage = Template.instance().find("#processed_img");
@@ -546,7 +409,7 @@ Template.peerTable.helpers({
         if(Meteor.isCordova){
             peerID = 'xdm24wjo00365';
         } else {
-            peerID = 'xdm24wjo09189';
+            peerID = 'xdm24wjo09200';
         }
         
         peer = new Peer(peerID, {
@@ -700,6 +563,7 @@ Template.peerTable.events({
 
 // Code to be executed in mobile app only
 if (Meteor.isCordova) {
+    // Connect ESP Configuration
     Template.ConnectESP.events({
         'click #connectESP' (event, instance) {
             console.log("Connecting to ESP...");
@@ -728,7 +592,7 @@ if (Meteor.isCordova) {
                             console.log(result);
                         });
 
-                        // Template.ConnectESP.__helpers.get('getRFIDReadings')();
+                        Template.ConnectESP.__helpers.get('getRFIDReadings')();
                         // Template.ConnectESP.__helpers.get('getUltra1Reading')();
                         // Template.ConnectESP.__helpers.get('getUltra2Reading')();
                     }
@@ -752,9 +616,129 @@ if (Meteor.isCordova) {
             //  * @param {Function} failure callback
             //  */
             serviceDiscovery.getNetworkServices(serviceType, success, failure);
-
         }
     });
 }
 
 
+Template.ConnectESP.events({
+    'click #connectESP' (event, instance) {
+        console.log("Connecting to ESP...");
+
+        // Send ESP_IP to server-side
+        Meteor.call("scanESP", null, (error, result) => {
+            if (error) throw error;
+            ESP_IP = result;
+        });
+
+        // if ESP_IP was found successfully
+        if (ESP_IP === "null") {
+            // Add Failure Component to UI 
+            Session.set('espConnected', '2');
+            console.log("Connection Failed: ");
+        } else {
+            // Add Success Component to UI
+            Session.set('espConnected', '1');
+            console.log("Connected Successfully: ", ESP_IP);
+            Template.ConnectESP.__helpers.get('getRFIDReadings')();
+        }
+    }
+});
+
+
+// Helper Functions
+const send_ajax = async (url, message) => {
+    let response_data;
+    await $.ajax({
+        url: url,
+        success: function (data) {
+            console.log(message);
+            response_data = data;
+        },
+        tryCount: 0,
+        retryLimit: 5,
+        error: function (xhr, textStatus, errorThrown) {
+            if (textStatus === 'timeout') {
+                this.tryCount++;
+                toastr.error("Error! " + xhr.status + " " + textStatus + ", Retrying");
+                if (this.tryCount <= this.retryLimit) {
+                    //try again
+                    $.ajax(this);
+                    return;
+                }
+                return;
+            }
+            if (xhr.status === 500) {
+                toastr.error("Error! " + xhr.status + " " + textStatus);
+            } else {
+                toastr.error("Error! " + xhr.status + " " + textStatus);
+            }
+        },
+    });
+
+    return response_data;
+}
+
+
+// keydown Events to control the car with arrows
+window.addEventListener("keydown", function (event) {
+    if (event.defaultPrevented) {
+      return; // Do nothing if the event was already processed
+    }
+  
+    switch (event.key) {
+        case "ArrowUp":
+            up_btn.dispatchEvent(new Event("mousedown"));
+            break;
+
+        case "ArrowDown":
+            down_btn.dispatchEvent(new Event("mousedown"));
+            break;        
+
+        case "ArrowLeft":
+            left_btn.dispatchEvent(new Event("mousedown"));
+            break;
+
+        case "ArrowRight":
+            right_btn.dispatchEvent(new Event("mousedown"));
+            break;
+
+        default:
+            return; // Quit when this doesn't handle the key event.
+    }
+  
+    // Cancel the default action to avoid it being handled twice
+    event.preventDefault();
+  }, true);
+
+
+// keyup Events to control the car with arrows
+window.addEventListener("keyup", function (event) {
+    if (event.defaultPrevented) {
+        return; // Do nothing if the event was already processed
+    }
+
+    switch (event.key) {
+        case "ArrowUp":
+            up_btn.dispatchEvent(new Event("mouseup"));
+            break;
+
+        case "ArrowDown":
+            down_btn.dispatchEvent(new Event("mouseup"));
+            break;
+
+        case "ArrowLeft":
+            left_btn.dispatchEvent(new Event("mouseup"));
+            break;
+
+        case "ArrowRight":
+            right_btn.dispatchEvent(new Event("mouseup"));
+            break;
+
+        default:
+            return; // Quit when this doesn't handle the key event.
+    }
+
+    // Cancel the default action to avoid it being handled twice
+    event.preventDefault();
+}, true);
