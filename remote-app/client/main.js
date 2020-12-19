@@ -407,7 +407,7 @@ Template.peerTable.helpers({
         g_instance = Template.instance();
         // Create own peer object with connection to shared PeerJS server
         if(Meteor.isCordova){
-            peerID = 'xdm24wjo00365';
+            peerID = 'xdm24wjo00360';
         } else {
             peerID = 'xdm24wjo09200';
         }
@@ -618,32 +618,34 @@ if (Meteor.isCordova) {
             serviceDiscovery.getNetworkServices(serviceType, success, failure);
         }
     });
+} else {
+    Template.ConnectESP.events({
+        'click #connectESP' (event, instance) {
+            console.log("Connecting to ESP...");
+    
+            // Send ESP_IP to server-side
+            Meteor.call("scanESP", null, (error, result) => {
+                if (error) throw error;
+                ESP_IP = result;
+            });
+    
+            // if ESP_IP was found successfully
+            if (ESP_IP === "null") {
+                // Add Failure Component to UI 
+                Session.set('espConnected', '2');
+                console.log("Connection Failed: ");
+            } else {
+                // Add Success Component to UI
+                Session.set('espConnected', '1');
+                console.log("Connected Successfully: ", ESP_IP);
+                Template.ConnectESP.__helpers.get('getRFIDReadings')();
+            }
+        }
+    });
 }
 
 
-Template.ConnectESP.events({
-    'click #connectESP' (event, instance) {
-        console.log("Connecting to ESP...");
 
-        // Send ESP_IP to server-side
-        Meteor.call("scanESP", null, (error, result) => {
-            if (error) throw error;
-            ESP_IP = result;
-        });
-
-        // if ESP_IP was found successfully
-        if (ESP_IP === "null") {
-            // Add Failure Component to UI 
-            Session.set('espConnected', '2');
-            console.log("Connection Failed: ");
-        } else {
-            // Add Success Component to UI
-            Session.set('espConnected', '1');
-            console.log("Connected Successfully: ", ESP_IP);
-            Template.ConnectESP.__helpers.get('getRFIDReadings')();
-        }
-    }
-});
 
 
 // Helper Functions
