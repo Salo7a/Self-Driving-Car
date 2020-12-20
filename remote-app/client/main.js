@@ -97,51 +97,18 @@ Template.ConnectESP.helpers({
         const getData = setInterval(function() {
             send_ajax(ESP_IP+'/data', "Getting Data From ESP..").then((data) => {
                 console.log(data);
+                data = data.split(',')
+                RFID_Reading = data[0];
+                ultra1_reading = data[1];
+                ultra2_reading = data[2];
+                Session.set('rfidReading', RFID_Reading);
+                Session.set('ultra1_reading', ultra1_reading);
+                Session.set('ultra2_reading', ultra2_reading);
             });
         }, 1000);
         getData;
         
     },
-    getRFIDReadings() {
-        let RFID_Reading = Template.ConnectESP.__helpers.get('rfidReading')();
-
-        // Send a GET request to retrieve RFID readings every 1 second
-        const getRFID = setInterval(function() {
-            console.log("request RFID Readings..");
-            send_ajax(ESP_IP+'/rfid', "Get RFID..").then(result => RFID_Reading = result);
-            Session.set('rfidReading', RFID_Reading);
-        }, 500);
-
-        getRFID;
-    },
-
-    getUltra1Reading() {
-        let ultra1_reading = Template.ConnectESP.__helpers.get('ultra1_reading')();
-
-        // Send a GET request to retrieve ultra1 reading every 100ms
-        const getUltra1 = setInterval(function() {
-            console.log("request Ultra1 Readings..");
-            ultra1_reading = send_ajax(ESP_IP + '/ultra1', "Get Ultra1..");
-            Session.set('ultra1_reading', ultra1_reading);
-            console.log("Ultra1: ...");
-        }, 200);
-
-        // getUltra1;
-    },
-
-    getUltra2Reading() {
-        let ultra2_reading = Template.ConnectESP.__helpers.get('ultra2_reading')();
-
-        // Send a GET request to retrieve ultra2 reading every 100ms
-        const getUltra2 = setInterval(function() {
-            console.log("request Ultra2 Readings..");
-            ultra2_reading = send_ajax(ESP_IP + '/ultra2', "Get Ultra2..");
-            Session.set('ultra2_reading', ultra2_reading);
-            console.log("Ultra2: ...");
-        }, 200);
-
-        // getUltra2;
-    }
 });
 
 
@@ -320,12 +287,19 @@ Template.StreamArea.helpers({
         Session.set('angle', angle);
 
         // Conditions on angle to choose which direction to send Ajax to ESP
-        if (angle > 105) {
+        if (angle > 108) {
             order = "/right";
         } else if (angle <= 75) {
             order = "/left";
-        } else if (angle > 76 && angle < 106) {
+        } else if (angle > 76 && angle < 109) {
             order = "/forward";
+        }
+
+        // Check objects
+        if (ultra1_reading < 100 && ultra2_reading < 100) {
+            // Stuff here
+        } else {
+
         }
 
         // Send ajax to move the car
@@ -623,9 +597,7 @@ if (Meteor.isCordova) {
                             console.log(result);
                         });
 
-                        // Template.ConnectESP.__helpers.get('getRFIDReadings')();
-                        // Template.ConnectESP.__helpers.get('getUltra1Reading')();
-                        // Template.ConnectESP.__helpers.get('getUltra2Reading')();
+                        Template.ConnectESP.__helpers.get('getData')();
                     }
                 });
 
@@ -668,7 +640,6 @@ if (Meteor.isCordova) {
                     // Add Success Component to UI
                     Session.set('espConnected', '1');
                     console.log("Connected Successfully: ", ESP_IP);
-                    // Template.ConnectESP.__helpers.get('getRFIDReadings')();
                     Template.ConnectESP.__helpers.get('getData')();
                     
                 }
