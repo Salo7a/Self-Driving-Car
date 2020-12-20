@@ -14,7 +14,7 @@ Meteor.startup(() => {
         console.log(devices);
         devices.forEach(device => {
           if (device['mac'] === ESP_MAC) {
-            ESP_IP = device['ip'];
+            ESP_IP = "http://" + device['ip'];
             console.log("ESP_IP: ", ESP_IP);
           }
         });

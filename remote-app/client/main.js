@@ -3,6 +3,9 @@ import { Meteor } from 'meteor/meteor';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { Session } from 'meteor/session'
 
+const delay = require('delay');
+
+
 import './main.html';
 
 // let ESP_IP = 'http://192.168.43.66';
@@ -22,6 +25,11 @@ let down_btn;
 let left_btn;
 let right_btn;
 
+const syncWait = ms => {
+    const end = Date.now() + ms
+    while (Date.now() < end) continue
+}
+
 Meteor.startup(function() {
     if (Meteor.isCordova)
     {
@@ -35,6 +43,13 @@ Meteor.startup(function() {
             // Now safe to use device APIs
         }
     }
+
+    // Send ajax to move the car
+
+    // (async () => {
+    //     await delay(3000);
+    // })();
+
 });
 
 
@@ -247,6 +262,7 @@ Template.StreamArea.helpers({
     processFrame(frameURI) {
         // Percent-Encode for Reserved characters in URL
         let frameURI_encoded = encodeURIComponent(frameURI);
+        let init_angle = 90;
         let url_path = 'http://127.0.0.1:5000/detect?color=blue&frame_uri=' + frameURI_encoded;
         
         // Send GET request to Flask server for processing
@@ -294,17 +310,20 @@ Template.StreamArea.helpers({
         // Conditions on angle to choose which direction to send Ajax to ESP
         if (angle > 105) {
             order = "/right";
-            console.log("order is: ", order);
         } else if (angle <= 75) {
             order = "/left";
-            console.log("order is: ", order);
         } else if (angle > 76 && angle < 106) {
             order = "/forward";
-            console.log("order is: ", order);
         }
 
         // Send ajax to move the car
-        send_ajax(ESP_IP + order, "Sent order: " + order);
+        send_ajax(ESP_IP + order, "Agnle: " + angle + " Order: " + order);
+        // (async () => {
+        //     await delay(600);
+        //     send_ajax(ESP_IP + '/stop', "Order: stop");
+        // })();
+        send_ajax(ESP_IP + '/stop', "Order: stop");
+        
     },
 
     stopProcessing() {
@@ -592,7 +611,7 @@ if (Meteor.isCordova) {
                             console.log(result);
                         });
 
-                        Template.ConnectESP.__helpers.get('getRFIDReadings')();
+                        // Template.ConnectESP.__helpers.get('getRFIDReadings')();
                         // Template.ConnectESP.__helpers.get('getUltra1Reading')();
                         // Template.ConnectESP.__helpers.get('getUltra2Reading')();
                     }
@@ -624,22 +643,23 @@ if (Meteor.isCordova) {
             console.log("Connecting to ESP...");
     
             // Send ESP_IP to server-side
-            Meteor.call("scanESP", null, (error, result) => {
+            Meteor.call("scanESP", null, async (error, result) => {
                 if (error) throw error;
-                ESP_IP = result;
+                ESP_IP = await result;
+                console.log("ESP in client: ", ESP_IP);
+                // if ESP_IP was found successfully
+                if (ESP_IP === "null") {
+                    // Add Failure Component to UI 
+                    Session.set('espConnected', '2');
+                    console.log("Connection Failed: ");
+                } else {
+                    // Add Success Component to UI
+                    Session.set('espConnected', '1');
+                    console.log("Connected Successfully: ", ESP_IP);
+                    // Template.ConnectESP.__helpers.get('getRFIDReadings')();
+                }
             });
-    
-            // if ESP_IP was found successfully
-            if (ESP_IP === "null") {
-                // Add Failure Component to UI 
-                Session.set('espConnected', '2');
-                console.log("Connection Failed: ");
-            } else {
-                // Add Success Component to UI
-                Session.set('espConnected', '1');
-                console.log("Connected Successfully: ", ESP_IP);
-                Template.ConnectESP.__helpers.get('getRFIDReadings')();
-            }
+            
         }
     });
 }
@@ -657,8 +677,9 @@ const send_ajax = async (url, message) => {
             console.log(message);
             response_data = data;
         },
+        crossDomain: true,
         tryCount: 0,
-        retryLimit: 5,
+        retryLimit: 7,
         error: function (xhr, textStatus, errorThrown) {
             if (textStatus === 'timeout') {
                 this.tryCount++;
