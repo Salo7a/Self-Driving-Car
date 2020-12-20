@@ -215,12 +215,12 @@ void backwards(){
 }
 void right(){
 //  Serial.println("Right");
-  analogWrite(SPEEDL, 128); 
-  analogWrite(SPEEDR, 128);
+  analogWrite(SPEEDL, 110); 
+  analogWrite(SPEEDR, 110);
   digitalWrite(R1, HIGH);
   digitalWrite(R2, LOW);
   digitalWrite(L1, LOW);
-  digitalWrite(L2, HIGH);
+  digitalWrite(L2, LOW);
   digitalWrite(FORWARDLED, LOW);
   digitalWrite(BACKWARDSLED, LOW);
   digitalWrite(RIGHTLED, HIGH);
@@ -229,10 +229,10 @@ void right(){
 }
 void left(){
 //  Serial.println("Left");
-  analogWrite(SPEEDL, 128); 
-  analogWrite(SPEEDR, 128);
+  analogWrite(SPEEDL, 110); 
+  analogWrite(SPEEDR, 110);
   digitalWrite(R1, LOW);
-  digitalWrite(R2, HIGH);
+  digitalWrite(R2, LOW);
   digitalWrite(L1, HIGH);
   digitalWrite(L2, LOW);
   digitalWrite(FORWARDLED, LOW);
