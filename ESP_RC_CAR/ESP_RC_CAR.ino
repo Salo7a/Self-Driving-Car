@@ -15,9 +15,10 @@ const char* password = "BME2Stud";
 
 
 int auto_mode = 0;
-String rfid_reading = "";
+String rfid_reading = "N/A";
 String distance = "x";
 String temp = "";
+String AllData = "N/A,50,50";
 #define CONNECTED D1
 #define FORWARD D2
 #define BACKWARDS D3
@@ -136,7 +137,12 @@ void setup() {
     server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/plain", distance);
   });
-
+  
+    server.on("/data", [](){
+    Serial.println("data");
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.send(200, "text/plain", AllData);
+  });
   server.on("/play", [](){
     Serial.println("play");
     auto_mode = 1;
@@ -195,8 +201,9 @@ void loop() {
         Serial.println("RFID");
         rfid_reading = temp;
       }
+      AllData = rfid_reading + String(",") + distance.substring(1);
       server.handleClient();
-      Serial.println(temp);   // read it and send it out Serial1 (pins 0 & 1)
+//      Serial.println(temp);   // read it and send it out Serial1 (pins 0 & 1)
     }
 server.handleClient();
 }
