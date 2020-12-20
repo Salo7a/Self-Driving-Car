@@ -19,6 +19,9 @@ let processInterval;            // for creating an interval to process frames it
 let output_frame;               // result frame after processing
 let angle;                      // result angle after processing
 
+let init_angle = 90;            // First SteeringAngle
+
+
 // Control Arrows
 let up_btn;
 let down_btn;
@@ -90,6 +93,15 @@ Template.ConnectESP.helpers({
         return state === '2';
     },
 
+    getData() {
+        const getData = setInterval(function() {
+            send_ajax(ESP_IP+'/data', "Getting Data From ESP..").then((data) => {
+                console.log(data);
+            });
+        }, 1000);
+        getData;
+        
+    },
     getRFIDReadings() {
         let RFID_Reading = Template.ConnectESP.__helpers.get('rfidReading')();
 
@@ -262,8 +274,7 @@ Template.StreamArea.helpers({
     processFrame(frameURI) {
         // Percent-Encode for Reserved characters in URL
         let frameURI_encoded = encodeURIComponent(frameURI);
-        let init_angle = 90;
-        let url_path = 'http://127.0.0.1:5000/detect?color=blue&frame_uri=' + frameURI_encoded;
+        let url_path = 'http://127.0.0.1:5000/detect?currentAngle='+ init_angle + '&color=blue&frame_uri=' + frameURI_encoded;
         
         // Send GET request to Flask server for processing
         // Params: color and frame_uri(base64)
@@ -275,6 +286,7 @@ Template.StreamArea.helpers({
                 // console.log(JSON.stringify(data));
                 output_frame = data['frame_uri'];
                 angle = data['angle'];
+                init_angle = angle;
             },
             tryCount: 0,
             retryLimit: 5,
@@ -318,11 +330,11 @@ Template.StreamArea.helpers({
 
         // Send ajax to move the car
         send_ajax(ESP_IP + order, "Agnle: " + angle + " Order: " + order);
-        // (async () => {
-        //     await delay(600);
-        //     send_ajax(ESP_IP + '/stop', "Order: stop");
-        // })();
-        send_ajax(ESP_IP + '/stop', "Order: stop");
+        (async () => {
+            await delay(600);
+            send_ajax(ESP_IP + '/stop', "Order: stop");
+        })();
+        // send_ajax(ESP_IP + '/stop', "Order: stop");
         
     },
 
@@ -657,6 +669,8 @@ if (Meteor.isCordova) {
                     Session.set('espConnected', '1');
                     console.log("Connected Successfully: ", ESP_IP);
                     // Template.ConnectESP.__helpers.get('getRFIDReadings')();
+                    Template.ConnectESP.__helpers.get('getData')();
+                    
                 }
             });
             

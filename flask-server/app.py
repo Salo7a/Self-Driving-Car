@@ -48,7 +48,7 @@ def process():
         return response
 
     color = request.args.get('color')
-    # old_angle = request.args.get('old_angle')
+    currentAngle = int(request.args.get('currentAngle'))
     frameURI = request.args.get('frame_uri')
 
     frameTest = data_uri_to_cv2_img(frameURI)
@@ -58,15 +58,15 @@ def process():
 
     steeringAngle, num_lines = computeSteeringAngle(frameTest, laneLines)
 
-    currentAngle = stabilizeSteeringAngle(old_angle, steeringAngle, num_lines, 20 , 20)
+    # currentAngle = stabilizeSteeringAngle(currentAngle, steeringAngle, num_lines, 20 , 20)
+    currentAngle = steeringAngle
     finalImage = displayHeadingLine(laneLinesImage, currentAngle)
     finalImageRGB = convert_BGR_to_RGB(finalImage)
     finalImageRGBBase64 = img_to_data_uri(finalImageRGB)
-    old_angle = currentAngle
 
     # showImage(finalImageRGB, "Final Image in RGB Lanes & Route")
 
-    resultJSON = {"angle": steeringAngle, "frame_uri": finalImageRGBBase64}
+    resultJSON = {"angle": currentAngle, "frame_uri": finalImageRGBBase64}
     return jsonify(resultJSON)
 
 
