@@ -4,6 +4,9 @@ from lanedetection import *
 
 app = Flask(__name__)
 
+old_angle = 90
+currentAngle = old_angle
+
 lowerColors, upperColors = ..., ...
 color_name = "blue"
 
@@ -45,6 +48,7 @@ def process():
         return response
 
     color = request.args.get('color')
+    # old_angle = request.args.get('old_angle')
     frameURI = request.args.get('frame_uri')
 
     frameTest = data_uri_to_cv2_img(frameURI)
@@ -52,10 +56,13 @@ def process():
     laneLines = detectLane(frameTest, lowerColors, upperColors)
     laneLinesImage = displayLines(frameTest, laneLines)
 
-    steeringAngle = computeSteeringAngle(frameTest, laneLines)
-    finalImage = displayHeadingLine(laneLinesImage, steeringAngle)
+    steeringAngle, num_lines = computeSteeringAngle(frameTest, laneLines)
+
+    currentAngle = stabilizeSteeringAngle(old_angle, steeringAngle, num_lines, 20 , 20)
+    finalImage = displayHeadingLine(laneLinesImage, currentAngle)
     finalImageRGB = convert_BGR_to_RGB(finalImage)
     finalImageRGBBase64 = img_to_data_uri(finalImageRGB)
+    old_angle = currentAngle
 
     # showImage(finalImageRGB, "Final Image in RGB Lanes & Route")
 

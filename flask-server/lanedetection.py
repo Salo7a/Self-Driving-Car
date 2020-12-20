@@ -11,6 +11,7 @@ from io import BytesIO
 # for arg in (sys.argv):
 #     print(arg)
 
+old_angle = 90
 
 def data_uri_to_cv2_img(uri):
     """
@@ -68,19 +69,19 @@ def regionOfInterest(edges):
     mask = np.zeros_like(edges)
 
     # only focus bottom half of the screen
-    # polygon = np.array([[
-    #     (0, height * 1 / 2),
-    #     (width, height * 1 / 2),
-    #     (width, height),
-    #     (0, height),
-    # ]], np.int32)
     polygon = np.array([[
-        (0, height * 1
-         / 4),
-        (width, height * 1 / 4),
+        (0, height * 1 / 2),
+        (width, height * 1 / 2),
         (width, height),
         (0, height),
     ]], np.int32)
+    # polygon = np.array([[
+    #     (0, height * 1
+    #      / 4),
+    #     (width, height * 1 / 4),
+    #     (width, height),
+    #     (0, height),
+    # ]], np.int32)
 
     cv2.fillPoly(mask, polygon, 255)
     croppedEdges = cv2.bitwise_and(edges, mask)
@@ -195,10 +196,13 @@ def computeSteeringAngle(frame, laneLines):
     # Get middle line in case of detecting single lane
     height, width, _ = frame.shape
     if len(laneLines) == 1:
+        num_lines = 1
         # print('Only detected one lane line, just follow it. ', laneLines[0])
         x1, _, x2, _ = laneLines[0][0]
         x_offset = x2 - x1
-    else:   # get middle line in case of detecting two lanes
+    else:
+        num_lines = 2
+        # get middle line in case of detecting two lanes
         _, _, left_x2, _ = laneLines[0][0]
         _, _, right_x2, _ = laneLines[1][0]
         cameraMidOffsetPercent = 0.00 # 0.0 means car pointing to center, -0.03: car is centered to left, +0.03 means car pointing to right
@@ -213,7 +217,7 @@ def computeSteeringAngle(frame, laneLines):
     steeringAngle = angleToMidDeg + 90  # this is the steering angle needed by picar front wheel
 
     # print('new steering angle: ', steeringAngle)
-    return steeringAngle
+    return steeringAngle , num_lines
 
 
 def stabilizeSteeringAngle(currSteeringAngle, newSteeringAngle, numOfLaneLines, maxAngleDeviationTwoLines=5, maxAngleDeviationOneLane=1):
@@ -269,36 +273,4 @@ def img_to_data_uri(img):
     converted_img = base64.b64encode(buff.getvalue()).decode("utf-8")
     converted_img = "data:image/jpeg;base64," + converted_img
     return converted_img
-
-
-# Choose Colors Range
-#range of white in HSV
-# lowerWhite = np.array([0,0,168])
-# upperWhite = np.array([172,111,255])
-
-# Range of Blue in HSV
-# lowerBlue = np.array([60,40,40])
-# upperBlue = np.array([150,255,255])
-
-# Apply Processing
-# img_path = "D:\Study\Courses\College\Electronics-Tasks-4th-Year/task3-sbe403a_f20_task3_03/remote-app/server/laneBlue1.jpg"
-# print(sys.argv[0])
-# frameURI = sys.argv[1]
-# frameTest = data_uri_to_cv2_img(frameURI)
-# # frameTest = cv2.imread(img_path)
-# laneLines = detectLane(frameTest, lowerWhite, upperWhite)
-# laneLinesImage = displayLines(frameTest, laneLines)
-#
-# steeringAngle = computeSteeringAngle(frameTest, laneLines)
-# finalImage = displayHeadingLine(laneLinesImage, steeringAngle)
-#
-# # showImageBGR(finalImage, "Final Image Lanes & Route")
-# # steeringAngle = 100
-# print(steeringAngle)
-# # print("laneLines: ", laneLines)
-#
-# # converted = cv2.imencode('.jpg', finalImage)[1].toString()
-# # print(converted)
-#
-
 
