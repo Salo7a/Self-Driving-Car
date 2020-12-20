@@ -4,17 +4,14 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-const char* ssid = "BODY-ALREFAEY-9031";
-const char* password = "%rG15399";
+//const char* ssid = "BODY-ALREFAEY-9031";
+//const char* password = "%rG15399";
 
-//const char* ssid = "Nadod";
-//const char* password = "toty12345";
+//const char* ssid = "MahdyKun";
+//const char* password = "ok1234de7k";
 
-//const char* ssid = "yomnosh";
-//const char* password = "yomnomconan";
-
-//const char* ssid = "Baka_kun";
-//const char* password = "kudo123Okiya45Sub";
+const char* ssid = "STUDBME2";
+const char* password = "BME2Stud";
 
 
 int auto_mode = 0;
