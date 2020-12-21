@@ -116,12 +116,11 @@ Template.DrivingMode.events({
     },
 });
 
-// Controls Template Configurations
-Template.Controls.onRendered(() => {
+Template.DrivingMode.onRendered(() => {
     Session.set('autoMode', false);
 });
 
-Template.Controls.helpers({
+Template.DrivingMode.helpers({
     autoMode(){
       return Session.get('autoMode');
     }
@@ -288,6 +287,8 @@ Template.StreamArea.helpers({
             order = "/forward";
         }
 
+        Session.set('order', order);
+
         // Check objects
         if (ultra1_reading < 100 && ultra2_reading < 100) {
             // Stuff here
@@ -337,6 +338,7 @@ Template.StreamArea.events({
 // Configurations for ProcessedArea Template
 Template.ProcessedArea.onCreated(() => {
     Session.set('angle', 'null');
+    Session.set('order', 'null');
 });
 
 Template.ProcessedArea.onRendered(function getImageTag() {
@@ -346,6 +348,9 @@ Template.ProcessedArea.onRendered(function getImageTag() {
 Template.ProcessedArea.helpers({
     angle() {
         return Session.get('angle');
+    },
+    order() {
+        return Session.get('order');
     },
 });
 
