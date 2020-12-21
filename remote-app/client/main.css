@@ -168,11 +168,6 @@ video {
   background: rgba(0, 0, 0, 0.2);
 }
 
-#live-stream-body {
-  /* max-height: 400px; */
-  /* max-width: 320px; */
-}
-
 .rotation-wrapper-outer {
   display: table;
 }
@@ -196,11 +191,11 @@ video {
      width of your element is small enough that the text wraps: */
   white-space: nowrap;
   /* max-height: 400px; */
-  max-width: 300px;
+  max-width: 250px;
 }
 
 .streamCard {
-  max-height: 343px;
+  max-height: 320px;
 }
 
 .video-options {

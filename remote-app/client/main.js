@@ -138,23 +138,28 @@ Template.ControlArrows.onRendered(function getTags() {
 Template.ControlArrows.events({
     'mousedown/keydown .up, touchstart .up' (e, i) {
         send_ajax(ESP_IP + '/forward', "Moving Forward..");
+        Session.set('order', 'forward');
     },
 
     'mousedown/keydown .down, touchstart .down' (e, i) {
         send_ajax(ESP_IP + '/backward', "Moving Backward..");
+        Session.set('order', 'backward');
     },
 
     'mousedown/keydown .right, touchstart .right' (e, i) {
         send_ajax(ESP_IP + '/right', "Moving Right..");
+        Session.set('order', 'right');
     },
     
     'mousedown/keydown .left, touchstart .left' (e, i) {
         send_ajax(ESP_IP + '/left', "Moving Left..");
+        Session.set('order', 'left');
     },
 
     'mouseup/keyup .arrow-key, touchend .arrow-key' (e, i) {
         // Stop the car
         send_ajax(ESP_IP + '/stop', "Moving Stop..");
+        Session.set('order', 'stop');
     },
 });
 
@@ -170,6 +175,7 @@ Template.AutoModeButtons.events({
     'mousedown/keydown #pause, touchstart #pause' (e, i) {
         Template.StreamArea.__helpers.get('stopProcessing')();
         send_ajax(ESP_IP + '/stop', "Stop The Car...");
+        Session.set('order', 'stop');
     },
 });
 
@@ -287,8 +293,6 @@ Template.StreamArea.helpers({
             order = "/forward";
         }
 
-        Session.set('order', order);
-
         // Check objects
         if (ultra1_reading < 100 && ultra2_reading < 100) {
             // Stuff here
@@ -298,9 +302,11 @@ Template.StreamArea.helpers({
 
         // Send ajax to move the car
         send_ajax(ESP_IP + order, "Agnle: " + angle + " Order: " + order);
+        Session.set('order', order);
         (async () => {
             await delay(600);
             send_ajax(ESP_IP + '/stop', "Order: stop");
+            Session.set('order', 'stop');
         })();
         // send_ajax(ESP_IP + '/stop', "Order: stop");
         
