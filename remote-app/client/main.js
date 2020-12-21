@@ -46,13 +46,6 @@ Meteor.startup(function() {
             // Now safe to use device APIs
         }
     }
-
-    // Send ajax to move the car
-
-    // (async () => {
-    //     await delay(3000);
-    // })();
-
 });
 
 
@@ -105,7 +98,7 @@ Template.ConnectESP.helpers({
                 Session.set('ultra1_reading', ultra1_reading);
                 Session.set('ultra2_reading', ultra2_reading);
             });
-        }, 1000);
+        }, 500);
         getData;
         
     },
@@ -639,6 +632,11 @@ if (Meteor.isCordova) {
                 } else {
                     // Add Success Component to UI
                     Session.set('espConnected', '1');
+                    (async () => {
+                        await delay(500);
+                        Session.set('espConnected', '0');
+                    })();
+
                     console.log("Connected Successfully: ", ESP_IP);
                     Template.ConnectESP.__helpers.get('getData')();
                     
