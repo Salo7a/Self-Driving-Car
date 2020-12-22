@@ -385,7 +385,7 @@ Template.peerTable.onRendered(function() {
     cueString = "<span class=\"cueMsg\">Cue: </span>";
 
     // Initialize the peer
-    Template.peerTable.__helpers.get('initialize')();
+    // Template.peerTable.__helpers.get('initialize')();
 
 });
 
@@ -649,7 +649,7 @@ if (Meteor.isCordova) {
                     })();
 
                     console.log("Connected Successfully: ", ESP_IP);
-                    Template.ConnectESP.__helpers.get('getData')();
+                    // Template.ConnectESP.__helpers.get('getData')();
                     
                 }
             });
