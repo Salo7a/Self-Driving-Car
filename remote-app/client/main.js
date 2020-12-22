@@ -19,6 +19,9 @@ let processInterval;            // for creating an interval to process frames it
 let output_frame;               // result frame after processing
 let angle;                      // result angle after processing
 
+let init_angle = 90;            // First SteeringAngle
+
+
 // Control Arrows
 let up_btn;
 let down_btn;
@@ -43,13 +46,6 @@ Meteor.startup(function() {
             // Now safe to use device APIs
         }
     }
-
-    // Send ajax to move the car
-
-    // (async () => {
-    //     await delay(3000);
-    // })();
-
 });
 
 
@@ -90,46 +86,22 @@ Template.ConnectESP.helpers({
         return state === '2';
     },
 
-    getRFIDReadings() {
-        let RFID_Reading = Template.ConnectESP.__helpers.get('rfidReading')();
-
-        // Send a GET request to retrieve RFID readings every 1 second
-        const getRFID = setInterval(function() {
-            console.log("request RFID Readings..");
-            send_ajax(ESP_IP+'/rfid', "Get RFID..").then(result => RFID_Reading = result);
-            Session.set('rfidReading', RFID_Reading);
+    getData() {
+        const getData = setInterval(function() {
+            send_ajax(ESP_IP+'/data', "Getting Data From ESP..").then((data) => {
+                console.log(data);
+                data = data.split(',')
+                RFID_Reading = data[0];
+                ultra1_reading = data[1];
+                ultra2_reading = data[2];
+                Session.set('rfidReading', RFID_Reading);
+                Session.set('ultra1_reading', ultra1_reading);
+                Session.set('ultra2_reading', ultra2_reading);
+            });
         }, 500);
-
-        getRFID;
+        getData;
+        
     },
-
-    getUltra1Reading() {
-        let ultra1_reading = Template.ConnectESP.__helpers.get('ultra1_reading')();
-
-        // Send a GET request to retrieve ultra1 reading every 100ms
-        const getUltra1 = setInterval(function() {
-            console.log("request Ultra1 Readings..");
-            ultra1_reading = send_ajax(ESP_IP + '/ultra1', "Get Ultra1..");
-            Session.set('ultra1_reading', ultra1_reading);
-            console.log("Ultra1: ...");
-        }, 200);
-
-        // getUltra1;
-    },
-
-    getUltra2Reading() {
-        let ultra2_reading = Template.ConnectESP.__helpers.get('ultra2_reading')();
-
-        // Send a GET request to retrieve ultra2 reading every 100ms
-        const getUltra2 = setInterval(function() {
-            console.log("request Ultra2 Readings..");
-            ultra2_reading = send_ajax(ESP_IP + '/ultra2', "Get Ultra2..");
-            Session.set('ultra2_reading', ultra2_reading);
-            console.log("Ultra2: ...");
-        }, 200);
-
-        // getUltra2;
-    }
 });
 
 
@@ -144,12 +116,11 @@ Template.DrivingMode.events({
     },
 });
 
-// Controls Template Configurations
-Template.Controls.onRendered(() => {
+Template.DrivingMode.onRendered(() => {
     Session.set('autoMode', false);
 });
 
-Template.Controls.helpers({
+Template.DrivingMode.helpers({
     autoMode(){
       return Session.get('autoMode');
     }
@@ -167,23 +138,28 @@ Template.ControlArrows.onRendered(function getTags() {
 Template.ControlArrows.events({
     'mousedown/keydown .up, touchstart .up' (e, i) {
         send_ajax(ESP_IP + '/forward', "Moving Forward..");
+        Session.set('order', 'forward');
     },
 
     'mousedown/keydown .down, touchstart .down' (e, i) {
         send_ajax(ESP_IP + '/backward', "Moving Backward..");
+        Session.set('order', 'backward');
     },
 
     'mousedown/keydown .right, touchstart .right' (e, i) {
         send_ajax(ESP_IP + '/right', "Moving Right..");
+        Session.set('order', 'right');
     },
     
     'mousedown/keydown .left, touchstart .left' (e, i) {
         send_ajax(ESP_IP + '/left', "Moving Left..");
+        Session.set('order', 'left');
     },
 
     'mouseup/keyup .arrow-key, touchend .arrow-key' (e, i) {
         // Stop the car
         send_ajax(ESP_IP + '/stop', "Moving Stop..");
+        Session.set('order', 'stop');
     },
 });
 
@@ -199,6 +175,7 @@ Template.AutoModeButtons.events({
     'mousedown/keydown #pause, touchstart #pause' (e, i) {
         Template.StreamArea.__helpers.get('stopProcessing')();
         send_ajax(ESP_IP + '/stop', "Stop The Car...");
+        Session.set('order', 'stop');
     },
 });
 
@@ -262,8 +239,7 @@ Template.StreamArea.helpers({
     processFrame(frameURI) {
         // Percent-Encode for Reserved characters in URL
         let frameURI_encoded = encodeURIComponent(frameURI);
-        let init_angle = 90;
-        let url_path = 'http://127.0.0.1:5000/detect?color=blue&frame_uri=' + frameURI_encoded;
+        let url_path = 'http://127.0.0.1:5000/detect?currentAngle='+ init_angle + '&color=blue&frame_uri=' + frameURI_encoded;
         
         // Send GET request to Flask server for processing
         // Params: color and frame_uri(base64)
@@ -275,6 +251,7 @@ Template.StreamArea.helpers({
                 // console.log(JSON.stringify(data));
                 output_frame = data['frame_uri'];
                 angle = data['angle'];
+                init_angle = angle;
             },
             tryCount: 0,
             retryLimit: 5,
@@ -308,21 +285,30 @@ Template.StreamArea.helpers({
         Session.set('angle', angle);
 
         // Conditions on angle to choose which direction to send Ajax to ESP
-        if (angle > 105) {
+        if (angle > 108) {
             order = "/right";
         } else if (angle <= 75) {
             order = "/left";
-        } else if (angle > 76 && angle < 106) {
+        } else if (angle > 76 && angle < 109) {
             order = "/forward";
+        }
+
+        // Check objects
+        if (ultra1_reading < 100 && ultra2_reading < 100) {
+            // Stuff here
+        } else {
+
         }
 
         // Send ajax to move the car
         send_ajax(ESP_IP + order, "Agnle: " + angle + " Order: " + order);
-        // (async () => {
-        //     await delay(600);
-        //     send_ajax(ESP_IP + '/stop', "Order: stop");
-        // })();
-        send_ajax(ESP_IP + '/stop', "Order: stop");
+        Session.set('order', order);
+        (async () => {
+            await delay(600);
+            send_ajax(ESP_IP + '/stop', "Order: stop");
+            Session.set('order', 'stop');
+        })();
+        // send_ajax(ESP_IP + '/stop', "Order: stop");
         
     },
 
@@ -358,6 +344,7 @@ Template.StreamArea.events({
 // Configurations for ProcessedArea Template
 Template.ProcessedArea.onCreated(() => {
     Session.set('angle', 'null');
+    Session.set('order', 'null');
 });
 
 Template.ProcessedArea.onRendered(function getImageTag() {
@@ -367,6 +354,9 @@ Template.ProcessedArea.onRendered(function getImageTag() {
 Template.ProcessedArea.helpers({
     angle() {
         return Session.get('angle');
+    },
+    order() {
+        return Session.get('order');
     },
 });
 
@@ -395,7 +385,7 @@ Template.peerTable.onRendered(function() {
     cueString = "<span class=\"cueMsg\">Cue: </span>";
 
     // Initialize the peer
-    Template.peerTable.__helpers.get('initialize')();
+    // Template.peerTable.__helpers.get('initialize')();
 
 });
 
@@ -611,9 +601,7 @@ if (Meteor.isCordova) {
                             console.log(result);
                         });
 
-                        // Template.ConnectESP.__helpers.get('getRFIDReadings')();
-                        // Template.ConnectESP.__helpers.get('getUltra1Reading')();
-                        // Template.ConnectESP.__helpers.get('getUltra2Reading')();
+                        Template.ConnectESP.__helpers.get('getData')();
                     }
                 });
 
@@ -655,8 +643,14 @@ if (Meteor.isCordova) {
                 } else {
                     // Add Success Component to UI
                     Session.set('espConnected', '1');
+                    (async () => {
+                        await delay(500);
+                        Session.set('espConnected', '0');
+                    })();
+
                     console.log("Connected Successfully: ", ESP_IP);
-                    // Template.ConnectESP.__helpers.get('getRFIDReadings')();
+                    // Template.ConnectESP.__helpers.get('getData')();
+                    
                 }
             });
             

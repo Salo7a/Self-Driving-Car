@@ -7,11 +7,11 @@
 //const char* ssid = "BODY-ALREFAEY-9031";
 //const char* password = "%rG15399";
 
-//const char* ssid = "MahdyKun";
-//const char* password = "ok1234de7k";
+const char* ssid = "Refaey";
+const char* password = "Body@12345";
 
-const char* ssid = "STUDBME2";
-const char* password = "BME2Stud";
+//const char* ssid = "STUDBME2";
+//const char* password = "BME2Stud";
 
 
 int auto_mode = 0;
@@ -19,9 +19,9 @@ String rfid_reading = "N/A";
 String distance = "x";
 String temp = "";
 String AllData = "N/A,50,50";
-#define CONNECTED D1
-#define FORWARD D2
-#define BACKWARDS D3
+#define CONNECTED D0
+#define FORWARD D3
+#define BACKWARDS D4  
 #define RIGHT D5
 #define LEFT D6
 #define SPEED D7

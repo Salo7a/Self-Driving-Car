@@ -34,7 +34,7 @@
 
 <template name="MainLayout">
     <div class="row">
-        <div class="col-md-3 col-sm-12">
+        <div class="col-md-4 col-sm-12">
 
           <div class="card card-default">
             <!-- .card-header -->
@@ -70,7 +70,7 @@
         <!-- /.col -->
 
 
-        <div class="col-5">
+        <div class="col-4">
           <div class="card card-default">
             <div class="card-header">
               <h3 class="card-title">
@@ -115,10 +115,10 @@
 
 <template name="Controls">
     {{> ConnectESP}}
-    {{> DrivingMode }}
-    {{#if autoMode}}
-        {{> AutoModeButtons }}
-    {{/if}}
+    {{> DrivingMode}}
+    <!-- {{#if autoMode}}
+        {{> AutoModeButtons}}
+    {{/if}} -->
 </template>
 
 
@@ -146,8 +146,8 @@
                 <div class="col">
                     <p><b>RFID: </b><span id="rfid">{{rfidReading}}</span></p>
                     <p>
-                        <b>US1: </b><span id="rfid">{{ultra1_reading}}</span>
-                        <b>US2: </b><span id="rfid">{{ultra2_reading}}</span>
+                        <b>LUS: </b><span id="rfid">{{ultra1_reading}}</span>
+                        <b>RUS: </b><span id="rfid">{{ultra2_reading}}</span>
                     </p>
                 </div>
             </div>
@@ -184,28 +184,33 @@
       </div>
 </template>
 
+
 <template name="DrivingMode">
+
     <!-- Start Driving Mode Card -->
     <div class="card">
         <div class="card-header">
             <h5 class="mb-1">Driving Mode</h5>
         </div>
         <div class="card-body table-responsive pad">
-            <div class="col">
-                <div class="btn-group btn-group-toggle mb-1" data-toggle="buttons" id="drive-mode">
-                    <label class="btn btn-secondary active">
-                        <input type="radio" name="options" id="option1" autocomplete="off" checked> Manual
-                    </label>
-                    <label class="btn btn-secondary">
-                        <input type="radio" name="options" id="option2" autocomplete="off"> Auto
-                    </label>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="btn-group btn-group-toggle mb-1" data-toggle="buttons" id="drive-mode">
+                        <label class="btn btn-secondary active">
+                            <input type="radio" name="options" id="option1" autocomplete="off" checked> Manual
+                        </label>
+                        <label class="btn btn-secondary">
+                            <input type="radio" name="options" id="option2" autocomplete="off"> Auto
+                        </label>
+                    </div>
+                    {{> ControlArrows}}
+                </div>
+                <div class="col-md-6">
+                    {{#if autoMode}}
+                        {{> AutoModeButtons}}
+                    {{/if}}
                 </div>
             </div>
-
-            <div class="col">
-                {{> ControlArrows}}
-            </div>
-            
         </div>
     </div>
     <!-- End Driving Mode Card -->
@@ -214,10 +219,7 @@
 <template name="AutoModeButtons">
     <!-- Start Action Button For Auto Mode -->
     <div class="card" id="autoButtons">
-        <div class="card-header">
-            <h4>Action Buttons</h4>
-        </div>
-        <div class="card-body">
+        <div class="card-body pd-0">
             <a class="btn btn-app" id="play">
                 <i class="fas fa-play"></i> Play
             </a>
@@ -231,7 +233,7 @@
 
 
 <template name="ControlArrows">
-    <div class="arrow-key-container" style="margin-right: auto; margin-left: auto">
+    <div class="arrow-key-container">
         <div class="arrow-key up" id="myBtn" data-key="38"></div><br>
         <div class="arrow-key left" data-key="37"></div>
         <div class="arrow-key down" data-key="40"></div>
@@ -277,6 +279,7 @@
       <img id="processed_img" style="width: 100%; height: 100%" alt="No processing yet..">
     </div>
     <div id="angle">Steering Angle = {{angle}}</div>
+    <div id="order">Order: {{order}}</div>
 </template>
 
 
