@@ -15,12 +15,11 @@ const char* password = "Body@12345";
 
 
 int auto_mode = 0;
-String rfid_reading = "N/A";
+String rfid_reading = "";
 String distance = "x";
 String temp = "";
 String AllData = "N/A,50,50";
 #define CONNECTED D0
-#define DATA_PIN D1
 #define FORWARD D3
 #define BACKWARDS D4
 #define RIGHT D5
@@ -41,7 +40,6 @@ void setup() {
   delay(100);
   connectToWiFi();
   pinMode(CONNECTED, OUTPUT);
-  pinMode(DATA_PIN, OUTPUT);
   pinMode(FORWARD, OUTPUT);
   pinMode(BACKWARDS, OUTPUT);
   pinMode(RIGHT, OUTPUT);
@@ -143,11 +141,9 @@ void setup() {
   server.on("/data", []() {
     Serial.println("data");
     server.sendHeader("Access-Control-Allow-Origin", "*");
-
-    // Start Serial to Arduino to get data again
-    digitalWrite(DATA_PIN, HIGH);
     server.send(200, "text/plain", AllData);
   });
+
   server.on("/play", []() {
     Serial.println("play");
     auto_mode = 1;
@@ -186,6 +182,7 @@ void setup() {
 }
 
 void loop() {
+  server.handleClient();
   // put your main code here, to run repeatedly:
   if (WiFi.status() != WL_CONNECTED)
   {
@@ -195,38 +192,20 @@ void loop() {
   digitalWrite(CONNECTED, HIGH);
   MDNS.update();
   server.handleClient();
-  //    if (Serial.available()) { // If anything comes in Serial (USB),
-  //      server.handleClient();
-  //      temp = Serial.readString();
-  //      if (String(temp[0]) == String("@")){
-  //        Serial.println("Distance");
-  //        distance = temp;
-  //      } else{
-  //        Serial.println("RFID");
-  //        rfid_reading = temp;
-  //      }
-  //      AllData = rfid_reading + String(",") + distance.substring(1);
-  //      server.handleClient();
-  ////      Serial.println(temp);   // read it and send it out Serial1 (pins 0 & 1)
-  //    }
+  if (Serial.available()) { // If anything comes in Serial (USB),
+    server.handleClient();
+    temp = Serial.readString();
+    if (String(temp[0]) == String("@")) {
+      Serial.println("Distance");
+      distance = temp;
+    } else {
+      Serial.println("RFID");
+      rfid_reading = temp;
+    }
+    server.handleClient();
+    Serial.println(temp);   // read it and send it out Serial1 (pins 0 & 1)
+  }
   server.handleClient();
-   if (Serial.available()) { // If anything comes in Serial (USB),
-        Serial.println("Serial is avilable");
-        temp = Serial.readString();
-        if (String(temp[0]) == String("@")) {
-          Serial.println("Distance");
-          digitalWrite(DATA_PIN, LOW);
-          distance = temp;
-        } else {
-          Serial.println("RFID");
-          digitalWrite(DATA_PIN, LOW);
-          rfid_reading = temp;
-        }
-        AllData = rfid_reading + String(",") + distance.substring(1);
-        digitalWrite(DATA_PIN, LOW);
-//        break;
-        // Serial.println(temp);   // read it and send it out Serial1 (pins 0 & 1)
-      }
 }
 void connectToWiFi()
 {
