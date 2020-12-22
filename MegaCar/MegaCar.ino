@@ -106,6 +106,7 @@ void setup() {
   mfrc522.PCD_WriteRegister(mfrc522.ComIEnReg, regVal);
   
   bNewInt = false; //interrupt flag
+
   
   /*Activate the interrupt*/
   attachInterrupt(digitalPinToInterrupt(IRQ_PIN), readCard, FALLING);
