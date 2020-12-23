@@ -16,6 +16,7 @@ let ultra1_reading = 'null';
 let ultra2_reading = 'null';
 
 let processInterval;            // for creating an interval to process frames iteratively
+let getDataInterval;
 let output_frame;               // result frame after processing
 let angle;                      // result angle after processing
 
@@ -87,20 +88,15 @@ Template.ConnectESP.helpers({
     },
 
     getData() {
-        const getData = setInterval(function() {
-            send_ajax(ESP_IP+'/data', "Getting Data From ESP..").then((data) => {
-                console.log(data);
-                data = data.split(',')
-                RFID_Reading = data[0];
-                ultra1_reading = data[1];
-                ultra2_reading = data[2];
-                Session.set('rfidReading', RFID_Reading);
-                Session.set('ultra1_reading', ultra1_reading);
-                Session.set('ultra2_reading', ultra2_reading);
-            });
-        }, 200);
-        getData;
-        
+        send_ajax(ESP_IP+'/data', "Getting Data From ESP..").then((data) => {
+            data = data.split(',');
+            RFID_Reading = data[0];
+            ultra1_reading = data[1];
+            ultra2_reading = data[2];
+            Session.set('rfidReading', RFID_Reading);
+            Session.set('ultra1_reading', ultra1_reading);
+            Session.set('ultra2_reading', ultra2_reading);
+        });        
     },
 });
 
@@ -110,6 +106,7 @@ Template.DrivingMode.events({
     'click #drive-mode' (e, i) {
         if (Template.instance().$('#option1').is(':checked')){
             Session.set('autoMode', false);
+            clearInterval(getDataInterval);
         } else if (Template.instance().$('#option2').is(':checked')){
             Session.set('autoMode', true);
         }
@@ -170,6 +167,7 @@ Template.AutoModeButtons.events({
 
         // Start Processing The Stream
         processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 1000);
+        getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 700);
     },
 
     'mousedown/keydown #pause, touchstart #pause' (e, i) {
@@ -294,10 +292,12 @@ Template.StreamArea.helpers({
         }
 
         // Check objects
-        if (ultra1_reading < 100 && ultra2_reading < 100) {
-            // Stuff here
-        } else {
+        if (ultra1_reading < 10) {
+            order = '/right';
+        }
 
+        if (ultra2_reading < 10) {
+            order = '/left'
         }
 
         // Send ajax to move the car
@@ -649,7 +649,7 @@ if (Meteor.isCordova) {
                     })();
 
                     console.log("Connected Successfully: ", ESP_IP);
-                    Template.ConnectESP.__helpers.get('getData')();
+                    // Template.ConnectESP.__helpers.get('getData')();
                     
                 }
             });
