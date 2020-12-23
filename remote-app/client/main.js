@@ -98,7 +98,7 @@ Template.ConnectESP.helpers({
                 Session.set('ultra1_reading', ultra1_reading);
                 Session.set('ultra2_reading', ultra2_reading);
             });
-        }, 500);
+        }, 200);
         getData;
         
     },
