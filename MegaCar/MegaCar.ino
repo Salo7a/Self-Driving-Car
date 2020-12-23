@@ -17,7 +17,7 @@
 #define LEFT 37
 #define STOP 39
 #define SPEED A0
-#define CONNECTED A14 
+#define CONNECTED 9
 #define FORWARDLED A10
 #define BACKWARDSLED A11
 #define RIGHTLED A12
