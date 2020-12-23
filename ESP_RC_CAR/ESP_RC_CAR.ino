@@ -19,9 +19,9 @@ String rfid_reading = "N/A";
 String distance = "x";
 String temp = "";
 String AllData = "N/A,50,50";
-#define CONNECTED D0
-#define FORWARD D3
-#define BACKWARDS D4  
+#define CONNECTED D1
+#define FORWARD D2
+#define BACKWARDS D3  
 #define RIGHT D5
 #define LEFT D6
 #define SPEED D7
@@ -34,7 +34,7 @@ void connectToWiFi(), handleNotFound();
 void setup() {
   // put your setup code here, to run once:
   
-    Serial.begin(115200);
+    Serial.begin(9600);
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     delay(100);
@@ -139,8 +139,16 @@ void setup() {
   });
   
     server.on("/data", [](){
-    Serial.println("data");
-    server.sendHeader("Access-Control-Allow-Origin", "*");
+        if (Serial.available()) { // If anything comes in Serial (USB),
+          while(Serial.read() != '$'){
+            
+          }
+          temp = Serial.readStringUntil('@');
+      
+          AllData = temp;
+      
+//      Serial.println(temp);   // read it and send it out Serial1 (pins 0 & 1)
+    }
     server.send(200, "text/plain", AllData);
   });
   server.on("/play", [](){
@@ -191,20 +199,7 @@ void loop() {
     digitalWrite(CONNECTED, HIGH);
     MDNS.update();
     server.handleClient();
-    if (Serial.available()) { // If anything comes in Serial (USB),
-      server.handleClient();
-      temp = Serial.readString();
-      if (String(temp[0]) == String("@")){
-        Serial.println("Distance");
-        distance = temp;
-      } else{
-        Serial.println("RFID");
-        rfid_reading = temp;
-      }
-      AllData = rfid_reading + String(",") + distance.substring(1);
-      server.handleClient();
-//      Serial.println(temp);   // read it and send it out Serial1 (pins 0 & 1)
-    }
+
 server.handleClient();
 }
 void connectToWiFi()

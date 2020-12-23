@@ -1,9 +1,9 @@
 #include <SPI.h>
 #include <MFRC522.h>
 #include "AsyncSonarLib.h"
-#define RST_PIN 11
-#define SS_PIN 53
-#define IRQ_PIN 2
+#define RST_PIN 11         
+#define SS_PIN 53           
+#define IRQ_PIN 2           
 #define SPEEDR 8
 #define SPEEDL 10
 #define L1 4
@@ -17,30 +17,27 @@
 #define LEFT 37
 #define STOP 39
 #define SPEED A0
-#define CONNECTED A14
+#define CONNECTED A14 
 #define FORWARDLED A10
 #define BACKWARDSLED A11
-
 #define RIGHTLED A12
 #define LEFTLED A13
 #define STOPLED A9
 #define CONNECTEDLED 21
 #define RSONICE A1
-#define RSONICT A2
+#define RSONICT A2 
 #define LSONICE A3
-#define LSONICT A4
+#define LSONICT A4 
 #define LSONIC A8
-#define RSONIC A15
+#define RSONIC A15 
 int connected = 0;
 int speed = 0;
 int temp = 0;
-String distance = "x";
-int x;
-MFRC522 mfrc522(SS_PIN, RST_PIN);
+MFRC522 mfrc522(SS_PIN, RST_PIN); 
 
 MFRC522::MIFARE_Key key;
-
-
+String RFID = "";
+String Data = "";
 volatile bool bNewInt = false;
 byte regVal = 0x7F;
 void activateRec(MFRC522 mfrc522);
@@ -76,7 +73,7 @@ AsyncSonar LeftS (LSONIC);
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  Serial2.begin(115200);
+  Serial3.begin(9600);
   pinMode(SPEEDL, OUTPUT);
   pinMode(SPEEDR, OUTPUT);
   pinMode(R1, OUTPUT);
@@ -84,7 +81,7 @@ void setup() {
   pinMode(L1, OUTPUT);
   pinMode(L2, OUTPUT);
   pinMode(STOPLED, OUTPUT);
-  analogWrite(SPEEDL, MAXSPEED);
+  analogWrite(SPEEDL, MAXSPEED); 
   analogWrite(SPEEDR, MAXSPEED);
   pinMode(FORWARD, INPUT);
   pinMode(BACKWARDS, INPUT);
@@ -105,27 +102,26 @@ void setup() {
   mfrc522.PCD_Init(); // Init MFRC522 card
   regVal = 0xA0; //rx irq
   mfrc522.PCD_WriteRegister(mfrc522.ComIEnReg, regVal);
-
+  
   bNewInt = false; //interrupt flag
-
+  
   /*Activate the interrupt*/
   attachInterrupt(digitalPinToInterrupt(IRQ_PIN), readCard, FALLING);
   LeftS.Start();
   RightS.Start();
-  x = millis();
 }
 
 
 void loop() {
-  LeftS.Start();
+   LeftS.Start();
   RightS.Start();
   // put your main code here, to run repeatedly:
   connected = digitalRead(CONNECTED);
   if (connected) {
     digitalWrite(CONNECTEDLED, HIGH);
-    //     temp = analogRead(SPEED);
-    //     delay(10);
-    //     Serial.println(temp);
+//     temp = analogRead(SPEED);
+//     delay(10);
+//     Serial.println(temp);
     // speed = map(temp, 0, 700, 0, MAXSPEED);
     // analogWrite(SPEEDL, speed);
     // analogWrite(SPEEDR, speed);
@@ -156,42 +152,33 @@ void loop() {
     digitalWrite(L2, LOW);
   }
   if (bNewInt) { //new read interrupt
-    Serial2.begin(115200);
     mfrc522.PICC_ReadCardSerial(); //read the tag data
     // Show some details of the PICC (that is: the tag/card)
     Serial.print(F("Card UID:"));
     dump_byte_array(mfrc522.uid.uidByte, mfrc522.uid.size);
     Serial.println();
-
+    Serial.println(RFID);
     clearInt(mfrc522);
     mfrc522.PICC_HaltA();
     bNewInt = false;
   }
-  activateRec(mfrc522);
-  delay(50);
-  LeftS.Update();
-  RightS.Update();
+   activateRec(mfrc522);
+     delay(50); 
+   LeftS.Update();
+    RightS.Update();
   // The receiving block needs regular retriggering (tell the tag it should transmit??)
-   (mfrc522.PCD_WriteRegister(mfrc522.FIFODataReg,mfrc522.PICC_CMD_REQA));
-
-  if (millis() - x > 1000) {
-//    Serial2.begin(115200);
-    x = millis();
-    distance = "@" + String(LeftS.GetMeasureMM() / 10) + "," + String(RightS.GetMeasureMM() / 10);
-//    Serial2.print(distance);
-    Serial.println(distance);
-//    Serial2.end();
-  }
-
-  Serial.print("Left: ");
-  Serial.print(LeftS.GetMeasureMM() / 10);
-  Serial.print(", Right: ");
-  Serial.println(RightS.GetMeasureMM() / 10);
-
+  // (mfrc522.PCD_WriteRegister(mfrc522.FIFODataReg,mfrc522.PICC_CMD_REQA);)
+//    Serial.print("Left: ");
+//  Serial.print(LeftS.GetMeasureMM()/10);
+//  Serial.print(", Right: ");
+//  Serial.println(RightS.GetMeasureMM()/10);
+  Data ="$" + RFID + "," + String(LeftS.GetMeasureMM()/10) + "," + String(RightS.GetMeasureMM()/10) + "@";
+  Serial.println(Data);
+  Serial3.print(Data);
 }
 
-void forward() {
-  //  Serial.println("Forward");
+void forward(){
+//  Serial.println("Forward");
   digitalWrite(R1, HIGH);
   digitalWrite(R2, LOW);
   digitalWrite(L1, HIGH);
@@ -202,8 +189,8 @@ void forward() {
   digitalWrite(LEFTLED, LOW);
   digitalWrite(STOPLED, LOW);
 }
-void backwards() {
-  //  Serial.println("Backwards");
+void backwards(){
+//  Serial.println("Backwards");
   digitalWrite(R1, LOW);
   digitalWrite(R2, HIGH);
   digitalWrite(L1, LOW);
@@ -242,12 +229,10 @@ void left() {
   digitalWrite(LEFTLED, HIGH);
   digitalWrite(STOPLED, LOW);
 }
-void stopc() {
-  //  if (digitalRead(STOP)) {
-  //    Serial.println("Stop");
-  //  }
-  analogWrite(SPEEDL, MAXSPEED);
-  analogWrite(SPEEDR, MAXSPEED);
+void stopc(){
+//  if (digitalRead(STOP)) {
+//    Serial.println("Stop");
+//  }
   digitalWrite(R1, LOW);
   digitalWrite(R2, LOW);
   digitalWrite(L1, LOW);
@@ -260,26 +245,29 @@ void stopc() {
 }
 
 /**
-   Helper routine to dump a byte array as hex values to Serial.
-*/
+ * Helper routine to dump a byte array as hex values to Serial.
+ */
 void dump_byte_array(byte *buffer, byte bufferSize) {
+  RFID = "";
   for (byte i = 0; i < bufferSize; i++) {
     Serial.print(buffer[i] < 0x10 ? " 0" : " ");
     Serial.print(buffer[i], HEX);
-    Serial2.print(buffer[i] < 0x10 ? " 0" : " ");
-    Serial2.print(buffer[i], HEX);
+//    Serial3.print(buffer[i] < 0x10 ? " 0" : " ");
+//    Serial3.print(buffer[i], HEX);
+    RFID += String(buffer[i] < 0x10 ? " 0" : " ");
+    RFID += String(buffer[i], HEX);
   }
 }
 /**
-   MFRC522 interrupt serving routine
-*/
+ * MFRC522 interrupt serving routine
+ */
 void readCard() {
   bNewInt = true;
 }
 
 /*
-   The function sending to the MFRC522 the needed commands to activate the reception
-*/
+ * The function sending to the MFRC522 the needed commands to activate the reception
+ */
 void activateRec(MFRC522 mfrc522) {
   mfrc522.PCD_WriteRegister(mfrc522.FIFODataReg, mfrc522.PICC_CMD_REQA);
   mfrc522.PCD_WriteRegister(mfrc522.CommandReg, mfrc522.PCD_Transceive);
@@ -287,8 +275,8 @@ void activateRec(MFRC522 mfrc522) {
 }
 
 /*
-   The function to clear the pending interrupt bits after interrupt serving routine
-*/
+ * The function to clear the pending interrupt bits after interrupt serving routine
+ */
 void clearInt(MFRC522 mfrc522) {
   mfrc522.PCD_WriteRegister(mfrc522.ComIrqReg, 0x7F);
 }
