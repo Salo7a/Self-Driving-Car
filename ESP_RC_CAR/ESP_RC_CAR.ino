@@ -149,6 +149,7 @@ void setup() {
       
 //      Serial.println(temp);   // read it and send it out Serial1 (pins 0 & 1)
     }
+    server.sendHeader("Access-Control-Allow-Origin", "*");
     server.send(200, "text/plain", AllData);
   });
   server.on("/play", [](){
@@ -199,8 +200,7 @@ void loop() {
     digitalWrite(CONNECTED, HIGH);
     MDNS.update();
     server.handleClient();
-
-server.handleClient();
+    Serial.flush();
 }
 void connectToWiFi()
 {
