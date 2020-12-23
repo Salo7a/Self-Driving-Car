@@ -385,7 +385,7 @@ Template.peerTable.onRendered(function() {
     cueString = "<span class=\"cueMsg\">Cue: </span>";
 
     // Initialize the peer
-    Template.peerTable.__helpers.get('initialize')();
+    // Template.peerTable.__helpers.get('initialize')();
 
 });
 
