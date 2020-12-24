@@ -123,7 +123,7 @@ Template.peerTable.onCreated(function peerTableOnCreated() {
 });
 
 Template.peerTable.onRendered(function() {
-    destID = "xdm24wjo09300";
+    destID = "xdm24wjo09400";
     // init variables
     lastPeerId = null;
     peer = null; // Own peer object
