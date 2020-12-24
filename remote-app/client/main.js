@@ -418,7 +418,7 @@ Template.peerTable.helpers({
         if(Meteor.isCordova){
             peerID = 'xdm24wjo00360';
         } else {
-            peerID = 'xdm24wjo09200';
+            peerID = 'xdm24wjo09300';
         }
         
         peer = new Peer(peerID, {

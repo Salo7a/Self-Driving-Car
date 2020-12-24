@@ -55,12 +55,6 @@ body {
   transform: translate3d(-3px, 3px, 0);
 }
 
-.arrow-key:active {
-  border-bottom-width: 4px;
-  transform: translateY(4px);
-  background: #2E84C4;
-}
-
 .arrow-key.left:before {
   content: "\2190";
 }
