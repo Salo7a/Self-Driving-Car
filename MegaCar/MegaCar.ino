@@ -17,7 +17,7 @@
 #define LEFT 37
 #define STOP 39
 #define SPEED A0
-#define CONNECTED A14 
+#define CONNECTED 9
 #define FORWARDLED A10
 #define BACKWARDSLED A11
 #define RIGHTLED A12
@@ -140,6 +140,7 @@ void loop() {
       stopc();
     }
   } else {
+    Serial.println("ALL OFF");
     digitalWrite(CONNECTEDLED, LOW);
     digitalWrite(FORWARDLED, LOW);
     digitalWrite(BACKWARDSLED, LOW);
@@ -180,7 +181,7 @@ void loop() {
 }
 
 void forward(){
-//  Serial.println("Forward");
+  Serial.println("Forward");
   digitalWrite(R1, HIGH);
   digitalWrite(R2, LOW);
   digitalWrite(L1, HIGH);
@@ -192,7 +193,7 @@ void forward(){
   digitalWrite(STOPLED, LOW);
 }
 void backwards(){
-//  Serial.println("Backwards");
+  Serial.println("Backwards");
   digitalWrite(R1, LOW);
   digitalWrite(R2, HIGH);
   digitalWrite(L1, LOW);
@@ -204,7 +205,7 @@ void backwards(){
   digitalWrite(STOPLED, LOW);
 }
 void right() {
-  //  Serial.println("Right");
+    Serial.println("Right");
   analogWrite(SPEEDL, 115);
   analogWrite(SPEEDR, 115);
   digitalWrite(R1, HIGH);
@@ -218,7 +219,7 @@ void right() {
   digitalWrite(STOPLED, LOW);
 }
 void left() {
-  //  Serial.println("Left");
+    Serial.println("Left");
   analogWrite(SPEEDL, 120);
   analogWrite(SPEEDR, 120);
   digitalWrite(R1, LOW);
@@ -233,7 +234,7 @@ void left() {
 }
 void stopc(){
 //  if (digitalRead(STOP)) {
-//    Serial.println("Stop");
+    Serial.println("Stop");
 //  }
   digitalWrite(R1, LOW);
   digitalWrite(R2, LOW);

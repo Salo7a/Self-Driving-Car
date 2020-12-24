@@ -17,9 +17,11 @@ let ultra2_reading = 'null';
 
 let processInterval;            // for creating an interval to process frames iteratively
 let getDataInterval;
+let getRFIDInterval;
 let output_frame;               // result frame after processing
 let angle;                      // result angle after processing
-
+let last;
+let count = 0;
 let init_angle = 90;            // First SteeringAngle
 
 
@@ -29,10 +31,6 @@ let down_btn;
 let left_btn;
 let right_btn;
 
-const syncWait = ms => {
-    const end = Date.now() + ms
-    while (Date.now() < end) continue
-}
 
 Meteor.startup(function() {
     if (Meteor.isCordova)
@@ -107,7 +105,11 @@ Template.DrivingMode.events({
     'click #drive-mode' (e, i) {
         if (Template.instance().$('#option1').is(':checked')){
             Session.set('autoMode', false);
-            // clearInterval(getDataInterval);
+            if (ESP_IP != "null") {
+                getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 2500);
+            } else {
+                clearInterval(getDataInterval);
+            }
         } else if (Template.instance().$('#option2').is(':checked')){
             Session.set('autoMode', true);
         }
@@ -168,13 +170,18 @@ Template.AutoModeButtons.events({
 
         // Start Processing The Stream
         processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 1250);
-        getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 600);
+        if (ESP_IP != "null") {
+            getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 600);
+        } else {
+            console.log("Connect ESP First to get Data");
+        }
     },
 
     'mousedown/keydown #pause, touchstart #pause' (e, i) {
         Template.StreamArea.__helpers.get('stopProcessing')();
         send_ajax(ESP_IP + '/stop', "Stop The Car...");
         Session.set('order', 'stop');
+        clearInterval(getDataInterval);
     },
 });
 
@@ -594,7 +601,9 @@ if (Meteor.isCordova) {
 
                         // Add Success Component to UI
                         Session.set('espConnected', '1');
+                        getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 2500);
 
+                        
                         // Send ESP_IP to server-side
                         Meteor.call("sendESPIP", ESP_IP, (error, result) => {
                             if (error) throw error;
@@ -647,6 +656,7 @@ if (Meteor.isCordova) {
                     })();
 
                     console.log("Connected Successfully: ", ESP_IP);
+                    getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 2500);
                     
                 }
             });
@@ -700,7 +710,17 @@ window.addEventListener("keydown", function (event) {
     if (event.defaultPrevented) {
       return; // Do nothing if the event was already processed
     }
-  
+    if (last === event.key) {
+        if (count >= 3) {
+            return;
+        } else {
+            count +=1;
+        }
+    } else {
+        last = event.key;
+        count = 0;
+    }
+    
     switch (event.key) {
         case "ArrowUp":
             up_btn.dispatchEvent(new Event("mousedown"));
