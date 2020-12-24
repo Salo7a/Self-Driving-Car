@@ -7,12 +7,14 @@
 //const char* ssid = "BODY-ALREFAEY-9031";
 //const char* password = "%rG15399";
 
-const char* ssid = "Refaey";
-const char* password = "Body@12345";
+//const char* ssid = "Refaey";
+//const char* password = "Body@12345";
 
 //const char* ssid = "STUDBME2";
 //const char* password = "BME2Stud";
 
+const char* ssid = "Cold";
+const char* password = "Salah19998";
 
 int auto_mode = 0;
 String rfid_reading = "N/A";

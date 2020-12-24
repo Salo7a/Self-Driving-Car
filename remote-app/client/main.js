@@ -89,6 +89,7 @@ Template.ConnectESP.helpers({
 
     getData() {
         send_ajax(ESP_IP+'/data', "Getting Data From ESP..").then((data) => {
+            console.log(data);
             data = data.split(',');
             RFID_Reading = data[0];
             ultra1_reading = data[1];
@@ -106,7 +107,7 @@ Template.DrivingMode.events({
     'click #drive-mode' (e, i) {
         if (Template.instance().$('#option1').is(':checked')){
             Session.set('autoMode', false);
-            clearInterval(getDataInterval);
+            // clearInterval(getDataInterval);
         } else if (Template.instance().$('#option2').is(':checked')){
             Session.set('autoMode', true);
         }
@@ -166,8 +167,8 @@ Template.AutoModeButtons.events({
         send_ajax(ESP_IP + '/play', "Start Moving The Car in Auto Mode...");
 
         // Start Processing The Stream
-        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 1000);
-        getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 700);
+        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 1250);
+        getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 600);
     },
 
     'mousedown/keydown #pause, touchstart #pause' (e, i) {
@@ -292,11 +293,11 @@ Template.StreamArea.helpers({
         }
 
         // Check objects
-        if (ultra1_reading < 10) {
+        if (ultra1_reading < 13) {
             order = '/right';
         }
 
-        if (ultra2_reading < 10) {
+        if (ultra2_reading < 13) {
             order = '/left'
         }
 
@@ -304,11 +305,10 @@ Template.StreamArea.helpers({
         send_ajax(ESP_IP + order, "Agnle: " + angle + " Order: " + order);
         Session.set('order', order);
         (async () => {
-            await delay(600);
+            await delay(200);
             send_ajax(ESP_IP + '/stop', "Order: stop");
             Session.set('order', 'stop');
         })();
-        // send_ajax(ESP_IP + '/stop', "Order: stop");
         
     },
 
@@ -385,7 +385,7 @@ Template.peerTable.onRendered(function() {
     cueString = "<span class=\"cueMsg\">Cue: </span>";
 
     // Initialize the peer
-    Template.peerTable.__helpers.get('initialize')();
+    // Template.peerTable.__helpers.get('initialize')();
 
 });
 
@@ -418,7 +418,7 @@ Template.peerTable.helpers({
         if(Meteor.isCordova){
             peerID = 'xdm24wjo00360';
         } else {
-            peerID = 'xdm24wjo09300';
+            peerID = 'xdm24wjo09400';
         }
         
         peer = new Peer(peerID, {
@@ -600,8 +600,6 @@ if (Meteor.isCordova) {
                             if (error) throw error;
                             console.log(result);
                         });
-
-                        Template.ConnectESP.__helpers.get('getData')();
                     }
                 });
 
@@ -644,12 +642,11 @@ if (Meteor.isCordova) {
                     // Add Success Component to UI
                     Session.set('espConnected', '1');
                     (async () => {
-                        await delay(500);
+                        await delay(400);
                         Session.set('espConnected', '0');
                     })();
 
                     console.log("Connected Successfully: ", ESP_IP);
-                    // Template.ConnectESP.__helpers.get('getData')();
                     
                 }
             });
@@ -670,6 +667,7 @@ const send_ajax = async (url, message) => {
         success: function (data) {
             console.log(message);
             response_data = data;
+            return data;
         },
         crossDomain: true,
         tryCount: 0,
