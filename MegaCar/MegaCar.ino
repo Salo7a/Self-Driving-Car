@@ -3,7 +3,7 @@
 #include "AsyncSonarLib.h"
 #define RST_PIN 11         
 #define SS_PIN 53           
-#define IRQ_PIN 2           
+          
 #define SPEEDR 8
 #define SPEEDL 10
 #define L1 4
@@ -17,7 +17,7 @@
 #define LEFT 37
 #define STOP 39
 #define SPEED A0
-#define CONNECTED 9
+#define CONNECTED A14 
 #define FORWARDLED A10
 #define BACKWARDSLED A11
 #define RIGHTLED A12
@@ -96,17 +96,17 @@ void setup() {
   pinMode(LEFTLED, OUTPUT);
   pinMode(STOPLED, OUTPUT);
   pinMode(CONNECTEDLED, OUTPUT);
-  pinMode(IRQ_PIN, INPUT_PULLUP);
+//  pinMode(IRQ_PIN, INPUT_PULLUP);
   stopc();
   SPI.begin();          // Init SPI bus
   mfrc522.PCD_Init(); // Init MFRC522 card
   regVal = 0xA0; //rx irq
-  mfrc522.PCD_WriteRegister(mfrc522.ComIEnReg, regVal);
-  
-  bNewInt = false; //interrupt flag
-  
-  /*Activate the interrupt*/
-  attachInterrupt(digitalPinToInterrupt(IRQ_PIN), readCard, FALLING);
+//  mfrc522.PCD_WriteRegister(mfrc522.ComIEnReg, regVal);
+//  
+//  bNewInt = false; //interrupt flag
+//  
+//  /*Activate the interrupt*/
+//  attachInterrupt(digitalPinToInterrupt(IRQ_PIN), readCard, FALLING);
   LeftS.Start();
   RightS.Start();
 }
@@ -151,23 +151,25 @@ void loop() {
     digitalWrite(L1, LOW);
     digitalWrite(L2, LOW);
   }
-  if (bNewInt) { //new read interrupt
+
+  if (mfrc522.PICC_IsNewCardPresent()) { 
     mfrc522.PICC_ReadCardSerial(); //read the tag data
     // Show some details of the PICC (that is: the tag/card)
     Serial.print(F("Card UID:"));
     dump_byte_array(mfrc522.uid.uidByte, mfrc522.uid.size);
     Serial.println();
     Serial.println(RFID);
-    clearInt(mfrc522);
+//    clearInt(mfrc522);
     mfrc522.PICC_HaltA();
-    bNewInt = false;
+  // Stop encryption on PCD
+    mfrc522.PCD_StopCrypto1();
   }
-   activateRec(mfrc522);
+//   activateRec(mfrc522);
      delay(50); 
    LeftS.Update();
     RightS.Update();
   // The receiving block needs regular retriggering (tell the tag it should transmit??)
-  // (mfrc522.PCD_WriteRegister(mfrc522.FIFODataReg,mfrc522.PICC_CMD_REQA);)
+//   mfrc522.PCD_WriteRegister(mfrc522.FIFODataReg,mfrc522.PICC_CMD_REQA);
 //    Serial.print("Left: ");
 //  Serial.print(LeftS.GetMeasureMM()/10);
 //  Serial.print(", Right: ");
