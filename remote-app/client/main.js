@@ -11,6 +11,7 @@ import './main.html';
 // let ESP_IP = 'http://192.168.43.66';
 // let ESP_IP = '192.168.43.213';
 let ESP_IP = "null";
+// let ESP_IP = "http://172.28.135.185";
 let RFID_Reading = 'null';
 let ultra1_reading = 'null';
 let ultra2_reading = 'null';
@@ -44,6 +45,8 @@ Meteor.startup(function() {
             console.log("Device is ready now!");
             // Now safe to use device APIs
         }
+
+        console.log("ES_IP: ", ESP_IP);
     }
 });
 
@@ -169,9 +172,9 @@ Template.AutoModeButtons.events({
         send_ajax(ESP_IP + '/play', "Start Moving The Car in Auto Mode...");
 
         // Start Processing The Stream
-        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 1250);
+        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 1000);
         if (ESP_IP != "null") {
-            getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 600);
+            getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 500);
         } else {
             console.log("Connect ESP First to get Data");
         }
@@ -229,7 +232,7 @@ Template.StreamArea.helpers({
         canvasTag.width = videoTag.videoWidth;
         canvasTag.height = videoTag.videoHeight;
         canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
-        let imgURI = canvasTag.toDataURL('image/jpeg', 0.5);
+        let imgURI = canvasTag.toDataURL('image/jpeg', 0.75);
         screenshotImage.src = imgURI
         screenshotImage.classList.remove('d-none');
         return imgURI
@@ -239,7 +242,7 @@ Template.StreamArea.helpers({
         canvasTag.width = videoTag.videoWidth;
         canvasTag.height = videoTag.videoHeight;
         canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
-        return canvasTag.toDataURL('image/jpeg', 0.5);
+        return canvasTag.toDataURL('image/jpeg', 0.75);
     },
 
     processFrame(frameURI) {
@@ -291,16 +294,16 @@ Template.StreamArea.helpers({
         Session.set('angle', angle);
 
         // Conditions on angle to choose which direction to send Ajax to ESP
-        if (angle > 108) {
+        if (angle > 110) {
             order = "/right";
-        } else if (angle <= 75) {
+        } else if (angle <= 72) {
             order = "/left";
-        } else if (angle > 76 && angle < 109) {
+        } else if (angle >= 73 && angle < 111) {
             order = "/forward";
         }
 
         // Check objects
-        if (ultra1_reading < 13) {
+        if (ultra1_reading < 13) {  
             order = '/right';
         }
 
@@ -312,7 +315,7 @@ Template.StreamArea.helpers({
         send_ajax(ESP_IP + order, "Agnle: " + angle + " Order: " + order);
         Session.set('order', order);
         (async () => {
-            await delay(200);
+            await delay(250);
             send_ajax(ESP_IP + '/stop', "Order: stop");
             Session.set('order', 'stop');
         })();
@@ -392,7 +395,7 @@ Template.peerTable.onRendered(function() {
     cueString = "<span class=\"cueMsg\">Cue: </span>";
 
     // Initialize the peer
-    // Template.peerTable.__helpers.get('initialize')();
+    Template.peerTable.__helpers.get('initialize')();
 
 });
 
@@ -710,16 +713,16 @@ window.addEventListener("keydown", function (event) {
     if (event.defaultPrevented) {
       return; // Do nothing if the event was already processed
     }
-    if (last === event.key) {
-        if (count >= 3) {
-            return;
-        } else {
-            count +=1;
-        }
-    } else {
-        last = event.key;
-        count = 0;
-    }
+    // if (last === event.key) {
+    //     if (count >= 3) {
+    //         return;
+    //     } else {
+    //         count +=1;
+    //     }
+    // } else {
+    //     last = event.key;
+    //     count = 0;
+    // }
     
     switch (event.key) {
         case "ArrowUp":
