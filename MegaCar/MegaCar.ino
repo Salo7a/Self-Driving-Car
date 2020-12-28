@@ -126,14 +126,14 @@ void loop() {
     // analogWrite(SPEEDR, speed);
     // Serial.println(speed);
     if (digitalRead(FORWARD)) {
-        if (LeftU < 20) {
+        if (LeftU < 13) {
           left();
-          delay(200);
+          delay(100);
           readings();
           // break from forward
-        }else if (RightU < 20) {
+        }else if (RightU < 13) {
           right();
-          delay(200);
+          delay(100);
           readings();
           // break from forward
         }else{
