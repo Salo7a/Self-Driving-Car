@@ -41,7 +41,7 @@ byte regVal = 0x7F;
 void activateRec(MFRC522 mfrc522);
 void clearInt(MFRC522 mfrc522);
 
-void forward(), backwards(), left(), right(), stopc();
+void forward(), backwards(), left(), right(), stopc(), readings();
 //void PingRRecieved(AsyncSonar& sonar)
 //{
 //  Serial.print("Right: ");
@@ -113,8 +113,7 @@ void setup() {
 
 
 void loop() {
-  LeftS.Start();
-  RightS.Start();
+
   // put your main code here, to run repeatedly:
   connected = digitalRead(CONNECTED);
   if (connected) {
@@ -127,8 +126,21 @@ void loop() {
     // analogWrite(SPEEDR, speed);
     // Serial.println(speed);
     if (digitalRead(FORWARD)) {
-      forward();
-    } else if (digitalRead(BACKWARDS)) {
+        if (LeftU < 20) {
+          left();
+          delay(200);
+          readings();
+          // break from forward
+        }else if (RightU < 20) {
+          right();
+          delay(200);
+          readings();
+          // break from forward
+        }else{
+          forward();
+    }
+      
+    } else if (digitalRead(BACKWARDS)) { 
       backwards();
     } else if (digitalRead(RIGHT)) {
       right();
@@ -166,6 +178,8 @@ void loop() {
     mfrc522.PCD_StopCrypto1();
   }
   //   activateRec(mfrc522);
+    LeftS.Start();
+  RightS.Start();
   delay(50);
   LeftS.Update();
   RightS.Update();
@@ -196,17 +210,7 @@ void forward() {
   Serial.println("Forward");
   // Ultra Conditions
 
-  if (LeftU < 20) {
-    right();
-    delay(400);
-    // break from forward
-  }
-
-  if (RightU < 20) {
-    left();
-    delay(400);
-    // break from forward
-  }
+ 
   digitalWrite(R1, HIGH);
   digitalWrite(R2, LOW);
   digitalWrite(L1, HIGH);
@@ -307,4 +311,23 @@ void activateRec(MFRC522 mfrc522) {
 */
 void clearInt(MFRC522 mfrc522) {
   mfrc522.PCD_WriteRegister(mfrc522.ComIrqReg, 0x7F);
+}
+void readings() {
+    LeftS.Start();
+  RightS.Start();
+    delay(50);
+  LeftS.Update();
+  RightS.Update();
+    temp = LeftS.GetFilteredMM()/10;
+  if(temp <= 50){
+    LeftU = temp;
+  }else {
+    LeftU = 50;
+    }
+  temp = RightS.GetFilteredMM()/10;
+  if(temp <= 50){
+    RightU = temp;
+  } else {
+    RightU = 50;
+    }
 }
