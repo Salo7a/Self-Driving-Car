@@ -7,11 +7,11 @@
 //const char* ssid = "BODY-ALREFAEY-9031";
 //const char* password = "%rG15399";
 
-//const char* ssid = "Refaey";
-//const char* password = "Body@12345";
+const char* ssid = "Refaey";
+const char* password = "Body@12345";
 
-const char* ssid = "MahdyKun";
-const char* password = "ok1234de7k";
+//const char* ssid = "MahdyKun";
+//const char* password = "ok1234de7k";
 
 //const char* ssid = "RealmeC3";
 //const char* password = "12345678";
@@ -32,8 +32,9 @@ String AllData = "N/A,50,50";
 #define BACKWARDS D3  
 #define RIGHT D5
 #define LEFT D6
-#define SPEED D8
 #define STOP D7
+#define SPEED D8
+
 
 const int port = 80;
 ESP8266WebServer server(port);

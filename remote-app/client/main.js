@@ -109,7 +109,7 @@ Template.DrivingMode.events({
         if (Template.instance().$('#option1').is(':checked')){
             Session.set('autoMode', false);
             if (ESP_IP != "null") {
-                getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 2500);
+                // getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 800);
             } else {
                 clearInterval(getDataInterval);
             }
@@ -172,9 +172,9 @@ Template.AutoModeButtons.events({
         send_ajax(ESP_IP + '/play', "Start Moving The Car in Auto Mode...");
 
         // Start Processing The Stream
-        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 1000);
+        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 900);
         if (ESP_IP != "null") {
-            getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 500);
+            // getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 300);
         } else {
             console.log("Connect ESP First to get Data");
         }
@@ -232,7 +232,7 @@ Template.StreamArea.helpers({
         canvasTag.width = videoTag.videoWidth;
         canvasTag.height = videoTag.videoHeight;
         canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
-        let imgURI = canvasTag.toDataURL('image/jpeg', 0.75);
+        let imgURI = canvasTag.toDataURL('image/jpeg', 1);
         screenshotImage.src = imgURI
         screenshotImage.classList.remove('d-none');
         return imgURI
@@ -242,7 +242,7 @@ Template.StreamArea.helpers({
         canvasTag.width = videoTag.videoWidth;
         canvasTag.height = videoTag.videoHeight;
         canvasTag.getContext('2d').drawImage(videoTag, 0, 0);
-        return canvasTag.toDataURL('image/jpeg', 0.75);
+        return canvasTag.toDataURL('image/jpeg', 1);
     },
 
     processFrame(frameURI) {
@@ -303,19 +303,19 @@ Template.StreamArea.helpers({
         }
 
         // Check objects
-        if (ultra1_reading < 13) {  
-            order = '/right';
-        }
+        // if (ultra1_reading < 13) {  
+        //     order = '/right';
+        // }
 
-        if (ultra2_reading < 13) {
-            order = '/left'
-        }
+        // if (ultra2_reading < 13) {
+        //     order = '/left'
+        // }
 
         // Send ajax to move the car
         send_ajax(ESP_IP + order, "Agnle: " + angle + " Order: " + order);
         Session.set('order', order);
         (async () => {
-            await delay(250);
+            await delay(100);
             send_ajax(ESP_IP + '/stop', "Order: stop");
             Session.set('order', 'stop');
         })();
@@ -428,7 +428,7 @@ Template.peerTable.helpers({
         if(Meteor.isCordova){
             peerID = 'xdm24wjo00360';
         } else {
-            peerID = 'xdm24wjo09400';
+            peerID = 'xdm24wjo09600';
         }
         
         peer = new Peer(peerID, {
@@ -604,7 +604,7 @@ if (Meteor.isCordova) {
 
                         // Add Success Component to UI
                         Session.set('espConnected', '1');
-                        getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 2500);
+                        // getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 800);
 
                         
                         // Send ESP_IP to server-side
@@ -659,7 +659,7 @@ if (Meteor.isCordova) {
                     })();
 
                     console.log("Connected Successfully: ", ESP_IP);
-                    getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 2500);
+                    // getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 800);
                     
                 }
             });
