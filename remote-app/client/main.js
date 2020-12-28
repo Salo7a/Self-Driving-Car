@@ -172,7 +172,7 @@ Template.AutoModeButtons.events({
         send_ajax(ESP_IP + '/play', "Start Moving The Car in Auto Mode...");
 
         // Start Processing The Stream
-        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 900);
+        processInterval = setInterval(Template.StreamArea.__helpers.get('startProcessing'), 800);
         if (ESP_IP != "null") {
             // getDataInterval = setInterval(Template.ConnectESP.__helpers.get('getData'), 300);
         } else {
@@ -315,7 +315,7 @@ Template.StreamArea.helpers({
         send_ajax(ESP_IP + order, "Agnle: " + angle + " Order: " + order);
         Session.set('order', order);
         (async () => {
-            await delay(100);
+            await delay(200);
             send_ajax(ESP_IP + '/stop', "Order: stop");
             Session.set('order', 'stop');
         })();
