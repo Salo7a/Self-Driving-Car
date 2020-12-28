@@ -29,6 +29,8 @@
 int connected = 0;
 int speed = 0;
 int temp = 0;
+int LeftU = 50;
+int RightU = 50;
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
 MFRC522::MIFARE_Key key;
@@ -105,6 +107,8 @@ void setup() {
   //  attachInterrupt(digitalPinToInterrupt(IRQ_PIN), readCard, FALLING);
   LeftS.Start();
   RightS.Start();
+  LeftS.SetTimeOutDistance(500);
+  RightS.SetTimeOutDistance(500);
 }
 
 
@@ -171,13 +175,38 @@ void loop() {
   //  Serial.print(LeftS.GetMeasureMM()/10);
   //  Serial.print(", Right: ");
   //  Serial.println(RightS.GetMeasureMM()/10);
-  Data = "$" + RFID + "," + String(LeftS.GetMeasureMM() / 10) + "," + String(RightS.GetMeasureMM() / 10) + "@";
+  temp = LeftS.GetFilteredMM()/10;
+  if(temp <= 50){
+    LeftU = temp;
+  }else {
+    LeftU = 50;
+    }
+  temp = RightS.GetFilteredMM()/10;
+  if(temp <= 50){
+    RightU = temp;
+  } else {
+    RightU = 50;
+    }
+  Data = "$" + RFID + "," + String(LeftU) + "," + String(RightU) + "@";
   Serial.println(Data);
   Serial3.print(Data);
 }
 
 void forward() {
   Serial.println("Forward");
+  // Ultra Conditions
+
+  if (LeftU < 20) {
+    right();
+    delay(400);
+    // break from forward
+  }
+
+  if (RightU < 20) {
+    left();
+    delay(400);
+    // break from forward
+  }
   digitalWrite(R1, HIGH);
   digitalWrite(R2, LOW);
   digitalWrite(L1, HIGH);
