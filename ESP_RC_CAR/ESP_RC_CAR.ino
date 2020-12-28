@@ -7,8 +7,8 @@
 //const char* ssid = "BODY-ALREFAEY-9031";
 //const char* password = "%rG15399";
 
-const char* ssid = "Refaey";
-const char* password = "Body@12345";
+//const char* ssid = "Refaey";
+//const char* password = "Body@12345";
 
 //const char* ssid = "MahdyKun";
 //const char* password = "ok1234de7k";
@@ -16,8 +16,8 @@ const char* password = "Body@12345";
 //const char* ssid = "RealmeC3";
 //const char* password = "12345678";
 
-//const char* ssid = "STUDBME2";
-//const char* password = "BME2Stud";
+const char* ssid = "STUDBME2";
+const char* password = "BME2Stud";
 
 //const char* ssid = "Cold";
 //const char* password = "Salah19998";
