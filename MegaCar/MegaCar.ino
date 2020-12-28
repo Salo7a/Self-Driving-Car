@@ -29,6 +29,8 @@
 int connected = 0;
 int speed = 0;
 int temp = 0;
+int LeftU = 50;
+int RightU = 50;
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 
 MFRC522::MIFARE_Key key;
@@ -39,7 +41,7 @@ byte regVal = 0x7F;
 void activateRec(MFRC522 mfrc522);
 void clearInt(MFRC522 mfrc522);
 
-void forward(), backwards(), left(), right(), stopc();
+void forward(), backwards(), left(), right(), stopc(), readings();
 //void PingRRecieved(AsyncSonar& sonar)
 //{
 //  Serial.print("Right: ");
@@ -105,12 +107,13 @@ void setup() {
   //  attachInterrupt(digitalPinToInterrupt(IRQ_PIN), readCard, FALLING);
   LeftS.Start();
   RightS.Start();
+  LeftS.SetTimeOutDistance(500);
+  RightS.SetTimeOutDistance(500);
 }
 
 
 void loop() {
-  LeftS.Start();
-  RightS.Start();
+
   // put your main code here, to run repeatedly:
   connected = digitalRead(CONNECTED);
   if (connected) {
@@ -123,8 +126,21 @@ void loop() {
     // analogWrite(SPEEDR, speed);
     // Serial.println(speed);
     if (digitalRead(FORWARD)) {
-      forward();
-    } else if (digitalRead(BACKWARDS)) {
+        if (LeftU < 13) {
+          left();
+          delay(100);
+          readings();
+          // break from forward
+        }else if (RightU < 13) {
+          right();
+          delay(100);
+          readings();
+          // break from forward
+        }else{
+          forward();
+    }
+      
+    } else if (digitalRead(BACKWARDS)) { 
       backwards();
     } else if (digitalRead(RIGHT)) {
       right();
@@ -162,6 +178,8 @@ void loop() {
     mfrc522.PCD_StopCrypto1();
   }
   //   activateRec(mfrc522);
+    LeftS.Start();
+  RightS.Start();
   delay(50);
   LeftS.Update();
   RightS.Update();
@@ -171,13 +189,28 @@ void loop() {
   //  Serial.print(LeftS.GetMeasureMM()/10);
   //  Serial.print(", Right: ");
   //  Serial.println(RightS.GetMeasureMM()/10);
-  Data = "$" + RFID + "," + String(LeftS.GetMeasureMM() / 10) + "," + String(RightS.GetMeasureMM() / 10) + "@";
+  temp = LeftS.GetFilteredMM()/10;
+  if(temp <= 50){
+    LeftU = temp;
+  }else {
+    LeftU = 50;
+    }
+  temp = RightS.GetFilteredMM()/10;
+  if(temp <= 50){
+    RightU = temp;
+  } else {
+    RightU = 50;
+    }
+  Data = "$" + RFID + "," + String(LeftU) + "," + String(RightU) + "@";
   Serial.println(Data);
   Serial3.print(Data);
 }
 
 void forward() {
   Serial.println("Forward");
+  // Ultra Conditions
+
+ 
   digitalWrite(R1, HIGH);
   digitalWrite(R2, LOW);
   digitalWrite(L1, HIGH);
@@ -278,4 +311,23 @@ void activateRec(MFRC522 mfrc522) {
 */
 void clearInt(MFRC522 mfrc522) {
   mfrc522.PCD_WriteRegister(mfrc522.ComIrqReg, 0x7F);
+}
+void readings() {
+    LeftS.Start();
+  RightS.Start();
+    delay(50);
+  LeftS.Update();
+  RightS.Update();
+    temp = LeftS.GetFilteredMM()/10;
+  if(temp <= 50){
+    LeftU = temp;
+  }else {
+    LeftU = 50;
+    }
+  temp = RightS.GetFilteredMM()/10;
+  if(temp <= 50){
+    RightU = temp;
+  } else {
+    RightU = 50;
+    }
 }
